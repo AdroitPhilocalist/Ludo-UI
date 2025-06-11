@@ -1,0 +1,1487 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    overflow-x: auto;
+}
+
+/* Game Header */
+.game-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.game-title {
+    color: #333;
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.game-controls .btn {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+}
+
+/* Header Configuration Display */
+.header-config-display {
+    flex-wrap: wrap;
+}
+
+.header-config-display .config-item {
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.header-config-display .config-item i {
+    color: #667eea;
+    font-size: 0.9rem;
+}
+
+.header-config-display .config-label {
+    font-weight: 500;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.header-config-display .config-value {
+    font-weight: 700;
+    color: #333;
+    font-size: 1rem;
+    background: #667eea;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    min-width: 25px;
+    text-align: center;
+}
+
+/* Game Container - Full screen board */
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 120px);
+    padding: 1rem;
+}
+
+.board-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Removed white background and wrapper styling */
+    width: 100%;
+    max-width: 90vw;
+}
+
+/* Ludo Board - Enhanced with wooden border */
+.ludo-board {
+    display: grid;
+    gap: 2px;
+    background-color: #333;
+    border: 3px solid #333;
+    border-radius: 15px;
+    margin: 0 auto;
+    
+    /* Wooden border container */
+    position: relative;
+    padding: 0;
+}
+
+/* Wooden Border Container */
+.ludo-board::before {
+    content: '';
+    position: absolute;
+    top: -25px;
+    left: -25px;
+    right: -25px;
+    bottom: -25px;
+    z-index: -1;
+    border-radius: 25px;
+    
+    /* Realistic wood grain background */
+    background: 
+        linear-gradient(90deg, transparent 50%, rgba(139, 85, 34, 0.1) 50%),
+        linear-gradient(0deg, transparent 50%, rgba(160, 103, 43, 0.1) 50%),
+        radial-gradient(ellipse at 30% 20%, rgba(101, 67, 33, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(139, 85, 34, 0.2) 0%, transparent 50%),
+        linear-gradient(135deg, 
+            #8B4513 0%,     /* Saddle Brown */
+            #A0522D 15%,    /* Sienna */
+            #CD853F 30%,    /* Peru */
+            #DEB887 45%,    /* Burlywood */
+            #D2B48C 60%,    /* Tan */
+            #BC9A6A 75%,    /* Wood tone */
+            #A0522D 90%,    /* Sienna */
+            #8B4513 100%    /* Saddle Brown */
+        );
+    
+    background-size: 8px 8px, 12px 12px, 40px 40px, 60px 60px, 100% 100%;
+    
+    /* Multiple layered shadows for depth */
+    box-shadow: 
+        /* Outer glow */
+        0 0 40px rgba(139, 69, 19, 0.4),
+        /* Main shadow */
+        0 15px 35px rgba(0, 0, 0, 0.3),
+        /* Inner shadow for carved effect */
+        inset 0 2px 4px rgba(255, 255, 255, 0.2),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        /* Highlight edges */
+        inset 2px 2px 8px rgba(255, 255, 255, 0.1),
+        inset -2px -2px 8px rgba(0, 0, 0, 0.2);
+    
+    /* Wood texture animation */
+    animation: subtleWoodShine 8s ease-in-out infinite;
+}
+
+/* Wooden Border Inner Edge */
+.ludo-board::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    z-index: -1;
+    border-radius: 20px;
+    
+    /* Inner wood border with different grain */
+    background: 
+        repeating-linear-gradient(90deg, 
+            #654321 0px, 
+            #8B4513 2px, 
+            #A0522D 4px, 
+            #8B4513 6px
+        ),
+        linear-gradient(135deg, 
+            #654321 0%,
+            #8B4513 25%,
+            #A0522D 50%,
+            #8B4513 75%,
+            #654321 100%
+        );
+    
+    /* Inner border shadow */
+    box-shadow: 
+        inset 0 0 10px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1),
+        0 0 20px rgba(139, 69, 19, 0.3);
+    
+    border: 2px solid #4A4A4A;
+}
+
+/* Wood shine animation */
+@keyframes subtleWoodShine {
+    0%, 100% {
+        filter: brightness(1) contrast(1);
+    }
+    50% {
+        filter: brightness(1.05) contrast(1.02);
+    }
+}
+
+/* Enhanced board shadow to work with wooden border */
+.ludo-board {
+    /* Enhanced shadow to make board stand out against wooden border */
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.4),
+        0 5px 15px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    
+    /* Optional: Add subtle backdrop blur effect */
+    backdrop-filter: blur(1px);
+}
+
+/* Optional: Add wood screws/bolts for extra realism */
+.ludo-board {
+    position: relative;
+}
+
+.ludo-board:before {
+    /* Add decorative corner elements */
+    box-shadow: 
+        /* Main wooden border shadows */
+        0 0 40px rgba(139, 69, 19, 0.4),
+        0 15px 35px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        inset 2px 2px 8px rgba(255, 255, 255, 0.1),
+        inset -2px -2px 8px rgba(0, 0, 0, 0.2),
+        
+        /* Corner bolts simulation */
+        -15px -15px 0 -10px #4A4A4A,
+        15px -15px 0 -10px #4A4A4A,
+        -15px 15px 0 -10px #4A4A4A,
+        15px 15px 0 -10px #4A4A4A;
+}
+
+/* Wooden border decorative corners */
+.game-container::before,
+.game-container::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #4A4A4A 30%, #8B4513 31%, #8B4513 70%, transparent 71%);
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.game-container {
+    position: relative;
+}
+
+.game-container::before {
+    top: calc(50% - 25px - 10px);
+    left: calc(50% - 25px - 10px);
+}
+
+.game-container::after {
+    top: calc(50% - 25px - 10px);
+    right: calc(50% - 25px - 10px);
+}
+
+/* Additional decorative elements */
+.board-wrapper {
+    position: relative;
+}
+
+.board-wrapper::before,
+.board-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #4A4A4A 30%, #8B4513 31%, #8B4513 70%, transparent 71%);
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.board-wrapper::before {
+    bottom: calc(50% - 25px - 10px);
+    left: calc(50% - 25px - 10px);
+}
+
+.board-wrapper::after {
+    bottom: calc(50% - 25px - 10px);
+    right: calc(50% - 25px - 10px);
+}
+
+/* Responsive wooden border */
+@media (max-width: 1400px) {
+    .ludo-board::before {
+        top: -20px;
+        left: -20px;
+        right: -20px;
+        bottom: -20px;
+    }
+    
+    .ludo-board::after {
+        top: -15px;
+        left: -15px;
+        right: -15px;
+        bottom: -15px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .ludo-board::before {
+        top: -18px;
+        left: -18px;
+        right: -18px;
+        bottom: -18px;
+    }
+    
+    .ludo-board::after {
+        top: -13px;
+        left: -13px;
+        right: -13px;
+        bottom: -13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ludo-board::before {
+        top: -15px;
+        left: -15px;
+        right: -15px;
+        bottom: -15px;
+    }
+    
+    .ludo-board::after {
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+    }
+    
+    .game-container::before,
+    .game-container::after,
+    .board-wrapper::before,
+    .board-wrapper::after {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ludo-board::before {
+        top: -12px;
+        left: -12px;
+        right: -12px;
+        bottom: -12px;
+    }
+    
+    .ludo-board::after {
+        top: -8px;
+        left: -8px;
+        right: -8px;
+        bottom: -8px;
+    }
+    
+    .game-container::before,
+    .game-container::after,
+    .board-wrapper::before,
+    .board-wrapper::after {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+/* Enhanced hover effect for the entire board with wooden border */
+.ludo-board:hover::before {
+    animation-duration: 4s;
+    filter: brightness(1.08) contrast(1.05);
+}
+
+/* Square Styles */
+.square {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.square:hover {
+    background-color: #f0f8ff;
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Board Size Specific Styles */
+.board-size-7 {
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+}
+
+.board-size-7 .square {
+    width: 70px;
+    height: 70px;
+    font-size: 14px;
+}
+
+.board-size-9 {
+    grid-template-columns: repeat(11, 1fr);
+    grid-template-rows: repeat(11, 1fr);
+}
+
+.board-size-9 .square {
+    width: 65px;
+    height: 65px;
+    font-size: 13px;
+}
+
+.board-size-11 {
+    grid-template-columns: repeat(13, 1fr);
+    grid-template-rows: repeat(13, 1fr);
+}
+
+.board-size-11 .square {
+    width: 60px;
+    height: 60px;
+    font-size: 12px;
+}
+
+.board-size-13 {
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+}
+
+.board-size-13 .square {
+    width: 58px;
+    height: 58px;
+    font-size: 11px;
+}
+
+/* Ludo Player Colors */
+:root {
+    --red-color: #e74c3c;
+    --blue-color: #3498db;
+    --green-color: #27ae60;
+    --yellow-color: #f1c40f;
+    --red-light: #fadbd8;
+    --blue-light: #d6eaf8;
+    --green-light: #d5f4e6;
+    --yellow-light: #fef9e7;
+}
+
+/* Home Areas with Player Colors */
+.square.home-area {
+    border: 3px solid #6c757d;
+    font-weight: 600;
+    position: relative;
+}
+
+.square.red-home {
+    background: linear-gradient(135deg, var(--red-light), #f1948a);
+    border: 3px solid var(--red-color);
+    color: #922b21;
+}
+
+.square.blue-home {
+    background: linear-gradient(135deg, var(--blue-light), #85c1e9);
+    border: 3px solid var(--blue-color);
+    color: #1b4f72;
+}
+
+.square.green-home {
+    background: linear-gradient(135deg, var(--green-light), #82e0aa);
+    border: 3px solid var(--green-color);
+    color: #0e4b1c;
+}
+
+.square.yellow-home {
+    background: linear-gradient(135deg, var(--yellow-light), #f7dc6f);
+    border: 3px solid var(--yellow-color);
+    color: #7d6608;
+}
+
+/* Enhanced Center Square */
+.square.center {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    border: 4px solid #c0392b;
+    color: white;
+    font-weight: 800;
+    font-size: 16px;
+    position: relative;
+}
+
+.square.center::before {
+    content: '★';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Path Squares */
+.square.path {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border: 2px solid #bdc3c7;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+/* Normal Squares */
+.square.normal {
+    background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
+    border: 1px solid #95a5a6;
+    color: #34495e;
+}
+
+/* Player indicators in home areas */
+.square.red-home::after {
+    content: 'R';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--red-color);
+    background: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.square.blue-home::after {
+    content: 'B';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--blue-color);
+    background: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.square.green-home::after {
+    content: 'G';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--green-color);
+    background: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.square.yellow-home::after {
+    content: 'Y';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--yellow-color);
+    background: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Home Finish Area */
+.square.home-finish {
+    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    border: 3px solid #f39c12;
+    color: #2c3e50;
+    font-weight: 700;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.square.home-finish::before {
+    content: '🏠';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    z-index: 1;
+}
+
+.square.home-finish:hover {
+    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #f7dc6f 0%, #154360 100%);
+}
+
+/* Responsive home finish area icon size */
+@media (max-width: 1400px) {
+    .square.home-finish::before {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .square.home-finish::before {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .square.home-finish::before {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .square.home-finish::before {
+        font-size: 12px;
+    }
+}
+
+/* Animation for board generation */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.ludo-board {
+    animation: fadeInScale 0.6s ease-out;
+}
+
+.square {
+    animation: fadeInScale 0.3s ease-out;
+    animation-fill-mode: both;
+}
+
+/* Enhanced hover effects */
+.square:hover {
+    transform: scale(1.1) translateZ(0);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Better visual feedback */
+.square:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+/* Starting Squares */
+.square.starting-square {
+    border: 4px solid #2c3e50;
+    font-weight: 800;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.square.red-start {
+    background: linear-gradient(135deg, var(--red-color), #c0392b);
+    border: 4px solid #922b21;
+    color: white;
+}
+
+.square.blue-start {
+    background: linear-gradient(135deg, var(--blue-color), #2980b9);
+    border: 4px solid #1b4f72;
+    color: white;
+}
+
+.square.green-start {
+    background: linear-gradient(135deg, var(--green-color), #229954);
+    border: 4px solid #0e4b1c;
+    color: white;
+}
+
+.square.yellow-start {
+    background: linear-gradient(135deg, var(--yellow-color), #d4ac0d);
+    border: 4px solid #7d6608;
+    color: #2c3e50;
+    font-weight: 900;
+}
+
+/* Starting square icons */
+.square.red-start::before {
+    content: '🔴';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    z-index: 1;
+}
+
+.square.blue-start::before {
+    content: '🔵';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    z-index: 1;
+}
+
+.square.green-start::before {
+    content: '🟢';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    z-index: 1;
+}
+
+.square.yellow-start::before {
+    content: '🟡';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    z-index: 1;
+}
+
+/* Starting square labels */
+.square.red-start::after {
+    content: 'START';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.square.blue-start::after {
+    content: 'START';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.square.green-start::after {
+    content: 'START';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.square.yellow-start::after {
+    content: 'START';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+/* Enhanced hover effects for starting squares */
+.square.red-start:hover {
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+    transform: scale(1.15);
+    border-color: #e74c3c;
+}
+
+.square.blue-start:hover {
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
+    transform: scale(1.15);
+    border-color: #3498db;
+}
+
+.square.green-start:hover {
+    box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5);
+    transform: scale(1.15);
+    border-color: #27ae60;
+}
+
+.square.yellow-start:hover {
+    box-shadow: 0 8px 25px rgba(241, 196, 15, 0.5);
+    transform: scale(1.15);
+    border-color: #f1c40f;
+}
+
+/* Responsive starting square icon sizes */
+@media (max-width: 1400px) {
+    .square.red-start::before,
+    .square.blue-start::before,
+    .square.green-start::before,
+    .square.yellow-start::before {
+        font-size: 16px;
+    }
+    
+    .square.red-start::after,
+    .square.blue-start::after,
+    .square.green-start::after,
+    .square.yellow-start::after {
+        font-size: 7px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .square.red-start::before,
+    .square.blue-start::before,
+    .square.green-start::before,
+    .square.yellow-start::before {
+        font-size: 14px;
+    }
+    
+    .square.red-start::after,
+    .square.blue-start::after,
+    .square.green-start::after,
+    .square.yellow-start::after {
+        font-size: 6px;
+    }
+}
+
+@media (max-width: 768px) {
+    .square.red-start::before,
+    .square.blue-start::before,
+    .square.green-start::before,
+    .square.yellow-start::before {
+        font-size: 12px;
+    }
+    
+    .square.red-start::after,
+    .square.blue-start::after,
+    .square.green-start::after,
+    .square.yellow-start::after {
+        font-size: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .square.red-start::before,
+    .square.blue-start::before,
+    .square.green-start::before,
+    .square.yellow-start::before {
+        font-size: 10px;
+    }
+    
+    .square.red-start::after,
+    .square.blue-start::after,
+    .square.green-start::after,
+    .square.yellow-start::after {
+        font-size: 4px;
+        padding: 1px 2px;
+    }
+}
+
+/* Home Entrance Paths */
+.square.home-entrance {
+    border: 3px solid #34495e;
+    font-weight: 700;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.square.red-entrance {
+    background: linear-gradient(135deg, var(--red-light), #f5b7b1);
+    border: 3px solid var(--red-color);
+    color: var(--red-color);
+}
+
+.square.blue-entrance {
+    background: linear-gradient(135deg, var(--blue-light), #aed6f1);
+    border: 3px solid var(--blue-color);
+    color: var(--blue-color);
+}
+
+.square.green-entrance {
+    background: linear-gradient(135deg, var(--green-light), #a9dfbf);
+    border: 3px solid var(--green-color);
+    color: var(--green-color);
+}
+
+.square.yellow-entrance {
+    background: linear-gradient(135deg, var(--yellow-light), #f8c471);
+    border: 3px solid var(--yellow-color);
+    color: var(--yellow-color);
+}
+
+/* Home entrance path icons */
+.square.red-entrance::before {
+    content: '➤';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: var(--red-color);
+    z-index: 1;
+    font-weight: 900;
+}
+
+.square.blue-entrance::before {
+    content: '⬇';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: var(--blue-color);
+    z-index: 1;
+    font-weight: 900;
+}
+
+.square.green-entrance::before {
+    content: '⬆';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: var(--green-color);
+    z-index: 1;
+    font-weight: 900;
+}
+
+.square.yellow-entrance::before {
+    content: '⬅';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: var(--yellow-color);
+    z-index: 1;
+    font-weight: 900;
+}
+
+/* Home entrance path labels */
+.square.red-entrance::after {
+    content: 'HOME';
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7px;
+    font-weight: 800;
+    color: white;
+    background: var(--red-color);
+    padding: 1px 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.square.blue-entrance::after {
+    content: 'HOME';
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7px;
+    font-weight: 800;
+    color: white;
+    background: var(--blue-color);
+    padding: 1px 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.square.green-entrance::after {
+    content: 'HOME';
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7px;
+    font-weight: 800;
+    color: white;
+    background: var(--green-color);
+    padding: 1px 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.square.yellow-entrance::after {
+    content: 'HOME';
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7px;
+    font-weight: 800;
+    color: white;
+    background: var(--yellow-color);
+    padding: 1px 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* Enhanced hover effects for home entrance paths */
+.square.red-entrance:hover {
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #f1948a, var(--red-light));
+}
+
+.square.blue-entrance:hover {
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #85c1e9, var(--blue-light));
+}
+
+.square.green-entrance:hover {
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #82e0aa, var(--green-light));
+}
+
+.square.yellow-entrance:hover {
+    box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #f7dc6f, var(--yellow-light));
+}
+
+/* Responsive home entrance path icon and text sizes */
+@media (max-width: 1400px) {
+    .square.red-entrance::before,
+    .square.blue-entrance::before,
+    .square.green-entrance::before,
+    .square.yellow-entrance::before {
+        font-size: 14px;
+    }
+    
+    .square.red-entrance::after,
+    .square.blue-entrance::after,
+    .square.green-entrance::after,
+    .square.yellow-entrance::after {
+        font-size: 6px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .square.red-entrance::before,
+    .square.blue-entrance::before,
+    .square.green-entrance::before,
+    .square.yellow-entrance::before {
+        font-size: 12px;
+    }
+    
+    .square.red-entrance::after,
+    .square.blue-entrance::after,
+    .square.green-entrance::after,
+    .square.yellow-entrance::after {
+        font-size: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .square.red-entrance::before,
+    .square.blue-entrance::before,
+    .square.green-entrance::before,
+    .square.yellow-entrance::before {
+        font-size: 10px;
+    }
+    
+    .square.red-entrance::after,
+    .square.blue-entrance::after,
+    .square.green-entrance::after,
+    .square.yellow-entrance::after {
+        font-size: 4px;
+        padding: 1px 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .square.red-entrance::before,
+    .square.blue-entrance::before,
+    .square.green-entrance::before,
+    .square.yellow-entrance::before {
+        font-size: 8px;
+    }
+    
+    .square.red-entrance::after,
+    .square.blue-entrance::after,
+    .square.green-entrance::after,
+    .square.yellow-entrance::after {
+        font-size: 3px;
+        padding: 1px;
+    }
+}
+
+/* Safe Squares - Changed to vibrant purple/magenta */
+.square.safe-square {
+    background: linear-gradient(135deg, #e8d5ff, #c39bd3);
+    border: 3px solid #8e44ad;
+    color: #4a235a;
+    font-weight: 700;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+}
+
+.square.safe-square::before {
+    content: '⭐';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    z-index: 1;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+    color: #9b59b6;
+}
+
+.square.safe-square::after {
+    content: 'SAFE';
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7px;
+    font-weight: 800;
+    color: white;
+    background: #8e44ad;
+    padding: 1px 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.square.safe-square:hover {
+    box-shadow: 0 8px 25px rgba(142, 68, 173, 0.5);
+    transform: scale(1.15);
+    background: linear-gradient(135deg, #d2b4de, #e8d5ff);
+    border-color: #9b59b6;
+}
+
+
+/* Responsive safe square icon and text sizes */
+@media (max-width: 1400px) {
+    .square.safe-square::before {
+        font-size: 18px;
+    }
+    
+    .square.safe-square::after {
+        font-size: 6px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .square.safe-square::before {
+        font-size: 16px;
+    }
+    
+    .square.safe-square::after {
+        font-size: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .square.safe-square::before {
+        font-size: 14px;
+    }
+    
+    .square.safe-square::after {
+        font-size: 4px;
+        padding: 1px 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .square.safe-square::before {
+        font-size: 12px;
+    }
+    
+    .square.safe-square::after {
+        font-size: 3px;
+        padding: 1px;
+    }
+}
+
+/* Token Styles */
+.token {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.token-red {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #922b21;
+}
+
+.token-blue {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #1b4f72;
+}
+
+.token-green {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    border-color: #0e4b1c;
+}
+
+.token-yellow {
+    background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+    border-color: #7d6608;
+    color: #2c3e50;
+}
+
+/* Token hover effects */
+.token:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 15;
+}
+
+/* Token selection effect */
+.token.selected {
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: 0 0 20px currentColor, 0 4px 15px rgba(0, 0, 0, 0.4);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        transform: translate(-50%, -50%) scale(1.3); 
+    }
+    50% { 
+        transform: translate(-50%, -50%) scale(1.4); 
+    }
+}
+
+/* Multiple tokens in same square positioning */
+.square {
+    position: relative;
+}
+
+.square .token:nth-child(2) {
+    top: 35%;
+    left: 35%;
+}
+
+.square .token:nth-child(3) {
+    top: 35%;
+    left: 65%;
+}
+
+.square .token:nth-child(4) {
+    top: 65%;
+    left: 35%;
+}
+
+.square .token:nth-child(5) {
+    top: 65%;
+    left: 65%;
+}
+
+.square .token:nth-child(6) {
+    top: 20%;
+    left: 50%;
+}
+
+/* Coordinate text styling */
+.coord-text {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 8px;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 1px 2px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Hide coordinate text in production */
+.square.has-tokens .coord-text {
+    display: none;
+}
+
+/* Responsive token sizes */
+@media (max-width: 1400px) {
+    .token {
+        width: 22px;
+        height: 22px;
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .token {
+        width: 20px;
+        height: 20px;
+        font-size: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .token {
+        width: 18px;
+        height: 18px;
+        font-size: 7px;
+        border-width: 1px;
+    }
+    
+    .square .token:nth-child(2) {
+        top: 30%;
+        left: 30%;
+    }
+    
+    .square .token:nth-child(3) {
+        top: 30%;
+        left: 70%;
+    }
+    
+    .square .token:nth-child(4) {
+        top: 70%;
+        left: 30%;
+    }
+    
+    .square .token:nth-child(5) {
+        top: 70%;
+        left: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    .token {
+        width: 16px;
+        height: 16px;
+        font-size: 6px;
+    }
+    
+    .coord-text {
+        font-size: 6px;
+    }
+}
+
+/* Token animations for entry/movement */
+@keyframes tokenEntry {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.token {
+    animation: tokenEntry 0.5s ease-out;
+}
+
+/* Special effects for token interactions */
+.token.moving {
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.token.captured {
+    animation: captureEffect 0.6s ease-out forwards;
+}
+
+@keyframes captureEffect {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5) rotate(180deg);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Winner celebration effect */
+.token.winner {
+    animation: winnerCelebration 2s ease-in-out infinite;
+}
+
+@keyframes winnerCelebration {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px currentColor;
+    }
+    25% {
+        transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
+        box-shadow: 0 0 30px currentColor;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.4) rotate(180deg);
+        box-shadow: 0 0 40px currentColor;
+    }
+    75% {
+        transform: translate(-50%, -50%) scale(1.2) rotate(270deg);
+        box-shadow: 0 0 30px currentColor;
+    }
+}
+
+/* Token stacking for multiple tokens in same square */
+.square.multiple-tokens .token {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.square.multiple-tokens .token:hover {
+    z-index: 20;
+}
+
+/* Token count indicator for home areas */
+.square.home-area::before {
+    content: attr(data-token-count);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 8px;
+    min-width: 16px;
+    text-align: center;
+    z-index: 5;
+    display: none;
+}
+
+.square.home-area.has-tokens::before {
+    display: block;
+}

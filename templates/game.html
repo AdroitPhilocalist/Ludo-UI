@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Animate.css for enhanced animations -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/game.css') }}"
+    />
+    <title>Ludo Game Board</title>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <!-- Game Header with Configuration Display -->
+      <div class="game-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="game-title">
+            <i class="fas fa-dice-six me-2"></i>
+            Ludo Master
+          </h1>
+
+          <!-- Configuration Display moved to header -->
+          <div class="header-config-display d-flex align-items-center">
+            <div class="config-item me-3">
+              <i class="fas fa-users me-1"></i>
+              <span class="config-label">Players:</span>
+              <span class="config-value" id="display-players"
+                >{{ num_players }}</span
+              >
+            </div>
+            <div class="config-item me-3">
+              <i class="fas fa-chess-pawn me-1"></i>
+              <span class="config-label">Tokens:</span>
+              <span class="config-value" id="display-tokens"
+                >{{ num_tokens }}</span
+              >
+            </div>
+            <div class="config-item me-4">
+              <i class="fas fa-th-large me-1"></i>
+              <span class="config-label">Board:</span>
+              <span class="config-value" id="display-board-size"
+                >{{ board_size }}</span
+              >
+            </div>
+          </div>
+
+          <div class="game-controls">
+            <button class="btn btn-outline-primary me-2" onclick="goHome()">
+              <i class="fas fa-home me-1"></i> Home
+            </button>
+            <button class="btn btn-success" onclick="regenerateBoard()">
+              <i class="fas fa-sync me-1"></i> New Game
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Board Container - Full width and height -->
+      <div class="game-container">
+        <div class="board-wrapper">
+          <div id="ludoBoard" class="ludo-board"></div>
+        </div>
+
+        <!-- 3D Dice Container - Bottom Left -->
+        <div class="dice-container">
+          <div class="dice-card">
+            <div class="dice-header">
+              <h5 class="dice-title">
+                <i class="fas fa-dice me-2"></i>
+                Roll Dice
+              </h5>
+              <div class="current-player">
+                <span class="player-indicator" id="currentPlayerIndicator">Player 1</span>
+              </div>
+            </div>
+            
+            <div class="dice-area">
+              <!-- Three 3D Dice -->
+              <div class="dice-wrapper">
+                <div class="dice" id="dice1">
+                  <div class="dice-face dice-face-1" data-value="1">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-2" data-value="2">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-3" data-value="3">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-4" data-value="4">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-5" data-value="5">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-6" data-value="6">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                </div>
+                
+                <div class="dice" id="dice2">
+                  <div class="dice-face dice-face-1" data-value="1">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-2" data-value="2">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-3" data-value="3">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-4" data-value="4">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-5" data-value="5">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-6" data-value="6">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                </div>
+                
+                <div class="dice" id="dice3">
+                  <div class="dice-face dice-face-1" data-value="1">
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-2" data-value="2">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-3" data-value="3">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-4" data-value="4">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-5" data-value="5">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                  <div class="dice-face dice-face-6" data-value="6">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Dice Values Display -->
+              <div class="dice-values" id="diceValues">
+                <div class="dice-value" id="value1">1</div>
+                <div class="dice-value" id="value2">2</div>
+                <div class="dice-value" id="value3">3</div>
+              </div>
+            </div>
+            
+            <!-- Roll Button -->
+            <div class="dice-controls">
+              <button class="btn-roll-dice" id="rollDiceBtn" onclick="rollDice()">
+                <i class="fas fa-dice-d6 me-2"></i>
+                <span class="roll-text">Roll Dice</span>
+                <div class="roll-effects"></div>
+              </button>
+              
+              <!-- Move Sequence Display -->
+              <div class="move-sequence" id="moveSequence">
+                <div class="sequence-info">Next moves:</div>
+                <div class="move-order" id="moveOrder">
+                  <span class="move-step player-1">P1</span>
+                  <span class="move-step player-2">P2</span>
+                  <span class="move-step player-1">P1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pass Flask data to JavaScript -->
+    <script>
+      window.gameConfig = {
+        numPlayers: "{{ num_players }}",
+        numTokens: "{{ num_tokens }}",
+        boardSize: "{{ board_size }}"
+      };
+      console.log('Game config loaded:', window.gameConfig);
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+    <!-- Dice JS -->
+    <script src="{{ url_for('static', filename='js/dice.js') }}"></script>
+  </body>
+</html>

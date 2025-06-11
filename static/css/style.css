@@ -1,0 +1,1567 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow-x: hidden;
+    position: relative;
+}
+
+h1, h2, h3 {
+    color: #333;
+    text-align: center;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+.header {
+    background: #007bff;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.button {
+    display: inline-block;
+    font-size: 18px;
+    color: #fff;
+    background: #28a745;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.button:hover {
+    background: #218838;
+}
+
+.select-container {
+    margin: 20px 0;
+}
+
+.select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    background: #007bff;
+    color: #fff;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Animated Background */
+.animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Floating Shapes */
+.floating-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.shape {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+}
+
+.shape-1 {
+    width: 80px;
+    height: 80px;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 120px;
+    height: 120px;
+    left: 80%;
+    animation-delay: 5s;
+}
+
+.shape-3 {
+    width: 60px;
+    height: 60px;
+    left: 50%;
+    animation-delay: 10s;
+}
+
+.shape-4 {
+    width: 100px;
+    height: 100px;
+    left: 20%;
+    animation-delay: 15s;
+}
+
+.shape-5 {
+    width: 90px;
+    height: 90px;
+    left: 70%;
+    animation-delay: 7s;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Game Logo */
+.game-logo {
+    text-align: center;
+}
+
+.game-icon {
+    font-size: 4rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.game-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    letter-spacing: 3px;
+    margin: 0;
+}
+
+.game-title .highlight {
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.game-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+/* Configuration Card */
+.config-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.config-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { background-position: 200% 0; }
+    50% { background-position: -200% 0; }
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.card-header h3 {
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-header p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Configuration Sections */
+.config-section {
+    margin-bottom: 2.5rem;
+}
+
+.config-label {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.config-label i {
+    margin-right: 0.5rem;
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+/* Selection Grid */
+.selection-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.players-grid, .tokens-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.board-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.selection-grid input[type="radio"] {
+    display: none;
+}
+
+.selection-card {
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.selection-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.selection-card:hover::before {
+    left: 100%;
+}
+
+.selection-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+}
+
+.selection-card input[type="radio"]:checked + .selection-card,
+.selection-grid input[type="radio"]:checked + .selection-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.selection-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.selection-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* Start Game Button */
+.start-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.start-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+}
+
+.start-btn:active {
+    transform: translateY(0);
+}
+
+.btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+.btn-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.start-btn:active .btn-ripple {
+    width: 300px;
+    height: 300px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .config-card {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .players-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .tokens-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .board-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .selection-card {
+        padding: 1rem 0.5rem;
+    }
+    
+    .selection-number {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 2rem;
+        letter-spacing: 1px;
+    }
+    
+    .game-icon {
+        font-size: 3rem;
+    }
+    
+    .start-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+/* Game Page Styles */
+.game-body {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Game Header */
+.game-header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.game-logo-small {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.game-status {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.current-player {
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Game Container - Updated for centered layout */
+.game-container {
+    padding: 1rem 0;
+    min-height: calc(100vh - 80px);
+    max-width: 100vw;
+    overflow-x: hidden;
+    background: transparent !important;
+}
+
+/* Left Sidebar - Players */
+.left-sidebar {
+    padding: 0 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    animation: slideInLeft 0.6s ease-out;
+}
+
+/* Right Sidebar - Controls */
+.right-sidebar {
+    padding: 0 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    animation: slideInRight 0.6s ease-out;
+}
+
+/* Enhanced Players Info - Compact */
+.players-info {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 15px;
+    padding: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 1rem;
+}
+
+.players-info h5 {
+    color: #333;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 1rem;
+}
+
+/* Update .ludo-board to remove white background */
+.ludo-board {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    min-width: 450px;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    overflow: visible;
+    background: transparent; /* Changed from #ffffff to transparent */
+    backdrop-filter: none; /* Remove backdrop filter */
+    padding: 0;
+    
+    /* Keep existing grid properties */
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 1px;
+    
+    /* Ensure no parent background shows through */
+    z-index: 10;
+}
+
+/* Enhanced Player Cards - More Compact */
+.player-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 12px;
+    padding: 0.8rem;
+    margin-bottom: 0.6rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+.player-card.active {
+    transform: scale(1.03);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+}
+
+.player-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.6), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.player-card.active::after {
+    opacity: 1;
+    background: linear-gradient(to bottom, transparent, #ffd700, transparent);
+}
+
+.player-name {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Enhanced Player Stats - Compact */
+.player-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    font-size: 0.75rem;
+}
+
+.stat-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0.3rem 0.2rem;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.stat-label {
+    display: block;
+    opacity: 0.8;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.stat-value {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-top: 0.1rem;
+}
+
+/* Enhanced Token Indicators - Compact */
+.player-tokens {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.token-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.token-indicator.home {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.token-indicator.active {
+    background: white;
+    transform: scale(1.2);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+}
+
+.token-indicator.finished {
+    background: #4CAF50;
+    border-color: #4CAF50;
+    transform: scale(1.3);
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+}
+
+.token-indicator.finished::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+}
+
+/* Enhanced Controls - Compact */
+.config-display, .dice-area {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 15px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.config-display h5, .dice-area h5 {
+    color: #333;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.config-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.config-value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Enhanced Dice Area - Compact */
+.dice-container {
+    text-align: center;
+}
+
+.dice {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #fff, #f8f9fa);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #e9ecef;
+}
+
+.dice::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.dice:hover::before {
+    transform: translateX(100%);
+}
+
+.dice.rolling {
+    animation: diceRoll 1s ease-in-out;
+    border-color: #667eea;
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.3);
+}
+
+.dice-face {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Roll Button - Compact */
+#roll-dice-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#roll-dice-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+#roll-dice-btn:active {
+    transform: translateY(0);
+}
+
+#roll-dice-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#roll-dice-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+#roll-dice-btn:hover::before {
+    left: 100%;
+}
+
+/* Responsive Design for New Layout */
+@media (max-width: 1400px) {
+    .ludo-board {
+        max-width: 550px; /* Increased from 500px */
+        min-width: 400px; /* Increased from 350px */
+    }
+}
+
+@media (max-width: 1200px) {
+    .ludo-board {
+        max-width: 500px; /* Increased from 450px */
+        min-width: 350px; /* Increased from 320px */
+    }
+    
+    .left-sidebar, .right-sidebar {
+        padding: 0 0.3rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .game-container {
+        padding: 0.5rem 0;
+    }
+    
+    .ludo-board {
+        max-width: 450px; /* Increased from 400px */
+        min-width: 320px; /* Increased from 300px */
+        margin-bottom: 1.5rem;
+    }
+    
+    .left-sidebar, .right-sidebar {
+        margin-bottom: 0.8rem;
+    }
+    
+    .player-card {
+        margin-bottom: 0.5rem;
+        padding: 0.7rem;
+    }
+    
+    .players-info, .config-display, .dice-area {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-sidebar {
+        order: 2;
+    }
+    
+    .right-sidebar {
+        order: 3;
+    }
+    
+    .ludo-board {
+        max-width: 400px; /* Increased from 350px */
+        min-width: 300px; /* Increased from 280px */
+    }
+    
+    .player-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.3rem;
+    }
+    
+    .dice {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .dice-face {
+        font-size: 1.8rem;
+    }
+    
+    #roll-dice-btn {
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .game-container {
+        padding: 0.3rem 0;
+    }
+    
+    .ludo-board {
+        max-width: 350px; /* Increased from 320px */
+        min-width: 280px; /* Increased from 260px */
+        padding: 0; /* Remove any padding on small screens */
+    }
+    
+    .left-sidebar, .right-sidebar {
+        padding: 0 0.2rem;
+    }
+    
+    .player-card {
+        padding: 0.6rem;
+    }
+    
+    .players-info, .config-display, .dice-area {
+        padding: 0.8rem;
+    }
+    
+    .stat-item {
+        padding: 0.2rem 0.1rem;
+    }
+    
+    .token-indicator {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .dice {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .dice-face {
+        font-size: 1.5rem;
+    }
+}
+
+/* Add subtle animations for better UX */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Game Sidebar */
+.game-sidebar {
+    padding: 0 1rem;
+}
+
+.config-display, .players-info, .dice-area {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.config-display h5, .players-info h5, .dice-area h5 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.config-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.config-value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Player Cards */
+.player-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.player-card.active {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.player-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.player-card:hover::before {
+    left: 100%;
+}
+
+.player-name {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.player-tokens {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.token-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.token-indicator.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+/* Dice Area */
+.dice-container {
+    text-align: center;
+}
+
+.dice {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dice.rolling {
+    animation: diceRoll 1s ease-in-out;
+}
+
+@keyframes diceRoll {
+    0%, 100% { transform: rotateX(0deg) rotateY(0deg); }
+    25% { transform: rotateX(90deg) rotateY(0deg); }
+    50% { transform: rotateX(180deg) rotateY(90deg); }
+    75% { transform: rotateX(270deg) rotateY(180deg); }
+}
+
+.dice-face {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.dice-dots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 5px;
+    width: 60px;
+    height: 60px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+/* Game Board Area */
+.game-board-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ludo Board */
+.ludo-board {
+    position: relative;
+    width: 100%;
+    max-width: 600px; /* Increased from 550px */
+    min-width: 450px; /* Increased from 400px */
+    aspect-ratio: 1;
+    margin: 0 auto; /* This centers the board horizontally */
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    overflow: visible;
+    background: transparent; /* Changed to solid white instead of transparent */
+    backdrop-filter: none; /* Remove backdrop filter */
+    padding: 0;
+    
+    /* Keep existing grid properties */
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 1px;
+}
+
+/* Board Squares */
+.board-square {
+    background: #f8f9fa; /* Keep the light background for board squares */
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+    border-radius: 3px;
+}
+
+.board-square:hover {
+    background: #e9ecef;
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+.board-square.safe {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.board-square.start {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+}
+
+.board-square.finish {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+    color: white;
+}
+
+.board-square.home-area {
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px dashed #ccc;
+}
+
+/* Home Areas */
+.home-red { 
+    background: linear-gradient(135deg, #f44336, #d32f2f) !important; 
+}
+.home-green { 
+    background: linear-gradient(135deg, #4CAF50, #388E3C) !important; 
+}
+.home-blue { 
+    background: linear-gradient(135deg, #2196F3, #1976D2) !important; 
+}
+.home-yellow { 
+    background: linear-gradient(135deg, #FFEB3B, #FBC02D) !important; 
+}
+
+/* Tokens */
+.token {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.token:hover {
+    transform: scale(1.2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.token.selected {
+    transform: scale(1.3);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    animation: tokenPulse 1s ease-in-out infinite;
+}
+
+@keyframes tokenPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+    50% { box-shadow: 0 0 30px rgba(255, 255, 255, 1); }
+}
+
+.token-red { background: linear-gradient(135deg, #f44336, #d32f2f); }
+.token-green { background: linear-gradient(135deg, #4CAF50, #388E3C); }
+.token-blue { background: linear-gradient(135deg, #2196F3, #1976D2); }
+.token-yellow { background: linear-gradient(135deg, #FFEB3B, #FBC02D); }
+
+/* Game Animations */
+@keyframes tokenMove {
+    0% { transform: scale(1.2); }
+    50% { transform: scale(1.4) translateY(-10px); }
+    100% { transform: scale(1.2); }
+}
+
+.token.moving {
+    animation: tokenMove 0.5s ease-in-out;
+}
+
+/* Center Logo */
+.center-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.center-logo i {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .ludo-board {
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 992px) {
+    .game-container {
+        padding: 1rem 0;
+    }
+    
+    .ludo-board {
+        max-width: 450px;
+    }
+    
+    .config-display, .players-info, .dice-area {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-header {
+        padding: 0.5rem 0;
+    }
+    
+    .game-logo-small {
+        font-size: 1.2rem;
+    }
+    
+    .current-player {
+        font-size: 1rem;
+    }
+    
+    .ludo-board {
+        max-width: 350px;
+    }
+    
+    .dice {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .dice-face {
+        font-size: 1.5rem;
+    }
+}
+
+/* Victory Animation */
+@keyframes victory {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(5deg); }
+    75% { transform: scale(1.1) rotate(-5deg); }
+}
+
+.victory-animation {
+    animation: victory 0.5s ease-in-out 3;
+}
+
+/* Notification Styles */
+.game-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    text-align: center;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.game-notification.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.game-notification h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.game-notification .btn {
+    margin: 0 0.5rem;
+}
+
+/* Force remove any backgrounds that might be interfering */
+.ludo-board * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure parent containers are transparent */
+.ludo-board:before,
+.ludo-board:after {
+    display: none !important;
+}
+
+/* Remove or comment out any .game-board-area styles */
+/*
+.game-board-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1); // This might be causing the issue
+    border-radius: 20px;
+    padding: 1rem;
+}
+*/
+
+/* Update .ludo-board to ensure no background interference */
+.ludo-board {
+    position: relative;
+    width: 100%;
+    max-width: 600px; /* Increased from 550px */
+    min-width: 450px; /* Increased from 400px */
+    aspect-ratio: 1;
+    margin: 0 auto;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    overflow: visible;
+    background: transparent; /* Changed to solid white instead of transparent */
+    backdrop-filter: none; /* Remove backdrop filter */
+    padding: 0;
+    
+    /* Keep existing grid properties */
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 1px;
+    
+    /* Ensure no parent background shows through */
+    z-index: 10;
+}
+
+/* Remove the ::before pseudo-element that might be creating the background */
+/*
+.ludo-board::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+    z-index: -1;
+    border-radius: 20px;
+}
+*/
+
+/* Ensure the Bootstrap column has no background and proper styling */
+.col-xl-6 {
+    background: transparent !important;
+    padding: 0 !important;
+    position: relative;
+    overflow: visible; /* Changed from hidden to visible */
+}
+
+/* Make sure the board container fills the column properly */
+.col-xl-6::before,
+.col-xl-6::after {
+    display: none !important;
+}
+
+/* Remove any potential Bootstrap backgrounds */
+.row {
+    background: transparent !important;
+    margin: 0 !important;
+}
+
+.container-fluid {
+    background: transparent !important;
+}
+
+/* Force all parent containers to be transparent */
+.game-container,
+.game-container .row,
+.game-container .col-xl-6,
+.game-container .col-lg-4 {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+/* Responsive updates for larger board */
+@media (max-width: 1400px) {
+    .ludo-board {
+        max-width: 550px; /* Increased from 500px */
+        min-width: 400px; /* Increased from 350px */
+    }
+}
+
+@media (max-width: 1200px) {
+    .ludo-board {
+        max-width: 500px; /* Increased from 450px */
+        min-width: 350px; /* Increased from 320px */
+    }
+    
+    .left-sidebar, .right-sidebar {
+        padding: 0 0.3rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .game-container {
+        padding: 0.5rem 0;
+    }
+    
+    .ludo-board {
+        max-width: 450px; /* Increased from 400px */
+        min-width: 320px; /* Increased from 300px */
+        margin-bottom: 1.5rem;
+    }
+    
+    .left-sidebar, .right-sidebar {
+        margin-bottom: 0.8rem;
+    }
+    
+    .player-card {
+        margin-bottom: 0.5rem;
+        padding: 0.7rem;
+    }
+    
+    .players-info, .config-display, .dice-area {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-sidebar {
+        order: 2;
+    }
+    
+    .right-sidebar {
+        order: 3;
+    }
+    
+    .ludo-board {
+        max-width: 400px; /* Increased from 350px */
+        min-width: 300px; /* Increased from 280px */
+    }
+    
+    .player-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.3rem;
+    }
+    
+    .dice {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .dice-face {
+        font-size: 1.8rem;
+    }
+    
+    #roll-dice-btn {
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .game-container {
+        padding: 0.3rem 0;
+    }
+    
+    .ludo-board {
+        max-width: 350px; /* Increased from 320px */
+        min-width: 280px; /* Increased from 260px */
+        padding: 0; /* Remove any padding on small screens */
+    }
+    
+    .left-sidebar, .right-sidebar {
+        padding: 0 0.2rem;
+    }
+    
+    .player-card {
+        padding: 0.6rem;
+    }
+    
+    .players-info, .config-display, .dice-area {
+        padding: 0.8rem;
+    }
+    
+    .stat-item {
+        padding: 0.2rem 0.1rem;
+    }
+    
+    .token-indicator {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .dice {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .dice-face {
+        font-size: 1.5rem;
+    }
+}

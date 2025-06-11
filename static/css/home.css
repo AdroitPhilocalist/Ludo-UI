@@ -1,0 +1,438 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow-x: hidden;
+    position: relative;
+}
+
+h1, h2, h3 {
+    color: #333;
+    text-align: center;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+.header {
+    background: #007bff;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.button {
+    display: inline-block;
+    font-size: 18px;
+    color: #fff;
+    background: #28a745;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.button:hover {
+    background: #218838;
+}
+
+.select-container {
+    margin: 20px 0;
+}
+
+.select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    background: #007bff;
+    color: #fff;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Animated Background */
+.animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Floating Shapes */
+.floating-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.shape {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+}
+
+.shape-1 {
+    width: 80px;
+    height: 80px;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 120px;
+    height: 120px;
+    left: 80%;
+    animation-delay: 5s;
+}
+
+.shape-3 {
+    width: 60px;
+    height: 60px;
+    left: 50%;
+    animation-delay: 10s;
+}
+
+.shape-4 {
+    width: 100px;
+    height: 100px;
+    left: 20%;
+    animation-delay: 15s;
+}
+
+.shape-5 {
+    width: 90px;
+    height: 90px;
+    left: 70%;
+    animation-delay: 7s;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Game Logo */
+.game-logo {
+    text-align: center;
+}
+
+.game-icon {
+    font-size: 4rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.game-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    letter-spacing: 3px;
+    margin: 0;
+}
+
+.game-title .highlight {
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.game-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+/* Configuration Card */
+.config-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.config-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { background-position: 200% 0; }
+    50% { background-position: -200% 0; }
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.card-header h3 {
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-header p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Configuration Sections */
+.config-section {
+    margin-bottom: 2.5rem;
+}
+
+.config-label {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.config-label i {
+    margin-right: 0.5rem;
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+/* Selection Grid */
+.selection-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.players-grid, .tokens-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.board-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.selection-grid input[type="radio"] {
+    display: none;
+}
+
+.selection-card {
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.selection-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.selection-card:hover::before {
+    left: 100%;
+}
+
+.selection-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+}
+
+.selection-card input[type="radio"]:checked + .selection-card,
+.selection-grid input[type="radio"]:checked + .selection-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.selection-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.selection-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* Start Game Button */
+.start-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.start-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+}
+
+.start-btn:active {
+    transform: translateY(0);
+}
+
+.btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+.btn-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.start-btn:active .btn-ripple {
+    width: 300px;
+    height: 300px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .config-card {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .players-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .tokens-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .board-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .selection-card {
+        padding: 1rem 0.5rem;
+    }
+    
+    .selection-number {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 2rem;
+        letter-spacing: 1px;
+    }
+    
+    .game-icon {
+        font-size: 3rem;
+    }
+    
+    .start-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}
