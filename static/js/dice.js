@@ -165,18 +165,18 @@ class DiceRoller {
     }
     
     setDiceFace(diceElement, value) {
-        // Calculate rotation needed to show the correct face
-        const rotations = {
-            1: 'rotateY(0deg) rotateX(0deg)',
-            2: 'rotateY(90deg) rotateX(0deg)',
-            3: 'rotateY(180deg) rotateX(0deg)',
-            4: 'rotateY(-90deg) rotateX(0deg)',
-            5: 'rotateX(90deg) rotateY(0deg)',
-            6: 'rotateX(-90deg) rotateY(0deg)'
-        };
-        
-        diceElement.style.transform = rotations[value];
-    }
+    // Fixed rotation mappings to show correct face values
+    const rotations = {
+        1: 'rotateY(0deg) rotateX(0deg)',        // Face 1 (front)
+        2: 'rotateY(-90deg) rotateX(0deg)',      // Face 4 -> Face 2 (left side)
+        3: 'rotateY(180deg) rotateX(0deg)',      // Face 3 (back) - correct
+        4: 'rotateY(90deg) rotateX(0deg)',       // Face 2 -> Face 4 (right side)
+        5: 'rotateX(-90deg) rotateY(0deg)',      // Face 6 -> Face 5 (top)
+        6: 'rotateX(90deg) rotateY(0deg)'        // Face 5 -> Face 6 (bottom)
+    };
+    
+    diceElement.style.transform = rotations[value];
+}
     
     animateMoveSequence(diceValues) {
         const moveSteps = document.querySelectorAll('.move-step');
