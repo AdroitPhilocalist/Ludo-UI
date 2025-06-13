@@ -111,9 +111,9 @@ class DiceRoller {
         
         // Generate random values
         const values = [
-            Math.floor(Math.random() * 6) + 1,
-            Math.floor(Math.random() * 6) + 1,
-            Math.floor(Math.random() * 6) + 1
+            Math.floor(Math.random() * 5) + 1,
+            Math.floor(Math.random() * 5) + 1,
+            Math.floor(Math.random() * 5) + 1
         ];
         
         // Wait for longest animation to complete

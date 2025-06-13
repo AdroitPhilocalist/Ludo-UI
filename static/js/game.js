@@ -1,27 +1,77 @@
 // Import constants if available
-// import { getBoardConfig, PLAYERS, COLORS } from './constants.js';
+import { getBoardConfig, PLAYERS, COLORS, UTILS } from './constants.js';
 
 class LudoGame {
     constructor() {
         this.boardElement = document.getElementById('ludoBoard');
         this.config = window.gameConfig;
         this.tokens = {}; // Store token positions and states
+        this.gameState = 'WAITING_FOR_DICE'; // Current game state
+        this.currentPlayer = 1; // Current player (1-based)
+        this.gameHistory = []; // Store all moves
+        this.moveCount = {}; // Track moves per player
+        this.currentRound = 0;
+        this.boardConfig = null;
+        this.finalPosition = 0; // Dynamic final position based on board size
+        this.maxMoves = 0; // Dynamic move limit
+        this.safeSquares = []; // Dynamic safe squares
+        this.playerPositions = {}; // Track actual game positions (like Python version)
         
         this.initializeGame();
     }
     
     initializeGame() {
         console.log('Initializing Ludo Game with config:', this.config);
+        this.setupGameConfiguration();
         this.initializeTokens();
+        this.initializeGameLogs();
         this.generateBoard();
         this.updateStatusDisplay();
+        this.connectDiceRoller();
+    }
+    
+    setupGameConfiguration() {
+        // Get board configuration from constants
+        this.boardConfig = getBoardConfig(this.config.boardSize);
+        
+        // Calculate dynamic final position based on board size
+        this.finalPosition = this.calculateFinalPosition();
+        
+        // Set dynamic move limits
+        const numPlayers = parseInt(this.config.numPlayers);
+        const baseRounds = 16;
+        this.maxMoves = Math.floor(baseRounds * 1.5);
+        
+        // Initialize move counters for all players
+        for (let i = 1; i <= numPlayers; i++) {
+            this.moveCount[i] = 0;
+        }
+        
+        // Get safe squares from board configuration
+        this.safeSquares = this.boardConfig.SAFE_SQUARES.map(sq => `${sq.row},${sq.col}`);
+        
+        console.log('Game configuration:', {
+            finalPosition: this.finalPosition,
+            maxMoves: this.maxMoves,
+            safeSquares: this.safeSquares,
+            boardConfig: this.boardConfig
+        });
+    }
+    
+    calculateFinalPosition() {
+        // Calculate final position based on path length
+        const boardSize = parseInt(this.config.boardSize);
+        
+        // Use the longest path as reference (typically RED player path)
+        const redPath = this.boardConfig.GAME_PATHS.RED;
+        return redPath.length - 1; // Last index in path
     }
     
     getActivePlayers() {
         const numPlayers = parseInt(this.config.numPlayers);
         
         // Define player arrangements based on number of players
-        switch (numPlayers) {
+       switch (numPlayers) {
             case 2:
                 // For 2 players: Blue and Green (diagonally opposite)
                 return ['BLUE', 'GREEN'];
@@ -41,23 +91,500 @@ class LudoGame {
         const activePlayers = this.getActivePlayers();
         
         // Initialize token data for active players only
-        activePlayers.forEach(player => {
+        activePlayers.forEach((player, playerIndex) => {
+            const playerId = playerIndex + 1; // Convert to 1-based player ID
+            
             this.tokens[player] = [];
+            this.playerPositions[playerId] = [];
             
             for (let j = 0; j < numTokens; j++) {
                 this.tokens[player].push({
                     id: `${player}_${j}`,
                     player: player,
+                    playerId: playerId,
+                    tokenIndex: j,
                     position: null, // null means in home area
-                    pathIndex: -1,  // -1 means not on path
+                    pathIndex: 0,  // Start at beginning of path
                     state: 'IN_HOME'
                 });
+                
+                // Initialize position in game logic (similar to Python version)
+                this.playerPositions[playerId].push(0); // Start at path index 0
             }
         });
         
         console.log('Tokens initialized:', this.tokens);
+        console.log('Player positions:', this.playerPositions);
         console.log('Active players:', activePlayers);
     }
+    
+    // ============ GAME LOGIC METHODS (Ported from Python) ============
+    
+    rollThreeDice() {
+        // Simulate rolling three independent dice
+        return [
+            Math.floor(Math.random() * 6) + 1,
+            Math.floor(Math.random() * 6) + 1,
+            Math.floor(Math.random() * 6) + 1
+        ];
+    }
+    
+    isSafe(pathIndex, playerId) {
+        // Check if position is safe: either predefined safe square or occupied by multiple own tokens
+        const position = this.getPositionFromPathIndex(pathIndex, playerId);
+        if (!position) return false;
+        
+        const posKey = `${position.row},${position.col}`;
+        const isInSafeSquares = this.safeSquares.includes(posKey);
+        const multipleTokens = this.playerPositions[playerId].filter(pos => pos === pathIndex).length > 1;
+        
+        return isInSafeSquares || multipleTokens;
+    }
+    
+    getPositionFromPathIndex(pathIndex, playerId) {
+        const player = this.getPlayerNameFromId(playerId);
+        const path = this.boardConfig.GAME_PATHS[player];
+        
+        if (pathIndex >= 0 && pathIndex < path.length) {
+            return path[pathIndex];
+        }
+        return null;
+    }
+    
+    getPlayerNameFromId(playerId) {
+        const activePlayers = this.getActivePlayers();
+        return activePlayers[playerId - 1]; // Convert 1-based to 0-based
+    }
+    
+    moveToken(playerId, tokenIndex, diceValue) {
+        // Move the selected token of the player using dice value
+        const currentPathIndex = this.playerPositions[playerId][tokenIndex];
+        
+        // If already finished, no movement
+        if (currentPathIndex >= this.finalPosition) {
+            return { finalPos: currentPathIndex, finished: false, captured: false };
+        }
+        
+        const newPathIndex = currentPathIndex + diceValue;
+        
+        // If move leads to or beyond final position, promote the token
+        if (newPathIndex >= this.finalPosition) {
+            this.playerPositions[playerId][tokenIndex] = this.finalPosition;
+            this.updateTokenVisualPosition(playerId, tokenIndex, this.finalPosition);
+            return { finalPos: this.finalPosition, finished: true, captured: false };
+        }
+        
+        // Check for opponent capture
+        let captured = false;
+        const activePlayers = this.getActivePlayers();
+        
+        for (let oppPlayerId = 1; oppPlayerId <= activePlayers.length; oppPlayerId++) {
+            if (oppPlayerId === playerId) continue;
+            
+            for (let i = 0; i < this.playerPositions[oppPlayerId].length; i++) {
+                if (this.playerPositions[oppPlayerId][i] === newPathIndex && 
+                    !this.isSafe(newPathIndex, oppPlayerId)) {
+                    
+                    // Reset opponent token to start
+                    this.playerPositions[oppPlayerId][i] = 0;
+                    this.updateTokenVisualPosition(oppPlayerId, i, 0);
+                    captured = true;
+                    
+                    // Add capture animation
+                    this.animateCapture(oppPlayerId, i);
+                }
+            }
+        }
+        
+        // Update current token position
+        this.playerPositions[playerId][tokenIndex] = newPathIndex;
+        this.updateTokenVisualPosition(playerId, tokenIndex, newPathIndex);
+        
+        return { finalPos: newPathIndex, finished: false, captured };
+    }
+    
+    selectToken(playerId) {
+        // Select token using greedy strategy (like Python version)
+        const numTokens = parseInt(this.config.numTokens);
+        
+        // Find unfinished tokens
+        const unfinishedTokens = [];
+        for (let i = 0; i < numTokens; i++) {
+            if (this.playerPositions[playerId][i] < this.finalPosition) {
+                unfinishedTokens.push(i);
+            }
+        }
+        
+        if (unfinishedTokens.length === 0) {
+            return 0; // Default to first token if all finished
+        }
+        
+        // Use greedy strategy: prefer token that's not finished, prioritize first token
+        return unfinishedTokens[0];
+    }
+    
+    async bonusMove(playerId, diceValue = null) {
+        // Handle bonus move if criteria met and moves left
+        if (this.moveCount[playerId] >= this.maxMoves) {
+            return;
+        }
+        
+        const val = diceValue || Math.floor(Math.random() * 6) + 1;
+        const tokenIndex = this.selectToken(playerId);
+        
+        // Record initial positions
+        const initPositions = this.getAllPositions();
+        
+        // Make the move
+        const result = this.moveToken(playerId, tokenIndex, val);
+        
+        // Record final positions
+        const finalPositions = this.getAllPositions();
+        
+        // Record move in history
+        this.gameHistory.push({
+            finalPositions: finalPositions,
+            initPositions: initPositions,
+            player: playerId,
+            token: tokenIndex + 1,
+            diceValue: val,
+            result: result,
+            timestamp: new Date(),
+            moveType: 'bonus'
+        });
+        
+        this.moveCount[playerId]++;
+        
+        // Add visual delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Recursively trigger another bonus move if condition satisfied
+        if ((val === 6 || result.finished || result.captured) && 
+            this.moveCount[playerId] < this.maxMoves) {
+            await this.bonusMove(playerId);
+        }
+    }
+    
+    getAllPositions() {
+        const positions = [];
+        const activePlayers = this.getActivePlayers();
+        
+        activePlayers.forEach((_, playerIndex) => {
+            const playerId = playerIndex + 1;
+            positions.push(...this.playerPositions[playerId]);
+        });
+        
+        return positions;
+    }
+    
+    async playTurn(rollerPlayerId, diceValues) {
+        // Execute a full turn with 3 dice (like Python version)
+        console.log(`Player ${rollerPlayerId} rolled dice:`, diceValues);
+        
+        const activePlayers = this.getActivePlayers();
+        const numPlayers = activePlayers.length;
+        
+        // Generate move sequence based on current player and dice arrangement
+        const moveSequence = this.generateMoveSequence(rollerPlayerId, numPlayers);
+        
+        // Perform the three moves
+        for (let i = 0; i < 3; i++) {
+            const currentPlayer = moveSequence[i];
+            const diceValue = diceValues[i];
+            
+            if (this.moveCount[currentPlayer] >= this.maxMoves) {
+                continue; // Skip if player has reached move limit
+            }
+            
+            await this.performFullMove(currentPlayer, diceValue, diceValues);
+            
+            // Add delay between moves for better visualization
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        // Check for game end conditions
+        this.checkGameEnd();
+    }
+    
+    generateMoveSequence(rollerPlayerId, numPlayers) {
+        // Generate move sequence based on game rules
+        if (numPlayers === 2) {
+            const otherPlayer = rollerPlayerId === 1 ? 2 : 1;
+            return [rollerPlayerId, otherPlayer, rollerPlayerId];
+        } else if (numPlayers === 3) {
+            const otherPlayer1 = (rollerPlayerId % 3) + 1;
+            const otherPlayer2 = ((rollerPlayerId + 1) % 3) + 1;
+            return [rollerPlayerId, otherPlayer1, otherPlayer2];
+        } else if (numPlayers === 4) {
+            const otherPlayer1 = (rollerPlayerId % 4) + 1;
+            const otherPlayer2 = ((rollerPlayerId + 1) % 4) + 1;
+            return [rollerPlayerId, otherPlayer1, otherPlayer2];
+        }
+        
+        return [rollerPlayerId, rollerPlayerId, rollerPlayerId];
+    }
+    
+    async performFullMove(playerId, diceValue, allDiceValues) {
+        // Perform a move and handle all bonus moves (like Python version)
+        if (this.moveCount[playerId] >= this.maxMoves) {
+            return;
+        }
+        
+        const initPositions = this.getAllPositions();
+        const usedValues = [diceValue];
+        
+        let tokenIndex = this.selectToken(playerId);
+        let result = this.moveToken(playerId, tokenIndex, diceValue);
+        
+        // Handle all bonus moves iteratively
+        let currentValue = diceValue;
+        while ((currentValue === 6 || result.finished || result.captured) && 
+               this.moveCount[playerId] < this.maxMoves) {
+            
+            // Generate new bonus dice value
+            currentValue = Math.floor(Math.random() * 6) + 1;
+            usedValues.push(currentValue);
+            
+            // Select token for bonus move
+            tokenIndex = this.selectToken(playerId);
+            result = this.moveToken(playerId, tokenIndex, currentValue);
+            
+            // Add visual delay
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
+        const finalPositions = this.getAllPositions();
+        // Record the complete move (including all bonus moves) as one entry
+        const moveData = {
+            finalPositions: finalPositions,
+            initPositions: initPositions,
+            player: playerId,
+            token: tokenIndex + 1,
+            allDiceValues: allDiceValues,
+            usedValues: usedValues,
+            timestamp: new Date(),
+            moveType: usedValues.length > 1 ? 'bonus' : 'regular',
+            diceValue: usedValues[0],
+            result: result
+        };
+        
+        this.gameHistory.push(moveData);
+        this.logMove(moveData); // Add detailed logging
+        
+        this.moveCount[playerId]++;
+        
+        // Update UI
+        this.updateGameStatus();
+    }
+    
+    // ============ VISUAL UPDATE METHODS ============
+    
+    updateTokenVisualPosition(playerId, tokenIndex, pathIndex) {
+        const playerName = this.getPlayerNameFromId(playerId);
+        const token = this.tokens[playerName][tokenIndex];
+        
+        if (!token) return;
+        
+        // Remove token from current position
+        const currentTokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
+        if (currentTokenElement) {
+            currentTokenElement.remove();
+        }
+        
+        // Get new position
+        let targetSquare;
+        
+        if (pathIndex === 0) {
+            // Token is in home area
+            const homeSquares = this.getHomeSquares(playerName);
+            targetSquare = document.querySelector(`[data-row="${homeSquares[tokenIndex].row}"][data-col="${homeSquares[tokenIndex].col}"]`);
+        } else if (pathIndex >= this.finalPosition) {
+            // Token has finished
+            const centerPos = this.boardConfig.CENTER;
+            targetSquare = document.querySelector(`[data-row="${centerPos.row}"][data-col="${centerPos.col}"]`);
+        } else {
+            // Token is on the path
+            const position = this.getPositionFromPathIndex(pathIndex, playerId);
+            if (position) {
+                targetSquare = document.querySelector(`[data-row="${position.row}"][data-col="${position.col}"]`);
+            }
+        }
+        
+        // Add token to new position
+        if (targetSquare) {
+            this.addTokenToSquare(targetSquare, token);
+        }
+        
+        // Update token state
+        token.pathIndex = pathIndex;
+        if (pathIndex >= this.finalPosition) {
+            token.state = 'FINISHED';
+        } else if (pathIndex === 0) {
+            token.state = 'IN_HOME';
+        } else {
+            token.state = 'ON_BOARD';
+        }
+    }
+    
+    animateCapture(playerId, tokenIndex) {
+        const playerName = this.getPlayerNameFromId(playerId);
+        const token = this.tokens[playerName][tokenIndex];
+        const tokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
+        
+        if (tokenElement) {
+            tokenElement.classList.add('captured');
+            setTimeout(() => {
+                tokenElement.classList.remove('captured');
+            }, 600);
+        }
+    }
+    
+    updateGameStatus() {
+        // Update any status displays
+        const statusElement = document.querySelector('.game-status');
+        if (statusElement) {
+            statusElement.textContent = `Round ${this.currentRound} - Player ${this.currentPlayer}'s turn`;
+        }
+        
+        // Update move counters
+        this.updateMoveCounters();
+    }
+    
+    updateMoveCounters() {
+        const activePlayers = this.getActivePlayers();
+        activePlayers.forEach((_, playerIndex) => {
+            const playerId = playerIndex + 1;
+            const counterElement = document.querySelector(`#player-${playerId}-moves`);
+            if (counterElement) {
+                counterElement.textContent = `${this.moveCount[playerId]}/${this.maxMoves}`;
+            }
+        });
+    }
+    
+    checkGameEnd() {
+        const activePlayers = this.getActivePlayers();
+        
+        // Check if any player has all tokens finished
+        for (let playerIndex = 0; playerIndex < activePlayers.length; playerIndex++) {
+            const playerId = playerIndex + 1;
+            const allFinished = this.playerPositions[playerId].every(pos => pos >= this.finalPosition);
+            
+            if (allFinished) {
+                this.endGame(playerId);
+                return;
+            }
+        }
+        
+        // Check if move limits reached
+        const allReachedLimit = activePlayers.every((_, playerIndex) => {
+            const playerId = playerIndex + 1;
+            return this.moveCount[playerId] >= this.maxMoves;
+        });
+        
+        if (allReachedLimit) {
+            this.endGame(null); // Draw/time limit
+        }
+    }
+    
+    endGame(winnerId) {
+        this.gameState = 'GAME_OVER';
+        
+        if (winnerId) {
+            const playerName = this.getPlayerNameFromId(winnerId);
+            console.log(`Game Over! Player ${winnerId} (${playerName}) wins!`);
+            
+            // Add winner celebration animation
+            const winnerTokens = document.querySelectorAll(`[data-player="${playerName}"]`);
+            winnerTokens.forEach(token => {
+                token.classList.add('winner');
+            });
+            
+            // Show victory message
+            this.showVictoryMessage(winnerId, playerName);
+        } else {
+            console.log('Game Over! Draw - Move limit reached');
+            this.showDrawMessage();
+        }
+        
+        // Disable dice rolling
+        const rollButton = document.getElementById('rollDiceBtn');
+        if (rollButton) {
+            rollButton.disabled = true;
+            rollButton.textContent = 'Game Over';
+        }
+    }
+    
+    showVictoryMessage(winnerId, playerName) {
+        // Create victory modal or notification
+        const message = `🎉 Player ${winnerId} (${playerName}) Wins! 🎉`;
+        
+        // You can enhance this with a proper modal
+        alert(message);
+        
+        // Or create a custom victory display
+        this.createVictoryDisplay(winnerId, playerName);
+    }
+    
+    showDrawMessage() {
+        alert('Game ended in a draw - Move limit reached!');
+    }
+    
+    createVictoryDisplay(winnerId, playerName) {
+        // Create a victory overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'victory-overlay';
+        overlay.innerHTML = `
+            <div class="victory-content">
+                <h2>🎉 Victory! 🎉</h2>
+                <p>Player ${winnerId} (${playerName}) Wins!</p>
+                <button onclick="this.parentElement.parentElement.remove(); regenerateBoard();">New Game</button>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+    }
+    
+    // ============ DICE INTEGRATION ============
+    
+    connectDiceRoller() {
+        // Connect with the dice roller system
+        if (window.diceRoller) {
+            console.log('Connected to dice roller');
+        }
+        
+        // Override the dice roll processing
+        window.ludoGame = this;
+    }
+    
+    async processDiceRoll(rollResult) {
+        // Process dice roll from the 3D dice system
+        console.log('Processing dice roll:', rollResult);
+        
+        if (this.gameState !== 'WAITING_FOR_DICE') {
+            console.log('Game not ready for dice roll');
+            return;
+        }
+        
+        this.gameState = 'PROCESSING_MOVE';
+        // Log the dice roll
+        this.logDiceRoll(rollResult);
+        
+        // Get current player from dice roller
+        const rollerPlayerId = rollResult.player;
+        
+        // Execute the turn
+        await this.playTurn(rollerPlayerId, rollResult.values);
+        
+        // Advance to next round
+        this.currentRound++;
+        
+        // Reset game state
+        this.gameState = 'WAITING_FOR_DICE';
+        
+        console.log('Turn completed, game ready for next roll');
+    }
+    
+    // ============ EXISTING METHODS (Keep all existing UI methods) ============
     
     getBoardDimensions(boardSize) {
         const dimensionMap = {
@@ -150,44 +677,12 @@ class LudoGame {
     }
     
     getHomeSquares(player) {
-        const boardSize = parseInt(this.config.boardSize);
-        const gridSize = this.getBoardDimensions(boardSize);
-        const homeSize = Math.floor((gridSize - 3) / 2);
+        // Use board configuration for precise home areas
+        const homeAreas = this.boardConfig.HOME_AREAS[player];
+        const numTokens = parseInt(this.config.numTokens);
         
-        let homeSquares = [];
-        
-        switch (player) {
-            case 'RED': // Top-left
-                for (let row = 1; row < homeSize - 1; row++) {
-                    for (let col = 1; col < homeSize - 1; col++) {
-                        homeSquares.push({ row, col });
-                    }
-                }
-                break;
-            case 'BLUE': // Top-right
-                for (let row = 1; row < homeSize - 1; row++) {
-                    for (let col = gridSize - homeSize + 1; col < gridSize - 1; col++) {
-                        homeSquares.push({ row, col });
-                    }
-                }
-                break;
-            case 'GREEN': // Bottom-left
-                for (let row = gridSize - homeSize + 1; row < gridSize - 1; row++) {
-                    for (let col = 1; col < homeSize - 1; col++) {
-                        homeSquares.push({ row, col });
-                    }
-                }
-                break;
-            case 'YELLOW': // Bottom-right
-                for (let row = gridSize - homeSize + 1; row < gridSize - 1; row++) {
-                    for (let col = gridSize - homeSize + 1; col < gridSize - 1; col++) {
-                        homeSquares.push({ row, col });
-                    }
-                }
-                break;
-        }
-        
-        return homeSquares;
+        // Return the first numTokens squares from home area
+        return homeAreas.slice(0, numTokens);
     }
     
     addTokenToSquare(square, token) {
@@ -210,6 +705,7 @@ class LudoGame {
     
     onTokenClick(token, tokenElement) {
         console.log('Token clicked:', token);
+        console.log('Current position:', this.playerPositions[token.playerId][token.tokenIndex]);
         
         // Add selection effect
         document.querySelectorAll('.token').forEach(t => t.classList.remove('selected'));
@@ -220,8 +716,25 @@ class LudoGame {
         setTimeout(() => {
             tokenElement.style.transform = '';
         }, 200);
+        
+        // Show token info
+        this.showTokenInfo(token);
     }
     
+    showTokenInfo(token) {
+        const pathIndex = this.playerPositions[token.playerId][token.tokenIndex];
+        const position = this.getPositionFromPathIndex(pathIndex, token.playerId);
+        
+        console.log(`Token ${token.id} info:`, {
+            pathIndex: pathIndex,
+            position: position,
+            state: token.state,
+            player: token.player,
+            progress: `${pathIndex}/${this.finalPosition}`
+        });
+    }
+    
+    // Keep all existing getSquareType, getStartingSquare, getSafeSquare, etc. methods...
     getSquareType(row, col, gridSize, boardSize) {
         const center = Math.floor(gridSize / 2);
         const homeSize = Math.floor((gridSize - 3) / 2);
@@ -278,36 +791,20 @@ class LudoGame {
     }
     
     getStartingSquare(row, col, boardSize) {
-        const startingSquares = {
-            7: { red: { row: 3, col: 1 }, blue: { row: 1, col: 5 }, yellow: { row: 5, col: 7 }, green: { row: 7, col: 3 } },
-            9: { red: { row: 4, col: 1 }, blue: { row: 1, col: 6 }, yellow: { row: 6, col: 9 }, green: { row: 9, col: 4 } },
-            11: { red: { row: 5, col: 1 }, blue: { row: 1, col: 7 }, yellow: { row: 7, col: 11 }, green: { row: 11, col: 5 } },
-            13: { red: { row: 6, col: 1 }, blue: { row: 1, col: 8 }, yellow: { row: 8, col: 13 }, green: { row: 13, col: 6 } }
-        };
+        const startSquares = this.boardConfig.START_SQUARES;
         
-        const squares = startingSquares[parseInt(boardSize)];
-        if (!squares) return null;
-        
-        if (row === squares.red.row && col === squares.red.col) return ['starting-square', 'red-start'];
-        if (row === squares.blue.row && col === squares.blue.col) return ['starting-square', 'blue-start'];
-        if (row === squares.yellow.row && col === squares.yellow.col) return ['starting-square', 'yellow-start'];
-        if (row === squares.green.row && col === squares.green.col) return ['starting-square', 'green-start'];
+        if (row === startSquares.RED.row && col === startSquares.RED.col) return ['starting-square', 'red-start'];
+        if (row === startSquares.BLUE.row && col === startSquares.BLUE.col) return ['starting-square', 'blue-start'];
+        if (row === startSquares.YELLOW.row && col === startSquares.YELLOW.col) return ['starting-square', 'yellow-start'];
+        if (row === startSquares.GREEN.row && col === startSquares.GREEN.col) return ['starting-square', 'green-start'];
         
         return null;
     }
     
     getSafeSquare(row, col, boardSize) {
-        const safeSquares = {
-            7: [{ row: 5, col: 2 }, { row: 2, col: 3 }, { row: 3, col: 6 }, { row: 6, col: 5 }],
-            9: [{ row: 6, col: 2 }, { row: 2, col: 4 }, { row: 4, col: 8 }, { row: 8, col: 6 }],
-            11: [{ row: 7, col: 2 }, { row: 2, col: 5 }, { row: 5, col: 10 }, { row: 10, col: 7 }],
-            13: [{ row: 8, col: 2 }, { row: 2, col: 6 }, { row: 6, col: 12 }, { row: 12, col: 8 }]
-        };
+        const safeSquares = this.boardConfig.SAFE_SQUARES;
         
-        const squares = safeSquares[parseInt(boardSize)];
-        if (!squares) return null;
-        
-        for (let safeSquare of squares) {
+        for (let safeSquare of safeSquares) {
             if (row === safeSquare.row && col === safeSquare.col) {
                 return 'safe-square';
             }
@@ -316,61 +813,29 @@ class LudoGame {
     }
     
     getHomeEntrancePath(row, col, boardSize) {
-        const entrancePaths = {
-            7: {
-                red: { row: 4, colStart: 1, colEnd: 2 },
-                blue: { rowStart: 1, rowEnd: 2, col: 4 },
-                yellow: { row: 4, colStart: 6, colEnd: 7 },
-                green: { rowStart: 6, rowEnd: 7, col: 4 }
-            },
-            9: {
-                red: { row: 5, colStart: 1, colEnd: 3 },
-                blue: { rowStart: 1, rowEnd: 3, col: 5 },
-                yellow: { row: 5, colStart: 7, colEnd: 9 },
-                green: { rowStart: 7, rowEnd: 9, col: 5 }
-            },
-            11: {
-                red: { row: 6, colStart: 1, colEnd: 4 },
-                blue: { rowStart: 1, rowEnd: 4, col: 6 },
-                yellow: { row: 6, colStart: 8, colEnd: 11 },
-                green: { rowStart: 8, rowEnd: 11, col: 6 }
-            },
-            13: {
-                red: { row: 7, colStart: 1, colEnd: 5 },
-                blue: { rowStart: 1, rowEnd: 5, col: 7 },
-                yellow: { row: 7, colStart: 9, colEnd: 13 },
-                green: { rowStart: 9, rowEnd: 13, col: 7 }
+        const entrancePaths = this.boardConfig.HOME_ENTRANCE_PATHS;
+        
+        // Check each player's entrance path
+        for (const [player, path] of Object.entries(entrancePaths)) {
+            for (const pos of path) {
+                if (row === pos.row && col === pos.col) {
+                    return ['home-entrance', `${player.toLowerCase()}-entrance`];
+                }
             }
-        };
-        
-        const paths = entrancePaths[parseInt(boardSize)];
-        if (!paths) return null;
-        
-        if (row === paths.red.row && col >= Math.min(paths.red.colStart, paths.red.colEnd) && col <= Math.max(paths.red.colStart, paths.red.colEnd)) {
-            return ['home-entrance', 'red-entrance'];
-        }
-        if (col === paths.blue.col && row >= Math.min(paths.blue.rowStart, paths.blue.rowEnd) && row <= Math.max(paths.blue.rowStart, paths.blue.rowEnd)) {
-            return ['home-entrance', 'blue-entrance'];
-        }
-        if (row === paths.yellow.row && col >= Math.min(paths.yellow.colStart, paths.yellow.colEnd) && col <= Math.max(paths.yellow.colStart, paths.yellow.colEnd)) {
-            return ['home-entrance', 'yellow-entrance'];
-        }
-        if (col === paths.green.col && row >= Math.min(paths.green.rowStart, paths.green.rowEnd) && row <= Math.max(paths.green.rowStart, paths.green.rowEnd)) {
-            return ['home-entrance', 'green-entrance'];
         }
         
         return null;
     }
     
     isHomeFinishArea(row, col, boardSize) {
-        const finishAreas = {
-            7: { start: 3, end: 5 }, 9: { start: 4, end: 6 }, 11: { start: 5, end: 7 }, 13: { start: 6, end: 8 }
-        };
+        const finishArea = this.boardConfig.HOME_FINISH_AREA;
         
-        const area = finishAreas[parseInt(boardSize)];
-        if (!area) return false;
-        
-        return row >= area.start && row <= area.end && col >= area.start && col <= area.end;
+        for (const pos of finishArea) {
+            if (row === pos.row && col === pos.col) {
+                return true;
+            }
+        }
+        return false;
     }
     
     isPathSquare(row, col, gridSize) {
@@ -414,7 +879,199 @@ class LudoGame {
             statusText.textContent = `${this.getBoardDimensions(this.config.boardSize)}×${this.getBoardDimensions(this.config.boardSize)} Board Generated`;
         }
     }
+
+
+
+
+
+
+
+
+
+
+    initializeGameLogs() {
+        this.gameStartTime = new Date();
+        this.detailedGameHistory = [];
+        this.diceStatistics = {
+            1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
+        };
+        this.playerStatistics = {};
+        
+        // Initialize player statistics
+        const activePlayers = this.getActivePlayers();
+        activePlayers.forEach((_, playerIndex) => {
+            const playerId = playerIndex + 1;
+            this.playerStatistics[playerId] = {
+                name: this.getPlayerNameFromId(playerId),
+                totalMoves: 0,
+                bonusMoves: 0,
+                captures: 0,
+                finishedTokens: 0,
+                diceRolls: [],
+                averageDice: 0,
+                longestBonus: 0,
+                totalDistance: 0
+            };
+        });
+    }
+    
+    logDiceRoll(rollResult) {
+        // Record dice statistics
+        rollResult.values.forEach(value => {
+            this.diceStatistics[value]++;
+        });
+        
+        // Add to player's dice history
+        const playerId = rollResult.player;
+        if (this.playerStatistics[playerId]) {
+            this.playerStatistics[playerId].diceRolls.push(...rollResult.values);
+            this.updatePlayerAverages(playerId);
+        }
+    }
+    
+    logMove(moveData) {
+        // Enhanced move logging with detailed information
+        const timestamp = new Date();
+        const detailedMove = {
+            id: this.detailedGameHistory.length + 1,
+            timestamp: timestamp,
+            round: this.currentRound,
+            player: moveData.player,
+            playerName: this.getPlayerNameFromId(moveData.player),
+            token: moveData.token,
+            diceValue: moveData.diceValue,
+            moveType: moveData.moveType || 'regular',
+            fromPosition: moveData.initPositions ? moveData.initPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
+            toPosition: moveData.finalPositions ? moveData.finalPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
+            captured: moveData.result ? moveData.result.captured : false,
+            finished: moveData.result ? moveData.result.finished : false,
+            usedValues: moveData.usedValues || [moveData.diceValue],
+            allDiceValues: moveData.allDiceValues || [moveData.diceValue],
+            distance: moveData.diceValue,
+            gameState: JSON.parse(JSON.stringify(this.playerPositions))
+        };
+        
+        this.detailedGameHistory.push(detailedMove);
+        this.updatePlayerStatistics(detailedMove);
+        
+        console.log('Move logged:', detailedMove);
+    }
+    
+    updatePlayerStatistics(moveData) {
+        const playerId = moveData.player;
+        const stats = this.playerStatistics[playerId];
+        
+        if (stats) {
+            stats.totalMoves++;
+            stats.totalDistance += moveData.distance;
+            
+            if (moveData.moveType === 'bonus') {
+                stats.bonusMoves++;
+            }
+            
+            if (moveData.captured) {
+                stats.captures++;
+            }
+            
+            if (moveData.finished) {
+                stats.finishedTokens++;
+            }
+            
+            // Calculate longest bonus streak
+            if (moveData.usedValues && moveData.usedValues.length > stats.longestBonus) {
+                stats.longestBonus = moveData.usedValues.length;
+            }
+        }
+    }
+    
+    updatePlayerAverages(playerId) {
+        const stats = this.playerStatistics[playerId];
+        if (stats && stats.diceRolls.length > 0) {
+            const sum = stats.diceRolls.reduce((a, b) => a + b, 0);
+            stats.averageDice = (sum / stats.diceRolls.length).toFixed(2);
+        }
+    }
+    
+    getGameDuration() {
+        if (!this.gameStartTime) return '00:00';
+        
+        const now = new Date();
+        const diff = now - this.gameStartTime;
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    exportGameData() {
+        return {
+            gameConfig: this.config,
+            startTime: this.gameStartTime,
+            currentRound: this.currentRound,
+            gameState: this.gameState,
+            playerPositions: this.playerPositions,
+            moveCount: this.moveCount,
+            finalPosition: this.finalPosition,
+            detailedHistory: this.detailedGameHistory,
+            playerStatistics: this.playerStatistics,
+            diceStatistics: this.diceStatistics,
+            duration: this.getGameDuration()
+        };
+    }
 }
+
+// Additional CSS for new animations
+const additionalCSS = `
+    .victory-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    }
+    
+    .victory-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: victoryBounce 0.6s ease-out;
+    }
+    
+    @keyframes victoryBounce {
+        0% { transform: scale(0) rotate(180deg); opacity: 0; }
+        50% { transform: scale(1.2) rotate(0deg); opacity: 0.8; }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    
+    .victory-content h2 {
+        color: #f39c12;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+    }
+    
+    .victory-content button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+`;
+
+// Inject additional CSS
+const style = document.createElement('style');
+style.textContent = additionalCSS;
+document.head.appendChild(style);
 
 // Global functions
 function goHome() {
@@ -423,7 +1080,7 @@ function goHome() {
 
 function regenerateBoard() {
     if (window.ludoGame) {
-        window.ludoGame.generateBoard();
+        window.ludoGame = new LudoGame();
     }
 }
 
@@ -455,7 +1112,349 @@ window.LudoUtils = {
             gridDimensions: `${gridSize}×${gridSize}`,
             totalSquares: this.getTotalSquares(config.boardSize)
         };
+    },
+    
+    getGameState: function() {
+        return window.ludoGame ? {
+            currentRound: window.ludoGame.currentRound,
+            gameState: window.ludoGame.gameState,
+            moveCount: window.ludoGame.moveCount,
+            playerPositions: window.ludoGame.playerPositions
+        } : null;
     }
 };
 
-console.log('Game utilities loaded:', window.LudoUtils.getGameStats());
+
+
+
+
+function openGameLogs() {
+    if (!window.ludoGame) {
+        alert('No active game found!');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('gameLogsModal'));
+    populateGameLogs();
+    modal.show();
+}
+
+function populateGameLogs() {
+    const game = window.ludoGame;
+    const gameData = game.exportGameData();
+    
+    // Update summary statistics
+    document.getElementById('totalMovesCount').textContent = gameData.detailedHistory.length;
+    document.getElementById('currentRoundDisplay').textContent = gameData.currentRound;
+    document.getElementById('gameDurationDisplay').textContent = gameData.duration;
+    
+    // Update filter buttons for active players
+    updateFilterButtons(game.getActivePlayers().length);
+    
+    // Populate dashboard sections
+    populatePlayerStats(gameData.playerStatistics);
+    populateDiceAnalytics(gameData.diceStatistics);
+    populateRecentActivity(gameData.detailedHistory.slice(-5));
+    populateGameProgress(gameData.playerStatistics, game.finalPosition);
+    
+    // Populate timeline
+    populateTimeline(gameData.detailedHistory);
+    
+    // Setup filter functionality
+    setupFilterHandlers();
+}
+
+function updateFilterButtons(numPlayers) {
+    const playerButtons = document.querySelectorAll('.filter-btn[data-filter]:not([data-filter="all"])');
+    playerButtons.forEach((btn, index) => {
+        if (index < numPlayers) {
+            btn.style.display = 'inline-block';
+        } else {
+            btn.style.display = 'none';
+        }
+    });
+}
+
+function populatePlayerStats(playerStats) {
+    const container = document.getElementById('playerStatsGrid');
+    container.innerHTML = '';
+    
+    Object.entries(playerStats).forEach(([playerId, stats]) => {
+        const playerColors = ['#e74c3c', '#3498db', '#f1c40f', '#27ae60'];
+        const color = playerColors[playerId - 1] || '#667eea';
+        
+        const statItem = document.createElement('div');
+        statItem.className = 'player-stat-item';
+        statItem.style.borderLeftColor = color;
+        
+        statItem.innerHTML = `
+            <div class="player-name">
+                <div class="player-badge" style="background-color: ${color};"></div>
+                Player ${playerId} (${stats.name})
+            </div>
+            <div class="player-stats-details">
+                <div class="stat-detail">Moves: <strong>${stats.totalMoves}</strong></div>
+                <div class="stat-detail">Bonus: <strong>${stats.bonusMoves}</strong></div>
+                <div class="stat-detail">Captures: <strong>${stats.captures}</strong></div>
+                <div class="stat-detail">Finished: <strong>${stats.finishedTokens}</strong></div>
+                <div class="stat-detail">Avg Dice: <strong>${stats.averageDice}</strong></div>
+                <div class="stat-detail">Distance: <strong>${stats.totalDistance}</strong></div>
+            </div>
+        `;
+        
+        container.appendChild(statItem);
+    });
+}
+
+function populateDiceAnalytics(diceStats) {
+    const container = document.getElementById('diceStatsContainer');
+    container.innerHTML = '';
+    
+    const totalRolls = Object.values(diceStats).reduce((a, b) => a + b, 0);
+    
+    for (let i = 1; i <= 6; i++) {
+        const count = diceStats[i] || 0;
+        const percentage = totalRolls > 0 ? ((count / totalRolls) * 100).toFixed(1) : 0;
+        
+        const statItem = document.createElement('div');
+        statItem.className = 'dice-stat-item';
+        
+        statItem.innerHTML = `
+            <div class="dice-number">${i}</div>
+            <div class="dice-count">${count}</div>
+            <div class="dice-percentage">${percentage}%</div>
+        `;
+        
+        container.appendChild(statItem);
+    }
+}
+
+function populateRecentActivity(recentMoves) {
+    const container = document.getElementById('recentActivityList');
+    container.innerHTML = '';
+    
+    if (recentMoves.length === 0) {
+        container.innerHTML = '<div class="text-muted text-center">No recent activity</div>';
+        return;
+    }
+    
+    recentMoves.reverse().forEach(move => {
+        const activityItem = document.createElement('div');
+        activityItem.className = 'activity-item';
+        
+        const timeAgo = getTimeAgo(move.timestamp);
+        const icon = move.captured ? 'fas fa-crosshairs' : 
+                    move.finished ? 'fas fa-trophy' : 
+                    move.moveType === 'bonus' ? 'fas fa-star' : 'fas fa-arrows-alt';
+        
+        activityItem.innerHTML = `
+            <div class="activity-icon">
+                <i class="${icon}"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-text">
+                    <strong>Player ${move.player}</strong> moved Token ${move.token} 
+                    ${move.captured ? '(Captured!)' : ''}
+                    ${move.finished ? '(Finished!)' : ''}
+                </div>
+                <div class="activity-time">${timeAgo}</div>
+            </div>
+        `;
+        
+        container.appendChild(activityItem);
+    });
+}
+
+function populateGameProgress(playerStats, finalPosition) {
+    const container = document.getElementById('gameProgressViz');
+    container.innerHTML = '';
+    
+    Object.entries(playerStats).forEach(([playerId, stats]) => {
+        const progress = Math.min((stats.totalDistance / (finalPosition * parseInt(window.gameConfig.numTokens))) * 100, 100);
+        
+        const progressItem = document.createElement('div');
+        progressItem.className = 'progress-item';
+        
+        progressItem.innerHTML = `
+            <div class="progress-label">
+                <span>Player ${playerId} Progress</span>
+                <span>${progress.toFixed(1)}%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: ${progress}%"></div>
+            </div>
+        `;
+        
+        container.appendChild(progressItem);
+    });
+}
+
+function populateTimeline(gameHistory) {
+    const container = document.getElementById('gameLogsTimeline');
+    container.innerHTML = '';
+    
+    if (gameHistory.length === 0) {
+        container.innerHTML = '<div class="text-muted text-center">No moves recorded yet</div>';
+        return;
+    }
+    
+    gameHistory.slice().reverse().forEach((move, index) => {
+        const timelineEntry = document.createElement('div');
+        timelineEntry.className = 'timeline-entry';
+        timelineEntry.style.animationDelay = `${index * 0.1}s`;
+        timelineEntry.dataset.player = move.player;
+        timelineEntry.dataset.moveType = move.moveType;
+        
+        const playerColors = ['#e74c3c', '#3498db', '#f1c40f', '#27ae60'];
+        const color = playerColors[move.player - 1] || '#667eea';
+        
+        const timeFormatted = move.timestamp.toLocaleTimeString();
+        const badges = [];
+        
+        if (move.moveType === 'bonus') badges.push('<span class="move-badge bonus">Bonus</span>');
+        if (move.captured) badges.push('<span class="move-badge capture">Capture</span>');
+        if (move.finished) badges.push('<span class="move-badge finish">Finish</span>');
+        if (badges.length === 0) badges.push('<span class="move-badge regular">Regular</span>');
+        
+        const diceDisplay = move.allDiceValues.map(val => 
+            `<div class="timeline-die">${val}</div>`
+        ).join('');
+        
+        timelineEntry.innerHTML = `
+            <div class="timeline-header">
+                <div class="timeline-player">
+                    <div class="timeline-player-badge" style="background-color: ${color};"></div>
+                    Player ${move.player} (${move.playerName})
+                </div>
+                <div class="timeline-time">${timeFormatted}</div>
+            </div>
+            <div class="timeline-content">
+                <div class="timeline-dice">${diceDisplay}</div>
+                <div class="timeline-details">
+                    <strong>Move #${move.id}</strong> - Token ${move.token} moved from position ${move.fromPosition} to ${move.toPosition}
+                    <br>
+                    Used dice value: <strong>${move.diceValue}</strong>
+                    ${move.usedValues.length > 1 ? ` (Bonus chain: ${move.usedValues.join(', ')})` : ''}
+                    ${badges.join(' ')}
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(timelineEntry);
+    });
+}
+
+function setupFilterHandlers() {
+    // Player filter handlers
+    document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active state
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Apply filter
+            const filter = btn.dataset.filter;
+            filterTimelineByPlayer(filter);
+        });
+    });
+    
+    // Move type filter handlers
+    document.querySelectorAll('.filter-btn[data-type]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active state
+            document.querySelectorAll('.filter-btn[data-type]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Apply filter
+            const type = btn.dataset.type;
+            filterTimelineByType(type);
+        });
+    });
+}
+
+function filterTimelineByPlayer(playerId) {
+    const entries = document.querySelectorAll('.timeline-entry');
+    
+    entries.forEach(entry => {
+        if (playerId === 'all' || entry.dataset.player === playerId) {
+            entry.style.display = 'block';
+            entry.style.animation = 'slideInUp 0.4s ease-out';
+        } else {
+            entry.style.display = 'none';
+        }
+    });
+}
+
+function filterTimelineByType(moveType) {
+    const entries = document.querySelectorAll('.timeline-entry');
+    
+    entries.forEach(entry => {
+        const shouldShow = moveType === 'all' || 
+                          entry.dataset.moveType === moveType ||
+                          (moveType === 'capture' && entry.innerHTML.includes('move-badge capture')) ||
+                          (moveType === 'finish' && entry.innerHTML.includes('move-badge finish'));
+        
+        if (shouldShow) {
+            entry.style.display = 'block';
+            entry.style.animation = 'slideInUp 0.4s ease-out';
+        } else {
+            entry.style.display = 'none';
+        }
+    });
+}
+
+function exportGameLogs() {
+    if (!window.ludoGame) {
+        alert('No active game found!');
+        return;
+    }
+    
+    const gameData = window.ludoGame.exportGameData();
+    const dataStr = JSON.stringify(gameData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `ludo_game_logs_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function clearGameLogs() {
+    if (!window.ludoGame) {
+        alert('No active game found!');
+        return;
+    }
+    
+    if (confirm('Are you sure you want to clear all game logs? This action cannot be undone.')) {
+        window.ludoGame.detailedGameHistory = [];
+        window.ludoGame.diceStatistics = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        window.ludoGame.initializeGameLogs();
+        
+        // Close modal and show confirmation
+        const modal = bootstrap.Modal.getInstance(document.getElementById('gameLogsModal'));
+        modal.hide();
+        
+        alert('Game logs cleared successfully!');
+    }
+}
+
+function getTimeAgo(timestamp) {
+    const now = new Date();
+    const diffMs = now - new Date(timestamp);
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    return `${diffHours}h ago`;
+}
+
+// Make functions globally available
+window.openGameLogs = openGameLogs;
+window.exportGameLogs = exportGameLogs;
+window.clearGameLogs = clearGameLogs;
+
+console.log('Enhanced Ludo Game loaded with full gameplay logic!');
