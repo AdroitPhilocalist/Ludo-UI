@@ -457,6 +457,7 @@ body {
     position: relative;
 }
 
+/* Add center area highlighting for home squares */
 .square.red-home {
     background: linear-gradient(135deg, var(--red-light), #f1948a);
     border: 3px solid var(--red-color);

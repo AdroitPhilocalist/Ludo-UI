@@ -681,8 +681,72 @@ class LudoGame {
         const homeAreas = this.boardConfig.HOME_AREAS[player];
         const numTokens = parseInt(this.config.numTokens);
         
-        // Return the first numTokens squares from home area
-        return homeAreas.slice(0, numTokens);
+        // Filter to get only center squares of home areas (not boundary squares)
+        const centerHomeSquares = this.getCenterHomeSquares(homeAreas, player);
+        
+        // Return the first numTokens squares from center home area
+        return centerHomeSquares.slice(0, numTokens);
+    }
+
+    // New method to get center squares of home areas
+    getCenterHomeSquares(homeAreas, player) {
+        // Get board dimensions
+        const boardSize = parseInt(this.config.boardSize);
+        const gridSize = this.getBoardDimensions(boardSize);
+        const homeSize = Math.floor((gridSize - 3) / 2);
+        
+        // Calculate center region of each home area
+        const centerSquares = [];
+        
+        // Define center regions for each player's home area
+        const centerRegions = this.getHomeCenterRegions(homeSize, gridSize);
+        
+        // Get center squares for the specific player
+        const playerCenterRegion = centerRegions[player];
+        
+        if (playerCenterRegion) {
+            for (let row = playerCenterRegion.startRow; row <= playerCenterRegion.endRow; row++) {
+                for (let col = playerCenterRegion.startCol; col <= playerCenterRegion.endCol; col++) {
+                    centerSquares.push({ row, col });
+                }
+            }
+        }
+        
+        return centerSquares;
+    }
+    
+    // New method to define center regions for each player's home area
+    getHomeCenterRegions(homeSize, gridSize) {
+        // Calculate center regions for each home area (avoiding boundary squares)
+        const centerOffset = Math.floor(homeSize / 3); // Offset from edges to get center area
+        const centerSize = Math.max(1, homeSize - (centerOffset * 2)); // Size of center region
+        
+        return {
+            RED: { // Top-left home area
+                startRow: centerOffset + 1,
+                endRow: centerOffset + centerSize,
+                startCol: centerOffset + 1,
+                endCol: centerOffset + centerSize
+            },
+            BLUE: { // Top-right home area
+                startRow: centerOffset + 1,
+                endRow: centerOffset + centerSize,
+                startCol: gridSize - homeSize + centerOffset,
+                endCol: gridSize - homeSize + centerOffset + centerSize - 1
+            },
+            GREEN: { // Bottom-left home area
+                startRow: gridSize - homeSize + centerOffset,
+                endRow: gridSize - homeSize + centerOffset + centerSize - 1,
+                startCol: centerOffset + 1,
+                endCol: centerOffset + centerSize
+            },
+            YELLOW: { // Bottom-right home area
+                startRow: gridSize - homeSize + centerOffset,
+                endRow: gridSize - homeSize + centerOffset + centerSize - 1,
+                startCol: gridSize - homeSize + centerOffset,
+                endCol: gridSize - homeSize + centerOffset + centerSize - 1
+            }
+        };
     }
     
     addTokenToSquare(square, token) {
@@ -969,17 +1033,17 @@ class LudoGame {
         
         // Handle special cases
         if (pathIndex === 0) {
-            // Token is in home area
+            // Token is in home area - use center home squares
             const playerName = this.getPlayerNameFromId(playerId);
             const homeSquares = this.getHomeSquares(playerName);
             if (homeSquares && homeSquares[tokenIndex]) {
                 return {
                     row: homeSquares[tokenIndex].row,
                     col: homeSquares[tokenIndex].col,
-                    description: `Home Area (${homeSquares[tokenIndex].row}, ${homeSquares[tokenIndex].col})`
+                    description: `Home Area Center (${homeSquares[tokenIndex].row}, ${homeSquares[tokenIndex].col})`
                 };
             }
-            return { row: 'Home', col: 'Area', description: 'Home Area' };
+            return { row: 'Home', col: 'Center', description: 'Home Area Center' };
         }
         
         if (pathIndex >= this.finalPosition) {
