@@ -70,6 +70,9 @@
             <button class="btn btn-outline-primary me-2" onclick="goHome()">
               <i class="fas fa-home me-1"></i> Home
             </button>
+            <button class="btn btn-warning me-2" onclick="openGameInfo()">
+              <i class="fas fa-scroll me-1"></i> Game Info
+            </button>
             <button class="btn btn-info me-2" onclick="openGameLogs()">
               <i class="fas fa-clipboard-list me-1"></i> Game Logs
             </button>
@@ -248,142 +251,543 @@
       </div>
     </div>
 
-
-
-
-
-
-
     <!-- Game Logs Modal -->
-<div class="modal fade" id="gameLogsModal" tabindex="-1" aria-labelledby="gameLogsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div
+      class="modal fade"
+      id="gameLogsModal"
+      tabindex="-1"
+      aria-labelledby="gameLogsModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content logs-modal-content">
-            <div class="modal-header logs-modal-header">
-                <div class="logs-header-content">
-                    <h3 class="modal-title logs-modal-title" id="gameLogsModalLabel">
-                        <i class="fas fa-chart-line me-3"></i>
-                        Game Analytics & Move History
-                    </h3>
-                    <div class="logs-stats-summary">
-                        <div class="stat-item">
-                            <span class="stat-label">Total Moves:</span>
-                            <span class="stat-value" id="totalMovesCount">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Current Round:</span>
-                            <span class="stat-value" id="currentRoundDisplay">1</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Game Duration:</span>
-                            <span class="stat-value" id="gameDurationDisplay">00:00</span>
-                        </div>
-                    </div>
+          <div class="modal-header logs-modal-header">
+            <div class="logs-header-content">
+              <h3 class="modal-title logs-modal-title" id="gameLogsModalLabel">
+                <i class="fas fa-chart-line me-3"></i>
+                Game Analytics & Move History
+              </h3>
+              <div class="logs-stats-summary">
+                <div class="stat-item">
+                  <span class="stat-label">Total Moves:</span>
+                  <span class="stat-value" id="totalMovesCount">0</span>
                 </div>
-                <button type="button" class="btn-close logs-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="stat-item">
+                  <span class="stat-label">Current Round:</span>
+                  <span class="stat-value" id="currentRoundDisplay">1</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Game Duration:</span>
+                  <span class="stat-value" id="gameDurationDisplay">00:00</span>
+                </div>
+              </div>
             </div>
-            
-            <div class="modal-body logs-modal-body">
-                <!-- Filter Controls -->
-                <div class="logs-filter-section">
-                    <div class="filter-group">
-                        <label class="filter-label">Filter by Player:</label>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all">All Players</button>
-                            <button class="filter-btn player-1" data-filter="1">Player 1</button>
-                            <button class="filter-btn player-2" data-filter="2">Player 2</button>
-                            <button class="filter-btn player-3" data-filter="3" style="display: none;">Player 3</button>
-                            <button class="filter-btn player-4" data-filter="4" style="display: none;">Player 4</button>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label class="filter-label">Move Type:</label>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-type="all">All Moves</button>
-                            <button class="filter-btn" data-type="regular">Regular</button>
-                            <button class="filter-btn" data-type="bonus">Bonus</button>
-                            <button class="filter-btn" data-type="capture">Captures</button>
-                            <button class="filter-btn" data-type="finish">Finishes</button>
-                        </div>
-                    </div>
+            <button
+              type="button"
+              class="btn-close logs-btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body logs-modal-body">
+            <!-- Filter Controls -->
+            <div class="logs-filter-section">
+              <div class="filter-group">
+                <label class="filter-label">Filter by Player:</label>
+                <div class="filter-buttons">
+                  <button class="filter-btn active" data-filter="all">
+                    All Players
+                  </button>
+                  <button class="filter-btn player-1" data-filter="1">
+                    Player 1
+                  </button>
+                  <button class="filter-btn player-2" data-filter="2">
+                    Player 2
+                  </button>
+                  <button
+                    class="filter-btn player-3"
+                    data-filter="3"
+                    style="display: none"
+                  >
+                    Player 3
+                  </button>
+                  <button
+                    class="filter-btn player-4"
+                    data-filter="4"
+                    style="display: none"
+                  >
+                    Player 4
+                  </button>
                 </div>
-                
-                <!-- Game Statistics Dashboard -->
-                <div class="logs-dashboard">
-                    <div class="dashboard-row">
-                        <div class="dashboard-card player-stats-card">
-                            <h5 class="card-title">
-                                <i class="fas fa-users"></i>
-                                Player Statistics
-                            </h5>
-                            <div class="player-stats-grid" id="playerStatsGrid">
-                                <!-- Player stats will be populated here -->
-                            </div>
-                        </div>
-                        
-                        <div class="dashboard-card dice-analytics-card">
-                            <h5 class="card-title">
-                                <i class="fas fa-dice-six"></i>
-                                Dice Analytics
-                            </h5>
-                            <div class="dice-stats" id="diceStatsContainer">
-                                <!-- Dice statistics will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="dashboard-row">
-                        <div class="dashboard-card recent-activity-card">
-                            <h5 class="card-title">
-                                <i class="fas fa-clock"></i>
-                                Recent Activity
-                            </h5>
-                            <div class="recent-activity-list" id="recentActivityList">
-                                <!-- Recent activities will be populated here -->
-                            </div>
-                        </div>
-                        
-                        <div class="dashboard-card game-progress-card">
-                            <h5 class="card-title">
-                                <i class="fas fa-trophy"></i>
-                                Game Progress
-                            </h5>
-                            <div class="progress-visualization" id="gameProgressViz">
-                                <!-- Progress bars will be populated here -->
-                            </div>
-                        </div>
-                    </div>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Move Type:</label>
+                <div class="filter-buttons">
+                  <button class="filter-btn active" data-type="all">
+                    All Moves
+                  </button>
+                  <button class="filter-btn" data-type="regular">
+                    Regular
+                  </button>
+                  <button class="filter-btn" data-type="bonus">Bonus</button>
+                  <button class="filter-btn" data-type="capture">
+                    Captures
+                  </button>
+                  <button class="filter-btn" data-type="finish">
+                    Finishes
+                  </button>
                 </div>
-                
-                <!-- Detailed Move Logs -->
-                <div class="logs-timeline-section">
-                    <h4 class="timeline-title">
-                        <i class="fas fa-history me-2"></i>
-                        Detailed Move Timeline
-                    </h4>
-                    <div class="logs-timeline" id="gameLogsTimeline">
-                        <!-- Timeline entries will be populated here -->
-                    </div>
-                </div>
+              </div>
             </div>
-            
-            <div class="modal-footer logs-modal-footer">
-                <button type="button" class="btn btn-outline-secondary" onclick="exportGameLogs()">
-                    <i class="fas fa-download me-2"></i>
-                    Export Logs
-                </button>
-                <button type="button" class="btn btn-outline-danger" onclick="clearGameLogs()">
-                    <i class="fas fa-trash me-2"></i>
-                    Clear Logs
-                </button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>
-                    Close
-                </button>
+
+            <!-- Game Statistics Dashboard -->
+            <div class="logs-dashboard">
+              <div class="dashboard-row">
+                <div class="dashboard-card player-stats-card">
+                  <h5 class="card-title">
+                    <i class="fas fa-users"></i>
+                    Player Statistics
+                  </h5>
+                  <div class="player-stats-grid" id="playerStatsGrid">
+                    <!-- Player stats will be populated here -->
+                  </div>
+                </div>
+
+                <div class="dashboard-card dice-analytics-card">
+                  <h5 class="card-title">
+                    <i class="fas fa-dice-six"></i>
+                    Dice Analytics
+                  </h5>
+                  <div class="dice-stats" id="diceStatsContainer">
+                    <!-- Dice statistics will be populated here -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="dashboard-row">
+                <div class="dashboard-card recent-activity-card">
+                  <h5 class="card-title">
+                    <i class="fas fa-clock"></i>
+                    Recent Activity
+                  </h5>
+                  <div class="recent-activity-list" id="recentActivityList">
+                    <!-- Recent activities will be populated here -->
+                  </div>
+                </div>
+
+                <div class="dashboard-card game-progress-card">
+                  <h5 class="card-title">
+                    <i class="fas fa-trophy"></i>
+                    Game Progress
+                  </h5>
+                  <div class="progress-visualization" id="gameProgressViz">
+                    <!-- Progress bars will be populated here -->
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Detailed Move Logs -->
+            <div class="logs-timeline-section">
+              <h4 class="timeline-title">
+                <i class="fas fa-history me-2"></i>
+                Detailed Move Timeline
+              </h4>
+              <div class="logs-timeline" id="gameLogsTimeline">
+                <!-- Timeline entries will be populated here -->
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer logs-modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              onclick="exportGameLogs()"
+            >
+              <i class="fas fa-download me-2"></i>
+              Export Logs
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger"
+              onclick="clearGameLogs()"
+            >
+              <i class="fas fa-trash me-2"></i>
+              Clear Logs
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-2"></i>
+              Close
+            </button>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+
+    <!-- Game Info Modal - Ancient Scroll Style -->
+    <div
+      class="modal fade"
+      id="gameInfoModal"
+      tabindex="-1"
+      aria-labelledby="gameInfoModalLabel"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+      >
+        <div class="modal-content scroll-modal-content">
+          <!-- Scroll Header -->
+          <div class="scroll-header">
+            <div class="scroll-rod scroll-rod-left"></div>
+            <div class="scroll-rod scroll-rod-right"></div>
+            <div class="scroll-title-section">
+              <h2 class="scroll-title" id="gameInfoModalLabel">
+                <i class="fas fa-dice-d20 me-3"></i>
+                The Ancient Art of 3-Dice Ludo
+              </h2>
+              <div class="scroll-subtitle">
+                A Revolutionary Gaming Experience
+              </div>
+            </div>
+            <button
+              type="button"
+              class="scroll-close-btn"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Scroll Body -->
+          <div class="modal-body scroll-body">
+            <div class="scroll-content">
+              <!-- Introduction Section -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-star-of-life"></i>
+                  Welcome, Noble Player!
+                </h3>
+                <div class="section-content">
+                  <p class="scroll-text">
+                    Prepare yourself for an extraordinary twist on the classic
+                    game of Ludo! Our innovative
+                    <strong>3-Dice Revolutionary System</strong> transforms the
+                    traditional gameplay into an epic battle of strategy, luck,
+                    and shared destiny.
+                  </p>
+                </div>
+              </div>
+
+              <!-- The Magic of Three Dice -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-dice-three"></i>
+                  The Magic of Three Dice
+                </h3>
+                <div class="section-content">
+                  <div class="magic-dice-container">
+                    <div class="magic-dice">
+                      <div class="dice-icon">🎲</div>
+                      <div class="dice-label">First Die</div>
+                      <div class="dice-description">For the roller</div>
+                    </div>
+                    <div class="magic-dice">
+                      <div class="dice-icon">🎲</div>
+                      <div class="dice-label">Second Die</div>
+                      <div class="dice-description">For the opponent</div>
+                    </div>
+                    <div class="magic-dice">
+                      <div class="dice-icon">🎲</div>
+                      <div class="dice-label">Third Die</div>
+                      <div class="dice-description">Back to the roller</div>
+                    </div>
+                  </div>
+                  <p class="scroll-text">
+                    Unlike traditional Ludo where you roll for yourself, our
+                    system creates a
+                    <strong>shared fate</strong> between players. When you roll
+                    three dice, you're not just helping yourself - you're also
+                    giving your opponent a chance to move!
+                  </p>
+                </div>
+              </div>
+
+              <!-- How a Turn Works -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-sync-alt"></i>
+                  How a Turn Unfolds
+                </h3>
+                <div class="section-content">
+                  <div class="turn-flow">
+                    <div class="flow-step">
+                      <div class="step-number">1</div>
+                      <div class="step-content">
+                        <strong>The Roll</strong>
+                        <p>Player rolls all three dice simultaneously</p>
+                      </div>
+                    </div>
+                    <div class="flow-arrow">⬇️</div>
+                    <div class="flow-step">
+                      <div class="step-number">2</div>
+                      <div class="step-content">
+                        <strong>First Move</strong>
+                        <p>Roller uses the first die value</p>
+                      </div>
+                    </div>
+                    <div class="flow-arrow">⬇️</div>
+                    <div class="flow-step">
+                      <div class="step-number">3</div>
+                      <div class="step-content">
+                        <strong>Opponent's Turn</strong>
+                        <p>Opponent uses the second die value</p>
+                      </div>
+                    </div>
+                    <div class="flow-arrow">⬇️</div>
+                    <div class="flow-step">
+                      <div class="step-number">4</div>
+                      <div class="step-content">
+                        <strong>Final Move</strong>
+                        <p>Roller uses the third die value</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bonus Moves Magic -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-magic"></i>
+                  The Bonus Moves Magic
+                </h3>
+                <div class="section-content">
+                  <div class="bonus-triggers">
+                    <div class="bonus-trigger">
+                      <div class="trigger-icon">⚅</div>
+                      <div class="trigger-title">Rolling a Six</div>
+                      <div class="trigger-desc">Get another dice roll!</div>
+                    </div>
+                    <div class="bonus-trigger">
+                      <div class="trigger-icon">🏠</div>
+                      <div class="trigger-title">Reaching Home</div>
+                      <div class="trigger-desc">
+                        Token finishes, earn bonus!
+                      </div>
+                    </div>
+                    <div class="bonus-trigger">
+                      <div class="trigger-icon">⚔️</div>
+                      <div class="trigger-title">Capturing Enemy</div>
+                      <div class="trigger-desc">
+                        Send opponent back, get reward!
+                      </div>
+                    </div>
+                  </div>
+                  <p class="scroll-text">
+                    These magical events can create
+                    <strong>incredible chain reactions</strong>! You might roll
+                    a six, capture an enemy, and get another bonus - creating
+                    epic turns that can completely change the game!
+                  </p>
+                </div>
+              </div>
+
+              <!-- Token Strategy -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-chess-pawn"></i>
+                  Token Movement Strategy
+                </h3>
+                <div class="section-content">
+                  <div class="strategy-card">
+                    <div class="strategy-header">
+                      <i class="fas fa-brain"></i>
+                      <span>Smart Token Selection</span>
+                    </div>
+                    <div class="strategy-body">
+                      <p>
+                        Our intelligent system automatically chooses the best
+                        token to move:
+                      </p>
+                      <ul class="strategy-list">
+                        <li>
+                          🎯 <strong>Focus First:</strong> Move one token at a
+                          time to completion
+                        </li>
+                        <li>
+                          🏃‍♂️ <strong>No Splitting:</strong> Don't spread moves
+                          across all tokens
+                        </li>
+                        <li>
+                          🏆 <strong>Finish Line:</strong> Once a token reaches
+                          home, move the next one
+                        </li>
+                        <li>
+                          🎮 <strong>No Decisions:</strong> System handles
+                          strategy, you enjoy the game!
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Safe Zones and Captures -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-shield-alt"></i>
+                  Safe Zones & Epic Battles
+                </h3>
+                <div class="section-content">
+                  <div class="battle-system">
+                    <div class="battle-card safe">
+                      <div class="card-icon">🛡️</div>
+                      <div class="card-title">Safe Zones</div>
+                      <div class="card-desc">
+                        Purple starred squares are <strong>sanctuaries</strong>!
+                        No token can be captured here. Use them wisely for
+                        protection!
+                      </div>
+                    </div>
+                    <div class="battle-card danger">
+                      <div class="card-icon">⚔️</div>
+                      <div class="card-title">Battle Zones</div>
+                      <div class="card-desc">
+                        Land on an enemy token outside safe zones?
+                        <strong>CAPTURED!</strong> Send them back to start and
+                        earn a bonus move!
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Victory Conditions -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-crown"></i>
+                  Path to Victory
+                </h3>
+                <div class="section-content">
+                  <div class="victory-path">
+                    <div class="victory-step">
+                      <div class="victory-icon">🎯</div>
+                      <div class="victory-text">
+                        <strong>The Goal:</strong> Get all your tokens to the
+                        center home area
+                      </div>
+                    </div>
+                    <div class="victory-step">
+                      <div class="victory-icon">⏱️</div>
+                      <div class="victory-text">
+                        <strong>Time Limit:</strong> Maximum 24 moves per player
+                        (no endless games!)
+                      </div>
+                    </div>
+                    <div class="victory-step">
+                      <div class="victory-icon">🏆</div>
+                      <div class="victory-text">
+                        <strong>Winner:</strong> First player to get all tokens
+                        home wins the crown!
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Why It's Revolutionary -->
+              <div class="scroll-section">
+                <h3 class="section-title">
+                  <i class="fas fa-rocket"></i>
+                  Why This Changes Everything
+                </h3>
+                <div class="section-content">
+                  <div class="revolution-points">
+                    <div class="revolution-point">
+                      <div class="point-icon">🤝</div>
+                      <div class="point-content">
+                        <strong>Shared Destiny:</strong> Your roll helps
+                        opponents too - creates unexpected alliances and
+                        rivalries!
+                      </div>
+                    </div>
+                    <div class="revolution-point">
+                      <div class="point-icon">⚡</div>
+                      <div class="point-content">
+                        <strong>Faster Gameplay:</strong> More moves per turn
+                        means quicker, more exciting games!
+                      </div>
+                    </div>
+                    <div class="revolution-point">
+                      <div class="point-icon">🎢</div>
+                      <div class="point-content">
+                        <strong>Dramatic Comebacks:</strong> Bonus chains can
+                        create incredible comeback moments!
+                      </div>
+                    </div>
+                    <div class="revolution-point">
+                      <div class="point-icon">🧠</div>
+                      <div class="point-content">
+                        <strong>Strategic Depth:</strong> Plan not just your
+                        moves, but anticipate how your rolls affect others!
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Final Wisdom -->
+              <div class="scroll-section final-wisdom">
+                <h3 class="section-title">
+                  <i class="fas fa-gem"></i>
+                  Ancient Wisdom
+                </h3>
+                <div class="section-content">
+                  <div class="wisdom-quote">
+                    <div class="quote-mark">"</div>
+                    <div class="quote-text">
+                      In this realm of three dice, victory belongs not to the
+                      luckiest, but to those who understand that
+                      <strong>helping your opponent</strong>
+                      is sometimes the path to your own triumph.
+                      <br /><br />
+                      May your dice be ever in your favor, and your strategies
+                      ever wise!
+                    </div>
+                    <div class="quote-mark">"</div>
+                  </div>
+                  <div class="wisdom-signature">~ The Ancient Ludo Masters</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scroll Footer -->
+          <div class="scroll-footer">
+            <div class="scroll-rod scroll-rod-bottom-left"></div>
+            <div class="scroll-rod scroll-rod-bottom-right"></div>
+            <div class="footer-content">
+              <button
+                type="button"
+                class="btn scroll-btn"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-scroll me-2"></i>
+                Close the Ancient Scroll
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Pass Flask data to JavaScript -->
     <script>

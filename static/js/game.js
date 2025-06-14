@@ -932,6 +932,9 @@ class LudoGame {
     logMove(moveData) {
         // Enhanced move logging with detailed information
         const timestamp = new Date();
+        // Get actual board coordinates for from and to positions
+        const fromBoardIndex = this.getActualBoardIndex(moveData.player, moveData.initPositions, moveData.token - 1);
+        const toBoardIndex = this.getActualBoardIndex(moveData.player, moveData.finalPositions, moveData.token - 1);
         const detailedMove = {
             id: this.detailedGameHistory.length + 1,
             timestamp: timestamp,
@@ -943,6 +946,8 @@ class LudoGame {
             moveType: moveData.moveType || 'regular',
             fromPosition: moveData.initPositions ? moveData.initPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
             toPosition: moveData.finalPositions ? moveData.finalPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
+            fromBoardIndex: fromBoardIndex, // New: actual board coordinates
+            toBoardIndex: toBoardIndex,     // New: actual board coordinates
             captured: moveData.result ? moveData.result.captured : false,
             finished: moveData.result ? moveData.result.finished : false,
             usedValues: moveData.usedValues || [moveData.diceValue],
@@ -955,6 +960,62 @@ class LudoGame {
         this.updatePlayerStatistics(detailedMove);
         
         console.log('Move logged:', detailedMove);
+    }
+    // New method to get actual board coordinates
+    getActualBoardIndex(playerId, positions, tokenIndex) {
+        if (!positions) return { row: 'N/A', col: 'N/A' };
+        
+        const pathIndex = positions[((playerId - 1) * parseInt(this.config.numTokens)) + tokenIndex];
+        
+        // Handle special cases
+        if (pathIndex === 0) {
+            // Token is in home area
+            const playerName = this.getPlayerNameFromId(playerId);
+            const homeSquares = this.getHomeSquares(playerName);
+            if (homeSquares && homeSquares[tokenIndex]) {
+                return {
+                    row: homeSquares[tokenIndex].row,
+                    col: homeSquares[tokenIndex].col,
+                    description: `Home Area (${homeSquares[tokenIndex].row}, ${homeSquares[tokenIndex].col})`
+                };
+            }
+            return { row: 'Home', col: 'Area', description: 'Home Area' };
+        }
+        
+        if (pathIndex >= this.finalPosition) {
+            // Token is in center/finish area
+            const centerPos = this.boardConfig.CENTER;
+            return {
+                row: centerPos.row,
+                col: centerPos.col,
+                description: `Finish Area (${centerPos.row}, ${centerPos.col})`
+            };
+        }
+        
+        // Token is on the game path
+        const position = this.getPositionFromPathIndex(pathIndex, playerId);
+        if (position) {
+            return {
+                row: position.row,
+                col: position.col,
+                description: `Board Position (${position.row}, ${position.col})`
+            };
+        }
+        
+        return { row: 'Unknown', col: 'Position', description: 'Unknown Position' };
+    }
+
+    // Enhanced method to get board position description
+    getBoardPositionDescription(boardIndex) {
+        if (!boardIndex || boardIndex.row === 'N/A') {
+            return 'Unknown Position';
+        }
+        
+        if (boardIndex.description) {
+            return boardIndex.description;
+        }
+        
+        return `(${boardIndex.row}, ${boardIndex.col})`;
     }
     
     updatePlayerStatistics(moveData) {
@@ -1229,6 +1290,7 @@ function populateDiceAnalytics(diceStats) {
     }
 }
 
+// Enhanced recent activity with board coordinates
 function populateRecentActivity(recentMoves) {
     const container = document.getElementById('recentActivityList');
     container.innerHTML = '';
@@ -1247,15 +1309,25 @@ function populateRecentActivity(recentMoves) {
                     move.finished ? 'fas fa-trophy' : 
                     move.moveType === 'bonus' ? 'fas fa-star' : 'fas fa-arrows-alt';
         
+        // Get simplified board position description
+        const fromPos = move.fromBoardIndex ? 
+            `[${move.fromBoardIndex.row},${move.fromBoardIndex.col}]` : 
+            `Path ${move.fromPosition}`;
+        const toPos = move.toBoardIndex ? 
+            `[${move.toBoardIndex.row},${move.toBoardIndex.col}]` : 
+            `Path ${move.toPosition}`;
+        
         activityItem.innerHTML = `
             <div class="activity-icon">
                 <i class="${icon}"></i>
             </div>
             <div class="activity-content">
                 <div class="activity-text">
-                    <strong>Player ${move.player}</strong> moved Token ${move.token} 
-                    ${move.captured ? '(Captured!)' : ''}
-                    ${move.finished ? '(Finished!)' : ''}
+                    <strong>Player ${move.player}</strong> moved Token ${move.token}
+                    <br>
+                    <small class="activity-coordinates">${fromPos} → ${toPos}</small>
+                    ${move.captured ? ' <span class="activity-badge capture">Captured!</span>' : ''}
+                    ${move.finished ? ' <span class="activity-badge finish">Finished!</span>' : ''}
                 </div>
                 <div class="activity-time">${timeAgo}</div>
             </div>
@@ -1289,6 +1361,7 @@ function populateGameProgress(playerStats, finalPosition) {
     });
 }
 
+// Update the populateTimeline function to use board coordinates
 function populateTimeline(gameHistory) {
     const container = document.getElementById('gameLogsTimeline');
     container.innerHTML = '';
@@ -1320,6 +1393,18 @@ function populateTimeline(gameHistory) {
             `<div class="timeline-die">${val}</div>`
         ).join('');
         
+        // Enhanced move description with board coordinates
+        const fromDesc = move.fromBoardIndex ? 
+            (move.fromBoardIndex.description || `(${move.fromBoardIndex.row}, ${move.fromBoardIndex.col})`) : 
+            `Path Index ${move.fromPosition}`;
+            
+        const toDesc = move.toBoardIndex ? 
+            (move.toBoardIndex.description || `(${move.toBoardIndex.row}, ${move.toBoardIndex.col})`) : 
+            `Path Index ${move.toPosition}`;
+        
+        // Create detailed position information
+        const positionInfo = createPositionInfoElement(move);
+        
         timelineEntry.innerHTML = `
             <div class="timeline-header">
                 <div class="timeline-player">
@@ -1331,17 +1416,65 @@ function populateTimeline(gameHistory) {
             <div class="timeline-content">
                 <div class="timeline-dice">${diceDisplay}</div>
                 <div class="timeline-details">
-                    <strong>Move #${move.id}</strong> - Token ${move.token} moved from position ${move.fromPosition} to ${move.toPosition}
+                    <strong>Move #${move.id}</strong> - Token ${move.token}
                     <br>
-                    Used dice value: <strong>${move.diceValue}</strong>
-                    ${move.usedValues.length > 1 ? ` (Bonus chain: ${move.usedValues.join(', ')})` : ''}
-                    ${badges.join(' ')}
+                    <div class="move-path-info">
+                        <div class="path-segment">
+                            <span class="path-label">From:</span>
+                            <span class="path-location from-location">${fromDesc}</span>
+                        </div>
+                        <div class="path-arrow">→</div>
+                        <div class="path-segment">
+                            <span class="path-label">To:</span>
+                            <span class="path-location to-location">${toDesc}</span>
+                        </div>
+                    </div>
+                    <div class="move-details-extra">
+                        Used dice value: <strong>${move.diceValue}</strong>
+                        ${move.usedValues.length > 1 ? ` (Bonus chain: ${move.usedValues.join(', ')})` : ''}
+                        ${badges.join(' ')}
+                    </div>
+                    ${positionInfo}
                 </div>
             </div>
         `;
         
         container.appendChild(timelineEntry);
     });
+}
+
+// New function to create detailed position information
+function createPositionInfoElement(move) {
+    let positionDetails = '';
+    
+    // Add coordinate details if available
+    if (move.fromBoardIndex && move.toBoardIndex) {
+        positionDetails += `
+            <div class="coordinate-details">
+                <div class="coordinate-item">
+                    <span class="coord-label">From Coordinates:</span>
+                    <span class="coord-value">[${move.fromBoardIndex.row}, ${move.fromBoardIndex.col}]</span>
+                </div>
+                <div class="coordinate-item">
+                    <span class="coord-label">To Coordinates:</span>
+                    <span class="coord-value">[${move.toBoardIndex.row}, ${move.toBoardIndex.col}]</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add path index information for reference
+    positionDetails += `
+        <div class="path-index-details">
+            <small class="text-muted">
+                Path progression: ${move.fromPosition} → ${move.toPosition}
+                ${move.captured ? ' | Enemy captured!' : ''}
+                ${move.finished ? ' | Token finished!' : ''}
+            </small>
+        </div>
+    `;
+    
+    return positionDetails;
 }
 
 function setupFilterHandlers() {
@@ -1452,7 +1585,130 @@ function getTimeAgo(timestamp) {
     return `${diffHours}h ago`;
 }
 
-// Make functions globally available
+function openGameInfo() {
+    const modal = new bootstrap.Modal(document.getElementById('gameInfoModal'));
+    
+    // Add entrance animation
+    const modalElement = document.getElementById('gameInfoModal');
+    modalElement.addEventListener('shown.bs.modal', function () {
+        const scrollSections = modalElement.querySelectorAll('.scroll-section');
+        scrollSections.forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+    }, { once: true });
+    
+    modal.show();
+    
+    // Add floating particles effect
+    createFloatingParticles();
+}
+
+function createFloatingParticles() {
+    const modalBody = document.querySelector('#gameInfoModal .scroll-body');
+    if (!modalBody) return;
+    
+    // Remove existing particles
+    const existingParticles = modalBody.querySelectorAll('.floating-particle');
+    existingParticles.forEach(particle => particle.remove());
+    
+    // Create new particles
+    for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'floating-particle';
+        particle.style.cssText = `
+            position: absolute;
+            width: ${Math.random() * 4 + 2}px;
+            height: ${Math.random() * 4 + 2}px;
+            background: radial-gradient(circle, rgba(139, 69, 19, 0.6), rgba(205, 133, 63, 0.3));
+            border-radius: 50%;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatParticle ${Math.random() * 10 + 10}s linear infinite;
+        `;
+        
+        modalBody.appendChild(particle);
+    }
+}
+
+// Add CSS for floating particles
+const particleCSS = `
+    @keyframes floatParticle {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.6;
+        }
+        90% {
+            opacity: 0.6;
+        }
+        100% {
+            transform: translateY(-100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    .floating-particle {
+        animation-timing-function: ease-in-out;
+    }
+`;
+
+// Inject particle CSS
+const particleStyle = document.createElement('style');
+particleStyle.textContent = particleCSS;
+document.head.appendChild(particleStyle);
+
+// Enhanced scroll effects for the modal
+function addScrollEffects() {
+    const scrollBody = document.querySelector('#gameInfoModal .scroll-body');
+    if (!scrollBody) return;
+    
+    scrollBody.addEventListener('scroll', function() {
+        const scrollTop = this.scrollTop;
+        const scrollHeight = this.scrollHeight - this.clientHeight;
+        const scrollProgress = scrollTop / scrollHeight;
+        
+        // Parallax effect for sections
+        const sections = this.querySelectorAll('.scroll-section');
+        sections.forEach((section, index) => {
+            const rect = section.getBoundingClientRect();
+            const containerRect = this.getBoundingClientRect();
+            const sectionCenter = rect.top + rect.height / 2;
+            const containerCenter = containerRect.top + containerRect.height / 2;
+            const distance = Math.abs(sectionCenter - containerCenter);
+            const maxDistance = containerRect.height / 2 + rect.height / 2;
+            const proximity = Math.max(0, 1 - distance / maxDistance);
+            
+            // Apply subtle transform based on proximity
+            const translateY = (1 - proximity) * 10;
+            const opacity = 0.3 + proximity * 0.7;
+            
+            section.style.transform = `translateY(${translateY}px)`;
+            section.style.opacity = opacity;
+        });
+    });
+    
+    // Trigger initial scroll effect
+    scrollBody.dispatchEvent(new Event('scroll'));
+}
+
+// Initialize scroll effects when modal is shown
+document.getElementById('gameInfoModal').addEventListener('shown.bs.modal', function() {
+    setTimeout(addScrollEffects, 500);
+});
+
+// Make function globally available
+window.openGameInfo = openGameInfo;
 window.openGameLogs = openGameLogs;
 window.exportGameLogs = exportGameLogs;
 window.clearGameLogs = clearGameLogs;
