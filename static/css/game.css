@@ -2474,6 +2474,573 @@ body {
 
 
 
+
+
+
+.bonus-dice-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000;
+    perspective: 1000px;
+    pointer-events: none;
+    transform: translateX(120%) scale(0.8);
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.bonus-dice-container.show {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.bonus-dice-container.hide {
+    transform: translateX(120%) scale(0.8);
+    opacity: 0;
+    transition: all 0.4s ease-in-out;
+}
+
+.bonus-dice-card {
+    background: linear-gradient(145deg, 
+        rgba(255, 215, 0, 0.95), 
+        rgba(255, 140, 0, 0.95)
+    );
+    backdrop-filter: blur(20px);
+    border: 3px solid #FFD700;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 
+        0 20px 40px rgba(255, 215, 0, 0.4),
+        0 10px 20px rgba(255, 140, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 60px rgba(255, 215, 0, 0.6);
+    min-width: 280px;
+    transform-style: preserve-3d;
+    position: relative;
+    overflow: hidden;
+    animation: bonusCardPulse 2s ease-in-out infinite;
+}
+
+@keyframes bonusCardPulse {
+    0%, 100% {
+        box-shadow: 
+            0 20px 40px rgba(255, 215, 0, 0.4),
+            0 10px 20px rgba(255, 140, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6),
+            0 0 60px rgba(255, 215, 0, 0.6);
+    }
+    50% {
+        box-shadow: 
+            0 25px 50px rgba(255, 215, 0, 0.6),
+            0 15px 30px rgba(255, 140, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8),
+            0 0 80px rgba(255, 215, 0, 0.8);
+    }
+}
+
+/* Bonus Header */
+.bonus-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 3;
+}
+
+.bonus-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #FF6B35, #F7931E);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    animation: bonusIconSpin 3s ease-in-out infinite;
+}
+
+@keyframes bonusIconSpin {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(90deg) scale(1.1); }
+    50% { transform: rotate(180deg) scale(1); }
+    75% { transform: rotate(270deg) scale(1.1); }
+}
+
+.bonus-info {
+    flex: 1;
+    margin-left: 1rem;
+    text-align: center;
+}
+
+.bonus-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #8B4513;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
+    animation: bonusTitleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes bonusTitleGlow {
+    0% { 
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    100% { 
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+}
+
+.bonus-player {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #654321;
+    margin-top: 0.2rem;
+}
+
+.bonus-streak {
+    background: linear-gradient(135deg, #FF1744, #F50057);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(255, 23, 68, 0.4);
+    animation: bonusStreakBounce 1s ease-in-out infinite;
+}
+
+@keyframes bonusStreakBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Bonus Dice Area */
+.bonus-dice-area {
+    text-align: center;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 3;
+}
+
+.bonus-dice-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    perspective: 1000px;
+}
+
+.bonus-dice {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease-in-out;
+    filter: drop-shadow(0 8px 20px rgba(255, 215, 0, 0.4));
+}
+
+.bonus-dice-face {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border: 3px solid #333;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 
+        inset 0 3px 6px rgba(255, 255, 255, 0.8),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.1),
+        0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Bonus Dice face positioning for 3D cube */
+.bonus-dice-face-1 { transform: rotateY(0deg) translateZ(30px); }
+.bonus-dice-face-2 { transform: rotateY(90deg) translateZ(30px); }
+.bonus-dice-face-3 { transform: rotateY(180deg) translateZ(30px); }
+.bonus-dice-face-4 { transform: rotateY(-90deg) translateZ(30px); }
+.bonus-dice-face-5 { transform: rotateX(90deg) translateZ(30px); }
+.bonus-dice-face-6 { transform: rotateX(-90deg) translateZ(30px); }
+
+/* Bonus Dice dots */
+.bonus-dot {
+    width: 10px;
+    height: 10px;
+    background: #333;
+    border-radius: 50%;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+    position: absolute;
+}
+
+/* Bonus dice face layouts - same as regular dice but positioned for bonus dice */
+.bonus-dice-face-1 .bonus-dot {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.bonus-dice-face-2 .bonus-dot:nth-child(1) {
+    top: 25%;
+    left: 25%;
+}
+.bonus-dice-face-2 .bonus-dot:nth-child(2) {
+    bottom: 25%;
+    right: 25%;
+}
+
+.bonus-dice-face-3 .bonus-dot:nth-child(1) {
+    top: 25%;
+    left: 25%;
+}
+.bonus-dice-face-3 .bonus-dot:nth-child(2) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.bonus-dice-face-3 .bonus-dot:nth-child(3) {
+    bottom: 25%;
+    right: 25%;
+}
+
+.bonus-dice-face-4 .bonus-dot:nth-child(1) {
+    top: 25%;
+    left: 25%;
+}
+.bonus-dice-face-4 .bonus-dot:nth-child(2) {
+    top: 25%;
+    right: 25%;
+}
+.bonus-dice-face-4 .bonus-dot:nth-child(3) {
+    bottom: 25%;
+    left: 25%;
+}
+.bonus-dice-face-4 .bonus-dot:nth-child(4) {
+    bottom: 25%;
+    right: 25%;
+}
+
+.bonus-dice-face-5 .bonus-dot:nth-child(1) {
+    top: 25%;
+    left: 25%;
+}
+.bonus-dice-face-5 .bonus-dot:nth-child(2) {
+    top: 25%;
+    right: 25%;
+}
+.bonus-dice-face-5 .bonus-dot:nth-child(3) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.bonus-dice-face-5 .bonus-dot:nth-child(4) {
+    bottom: 25%;
+    left: 25%;
+}
+.bonus-dice-face-5 .bonus-dot:nth-child(5) {
+    bottom: 25%;
+    right: 25%;
+}
+
+.bonus-dice-face-6 .bonus-dot:nth-child(1) {
+    top: 20%;
+    left: 30%;
+}
+.bonus-dice-face-6 .bonus-dot:nth-child(2) {
+    top: 50%;
+    left: 30%;
+    transform: translateY(-50%);
+}
+.bonus-dice-face-6 .bonus-dot:nth-child(3) {
+    bottom: 20%;
+    left: 30%;
+}
+.bonus-dice-face-6 .bonus-dot:nth-child(4) {
+    top: 20%;
+    right: 30%;
+}
+.bonus-dice-face-6 .bonus-dot:nth-child(5) {
+    top: 50%;
+    right: 30%;
+    transform: translateY(-50%);
+}
+.bonus-dice-face-6 .bonus-dot:nth-child(6) {
+    bottom: 20%;
+    right: 30%;
+}
+
+/* Bonus Dice Rolling Animation */
+@keyframes bonusDiceRoll {
+    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+    25% { transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg); }
+    50% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg); }
+    75% { transform: rotateX(1080deg) rotateY(540deg) rotateZ(270deg); }
+    100% { transform: rotateX(1440deg) rotateY(720deg) rotateZ(360deg); }
+}
+
+.bonus-dice.rolling {
+    animation: bonusDiceRoll 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Bonus Dice Value Display */
+.bonus-dice-value {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(145deg, #FF6B35, #F7931E);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.8rem;
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    margin: 1rem auto 0.5rem;
+    transform: scale(0);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bonus-dice-value.show {
+    transform: scale(1);
+    animation: bonusValuePulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes bonusValuePulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+    100% { 
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(255, 107, 53, 0.6);
+    }
+}
+
+/* Bonus Message */
+.bonus-message {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #8B4513;
+    text-align: center;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+    animation: bonusMessageFade 2s ease-in-out infinite;
+}
+
+@keyframes bonusMessageFade {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+/* Bonus Effects */
+.bonus-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.bonus-sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border-radius: 50%;
+    animation: sparkleFloat 3s linear infinite;
+}
+
+.bonus-sparkle:nth-child(1) {
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 2.5s;
+}
+
+.bonus-sparkle:nth-child(2) {
+    top: 40%;
+    right: 15%;
+    animation-delay: 0.8s;
+    animation-duration: 3.2s;
+}
+
+.bonus-sparkle:nth-child(3) {
+    bottom: 30%;
+    left: 20%;
+    animation-delay: 1.5s;
+    animation-duration: 2.8s;
+}
+
+@keyframes sparkleFloat {
+    0% {
+        transform: translateY(0px) scale(0);
+        opacity: 0;
+    }
+    10% {
+        transform: translateY(-10px) scale(1);
+        opacity: 1;
+    }
+    90% {
+        transform: translateY(-100px) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-120px) scale(0);
+        opacity: 0;
+    }
+}
+
+.bonus-glow {
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: radial-gradient(
+        circle,
+        rgba(255, 215, 0, 0.3) 0%,
+        rgba(255, 140, 0, 0.2) 40%,
+        transparent 70%
+    );
+    border-radius: 30px;
+    animation: bonusGlowPulse 2s ease-in-out infinite;
+}
+
+@keyframes bonusGlowPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+}
+
+/* Responsive Design for Bonus Dice */
+@media (max-width: 1200px) {
+    .bonus-dice-container {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    .bonus-dice-card {
+        min-width: 260px;
+        padding: 1.3rem;
+    }
+    
+    .bonus-dice {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .bonus-dice-face {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .bonus-dice-face-1 { transform: rotateY(0deg) translateZ(27.5px); }
+    .bonus-dice-face-2 { transform: rotateY(90deg) translateZ(27.5px); }
+    .bonus-dice-face-3 { transform: rotateY(180deg) translateZ(27.5px); }
+    .bonus-dice-face-4 { transform: rotateY(-90deg) translateZ(27.5px); }
+    .bonus-dice-face-5 { transform: rotateX(90deg) translateZ(27.5px); }
+    .bonus-dice-face-6 { transform: rotateX(-90deg) translateZ(27.5px); }
+}
+
+@media (max-width: 768px) {
+    .bonus-dice-container {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .bonus-dice-card {
+        min-width: 240px;
+        padding: 1rem;
+    }
+    
+    .bonus-dice {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .bonus-dice-face {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .bonus-dice-face-1 { transform: rotateY(0deg) translateZ(25px); }
+    .bonus-dice-face-2 { transform: rotateY(90deg) translateZ(25px); }
+    .bonus-dice-face-3 { transform: rotateY(180deg) translateZ(25px); }
+    .bonus-dice-face-4 { transform: rotateY(-90deg) translateZ(25px); }
+    .bonus-dice-face-5 { transform: rotateX(90deg) translateZ(25px); }
+    .bonus-dice-face-6 { transform: rotateX(-90deg) translateZ(25px); }
+    
+    .bonus-dot {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .bonus-dice-value {
+        width: 45px;
+        height: 45px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .bonus-dice-container {
+        bottom: 80px; /* Move up to avoid overlapping with main dice */
+        right: 5px;
+    }
+    
+    .bonus-dice-card {
+        min-width: 220px;
+        padding: 0.8rem;
+    }
+    
+    .bonus-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .bonus-info {
+        margin-left: 0;
+    }
+    
+    .bonus-dice {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .bonus-dice-face {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .bonus-dice-face-1 { transform: rotateY(0deg) translateZ(22.5px); }
+    .bonus-dice-face-2 { transform: rotateY(90deg) translateZ(22.5px); }
+    .bonus-dice-face-3 { transform: rotateY(180deg) translateZ(22.5px); }
+    .bonus-dice-face-4 { transform: rotateY(-90deg) translateZ(22.5px); }
+    .bonus-dice-face-5 { transform: rotateX(90deg) translateZ(22.5px); }
+    .bonus-dice-face-6 { transform: rotateX(-90deg) translateZ(22.5px); }
+}
+
+
+
+
+
+
+
+
+
+
 /* Game Logs Modal Styles */
 .logs-modal-content {
     border: none;
