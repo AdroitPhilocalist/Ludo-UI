@@ -642,6 +642,11 @@ class LudoGame {
             square.classList.add(...classArray);
         }
         
+        // Check if this square is a center home square
+        if (this.isCenterHomeSquare(row, col, gridSize, boardSize)) {
+            square.classList.add('center-home');
+        }
+        
         // Add coordinate text for debugging (remove in production)
         const coordText = document.createElement('span');
         coordText.className = 'coord-text';
@@ -654,6 +659,22 @@ class LudoGame {
         });
         
         return square;
+    }
+    
+    // New method to check if a square is a center home square
+    isCenterHomeSquare(row, col, gridSize, boardSize) {
+        const homeSize = Math.floor((gridSize - 3) / 2);
+        const centerRegions = this.getHomeCenterRegions(homeSize, gridSize);
+        
+        // Check each player's center region
+        for (const [player, region] of Object.entries(centerRegions)) {
+            if (row >= region.startRow && row <= region.endRow &&
+                col >= region.startCol && col <= region.endCol) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     placeTokensInHomeAreas() {
