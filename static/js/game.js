@@ -74,7 +74,7 @@ class LudoGame {
        switch (numPlayers) {
             case 2:
                 // For 2 players: Blue and Green (diagonally opposite)
-                return ['BLUE', 'GREEN'];
+                return ['RED', 'YELLOW'];
             case 3:
                 // For 3 players: Red, Blue, Yellow (skip Green)
                 return ['RED', 'BLUE', 'YELLOW'];
@@ -156,7 +156,7 @@ class LudoGame {
         return activePlayers[playerId - 1]; // Convert 1-based to 0-based
     }
     
-    moveToken(playerId, tokenIndex, diceValue) {
+    async moveToken(playerId, tokenIndex, diceValue) {
         // Move the selected token of the player using dice value
         const currentPathIndex = this.playerPositions[playerId][tokenIndex];
         
@@ -170,7 +170,7 @@ class LudoGame {
         // If move leads to or beyond final position, promote the token
         if (newPathIndex >= this.finalPosition) {
             this.playerPositions[playerId][tokenIndex] = this.finalPosition;
-            this.updateTokenVisualPosition(playerId, tokenIndex, this.finalPosition);
+            await this.updateTokenVisualPosition(playerId, tokenIndex, this.finalPosition, true);
             return { finalPos: this.finalPosition, finished: true, captured: false };
         }
         
@@ -187,18 +187,17 @@ class LudoGame {
                     
                     // Reset opponent token to start
                     this.playerPositions[oppPlayerId][i] = 0;
-                    this.updateTokenVisualPosition(oppPlayerId, i, 0);
-                    captured = true;
                     
-                    // Add capture animation
-                    this.animateCapture(oppPlayerId, i);
+                    // Animate capture
+                    await this.animateCapture(oppPlayerId, i);
+                    captured = true;
                 }
             }
         }
         
-        // Update current token position
+        // Update current token position and animate movement
         this.playerPositions[playerId][tokenIndex] = newPathIndex;
-        this.updateTokenVisualPosition(playerId, tokenIndex, newPathIndex);
+        await this.updateTokenVisualPosition(playerId, tokenIndex, newPathIndex, true);
         
         return { finalPos: newPathIndex, finished: false, captured };
     }
@@ -324,7 +323,7 @@ class LudoGame {
         return [rollerPlayerId, rollerPlayerId, rollerPlayerId];
     }
     
-    async performFullMove(playerId, diceValue, allDiceValues) {
+     async performFullMove(playerId, diceValue, allDiceValues) {
         // Perform a move and handle all bonus moves (like Python version)
         if (this.moveCount[playerId] >= this.maxMoves) {
             return;
@@ -334,12 +333,19 @@ class LudoGame {
         const usedValues = [diceValue];
         
         let tokenIndex = this.selectToken(playerId);
-        let result = this.moveToken(playerId, tokenIndex, diceValue);
+        
+        // Highlight the token that will move
+        this.highlightMovingToken(playerId, tokenIndex);
+        
+        let result = await this.moveToken(playerId, tokenIndex, diceValue);
         
         // Handle all bonus moves iteratively
         let currentValue = diceValue;
         while ((currentValue === 6 || result.finished || result.captured) && 
                this.moveCount[playerId] < this.maxMoves) {
+            
+            // Show bonus move indicator
+            await this.showBonusMoveIndicator(playerId, tokenIndex);
             
             // Generate new bonus dice value
             currentValue = Math.floor(Math.random() * 6) + 1;
@@ -347,14 +353,19 @@ class LudoGame {
             
             // Select token for bonus move
             tokenIndex = this.selectToken(playerId);
-            result = this.moveToken(playerId, tokenIndex, currentValue);
             
-            // Add visual delay
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // Highlight the next token
+            this.highlightMovingToken(playerId, tokenIndex);
+            
+            result = await this.moveToken(playerId, tokenIndex, currentValue);
+            
+            // Add visual delay between bonus moves
+            await this.delay(800);
         }
         
         const finalPositions = this.getAllPositions();
-        // Record the complete move (including all bonus moves) as one entry
+        
+        // Record the complete move
         const moveData = {
             finalPositions: finalPositions,
             initPositions: initPositions,
@@ -369,53 +380,181 @@ class LudoGame {
         };
         
         this.gameHistory.push(moveData);
-        this.logMove(moveData); // Add detailed logging
+        this.logMove(moveData);
         
         this.moveCount[playerId]++;
         
         // Update UI
         this.updateGameStatus();
     }
+
+    highlightMovingToken(playerId, tokenIndex) {
+        // Clear previous highlights
+        document.querySelectorAll('.token.in-sequence').forEach(token => {
+            token.classList.remove('in-sequence');
+        });
+        
+        // Highlight the token that will move
+        const playerName = this.getPlayerNameFromId(playerId);
+        const token = this.tokens[playerName][tokenIndex];
+        const tokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
+        
+        if (tokenElement) {
+            tokenElement.classList.add('in-sequence');
+            
+            // Remove highlight after movement
+            setTimeout(() => {
+                tokenElement.classList.remove('in-sequence');
+            }, 3000);
+        }
+    }
+
+    async showBonusMoveIndicator(playerId, tokenIndex) {
+        const playerName = this.getPlayerNameFromId(playerId);
+        const token = this.tokens[playerName][tokenIndex];
+        const tokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
+        
+        if (tokenElement) {
+            tokenElement.classList.add('bonus-move');
+            await this.delay(1000);
+            tokenElement.classList.remove('bonus-move');
+        }
+    }
     
     // ============ VISUAL UPDATE METHODS ============
     
-    updateTokenVisualPosition(playerId, tokenIndex, pathIndex) {
+    async updateTokenVisualPosition(playerId, tokenIndex, pathIndex, isAnimated = true) {
         const playerName = this.getPlayerNameFromId(playerId);
         const token = this.tokens[playerName][tokenIndex];
         
         if (!token) return;
         
-        // Remove token from current position
+        // Get current token element
         const currentTokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
-        if (currentTokenElement) {
-            currentTokenElement.remove();
+        
+        // Get target position
+        let targetSquare = this.getTargetSquare(playerName, tokenIndex, pathIndex);
+        
+        if (!targetSquare) return;
+        
+        if (isAnimated && currentTokenElement) {
+            // Enhanced animated movement
+            await this.animateTokenMovement(currentTokenElement, targetSquare, token, pathIndex);
+        } else {
+            // Instant movement (for initial placement)
+            this.placeTokenDirectly(targetSquare, token, currentTokenElement);
         }
         
-        // Get new position
+        // Update token state
+        this.updateTokenState(token, pathIndex);
+    }
+    
+    getTargetSquare(playerName, tokenIndex, pathIndex) {
         let targetSquare;
         
         if (pathIndex === 0) {
             // Token is in home area
             const homeSquares = this.getHomeSquares(playerName);
-            targetSquare = document.querySelector(`[data-row="${homeSquares[tokenIndex].row}"][data-col="${homeSquares[tokenIndex].col}"]`);
+            if (homeSquares[tokenIndex]) {
+                targetSquare = document.querySelector(`[data-row="${homeSquares[tokenIndex].row}"][data-col="${homeSquares[tokenIndex].col}"]`);
+            }
         } else if (pathIndex >= this.finalPosition) {
             // Token has finished
             const centerPos = this.boardConfig.CENTER;
             targetSquare = document.querySelector(`[data-row="${centerPos.row}"][data-col="${centerPos.col}"]`);
         } else {
             // Token is on the path
-            const position = this.getPositionFromPathIndex(pathIndex, playerId);
+            const position = this.getPositionFromPathIndex(pathIndex, this.getPlayerIdFromName(playerName));
             if (position) {
                 targetSquare = document.querySelector(`[data-row="${position.row}"][data-col="${position.col}"]`);
             }
         }
         
-        // Add token to new position
-        if (targetSquare) {
-            this.addTokenToSquare(targetSquare, token);
+        return targetSquare;
+    }
+    
+    async animateTokenMovement(tokenElement, targetSquare, token, pathIndex) {
+        // Phase 1: Preparation animation
+        tokenElement.classList.add('preparing-move');
+        await this.delay(800);
+        tokenElement.classList.remove('preparing-move');
+        
+        // Phase 2: Highlight movement path (optional enhancement)
+        this.highlightMovementPath(tokenElement, targetSquare);
+        
+        // Phase 3: Main movement animation
+        tokenElement.classList.add('moving');
+        
+        // Remove from current position
+        tokenElement.remove();
+        
+        // Add to target position with animation
+        this.addTokenToSquare(targetSquare, token);
+        const newTokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
+        
+        if (newTokenElement) {
+            newTokenElement.classList.add('moving');
+            
+            // Wait for movement animation to complete
+            await this.delay(1200);
+            
+            // Phase 4: Settlement animation
+            newTokenElement.classList.remove('moving');
+            newTokenElement.classList.add('settling');
+            
+            await this.delay(600);
+            newTokenElement.classList.remove('settling');
+            
+            // Phase 5: Special effects based on move result
+            await this.applyMoveEffects(newTokenElement, pathIndex);
         }
         
-        // Update token state
+        // Clear path highlighting
+        this.clearPathHighlighting();
+    }
+    
+    highlightMovementPath(fromElement, toSquare) {
+        // Add visual path highlighting (optional)
+        const fromSquare = fromElement.closest('.square');
+        if (fromSquare && toSquare) {
+            // Simple path highlighting - can be enhanced further
+            toSquare.classList.add('movement-path');
+            
+            // Remove highlighting after a delay
+            setTimeout(() => {
+                toSquare.classList.remove('movement-path');
+            }, 1800);
+        }
+    }
+    
+    clearPathHighlighting() {
+        const highlightedSquares = document.querySelectorAll('.movement-path');
+        highlightedSquares.forEach(square => {
+            square.classList.remove('movement-path');
+        });
+    }
+    
+    async applyMoveEffects(tokenElement, pathIndex) {
+        // Apply special effects based on the move result
+        if (pathIndex >= this.finalPosition) {
+            // Token finished - celebration effect
+            tokenElement.classList.add('finishing');
+            await this.delay(1800);
+            tokenElement.classList.remove('finishing');
+        }
+    }
+    
+    placeTokenDirectly(targetSquare, token, currentTokenElement) {
+        // Remove token from current position
+        if (currentTokenElement) {
+            currentTokenElement.remove();
+        }
+        
+        // Add token to new position
+        this.addTokenToSquare(targetSquare, token);
+    }
+    
+    updateTokenState(token, pathIndex) {
         token.pathIndex = pathIndex;
         if (pathIndex >= this.finalPosition) {
             token.state = 'FINISHED';
@@ -426,17 +565,51 @@ class LudoGame {
         }
     }
     
-    animateCapture(playerId, tokenIndex) {
+    async animateCapture(playerId, tokenIndex) {
         const playerName = this.getPlayerNameFromId(playerId);
         const token = this.tokens[playerName][tokenIndex];
         const tokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
         
         if (tokenElement) {
+            // Enhanced capture animation
             tokenElement.classList.add('captured');
-            setTimeout(() => {
-                tokenElement.classList.remove('captured');
-            }, 600);
+            
+            // Wait for capture animation to complete
+            await this.delay(1500);
+            
+            // Remove from current position and place back in home
+            tokenElement.remove();
+            
+            // Place token back in home area
+            const homeSquares = this.getHomeSquares(playerName);
+            const homeSquare = document.querySelector(`[data-row="${homeSquares[tokenIndex].row}"][data-col="${homeSquares[tokenIndex].col}"]`);
+            
+            if (homeSquare) {
+                this.addTokenToSquare(homeSquare, token);
+                const newTokenElement = document.querySelector(`[data-token-id="${token.id}"]`);
+                
+                if (newTokenElement) {
+                    // Add entrance animation for returning home
+                    newTokenElement.style.opacity = '0';
+                    newTokenElement.style.transform = 'translate(-50%, -50%) scale(0)';
+                    
+                    await this.delay(200);
+                    
+                    newTokenElement.style.transition = 'all 0.8s ease-out';
+                    newTokenElement.style.opacity = '1';
+                    newTokenElement.style.transform = 'translate(-50%, -50%) scale(1)';
+                }
+            }
         }
+    }
+    
+    getPlayerIdFromName(playerName) {
+        const activePlayers = this.getActivePlayers();
+        return activePlayers.indexOf(playerName) + 1;
+    }
+    
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
     
     updateGameStatus() {
@@ -973,7 +1146,7 @@ class LudoGame {
 
 
 
-
+    //FUNCTIONALITY FOR GAME LOGGING AND STATISTICS
     initializeGameLogs() {
         this.gameStartTime = new Date();
         this.detailedGameHistory = [];
