@@ -3083,6 +3083,21 @@ body {
     gap: 1rem;
     align-items: center;
 }
+.timeline-dice-section {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+.dice-section-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.8rem;
+    text-align: center;
+}
+
 
 .timeline-dice {
     display: flex;
@@ -3101,6 +3116,222 @@ body {
     font-weight: 700;
     color: #667eea;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.timeline-dice {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.timeline-die {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.timeline-die.selected-die {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: 3px solid #155724;
+    transform: scale(1.1);
+    animation: selectedDicePulse 2s ease-in-out infinite;
+}
+
+.timeline-die.available-die {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    border: 2px solid #343a40;
+    opacity: 0.7;
+}
+
+.timeline-die.selected-die::after {
+    content: '✓';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes selectedDicePulse {
+    0%, 100% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    50% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 8px rgba(40, 167, 69, 0);
+    }
+}
+
+/* Sequence Information */
+.sequence-info {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    padding: 0.8rem;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.sequence-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 0.6rem;
+    text-align: center;
+}
+
+.sequence-display {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.sequence-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: 2px solid #dee2e6;
+    background: white;
+    transition: all 0.3s ease;
+    min-width: 50px;
+}
+
+.sequence-step.current-step {
+    border-width: 3px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 255, 255, 0.9));
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.step-player {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.3rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.step-position {
+    font-size: 0.7rem;
+    color: #666;
+    font-weight: 600;
+}
+
+/* Enhanced hover effects for dice */
+.timeline-die:hover {
+    transform: scale(1.2);
+    z-index: 10;
+}
+
+.timeline-die.selected-die:hover {
+    transform: scale(1.25);
+}
+
+/* Tooltip for dice */
+.timeline-die::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 20;
+}
+
+.timeline-die:hover::before {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .timeline-dice {
+        gap: 0.5rem;
+    }
+    
+    .timeline-die {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+    
+    .timeline-die.selected-die::after {
+        width: 14px;
+        height: 14px;
+        font-size: 8px;
+        top: -7px;
+        right: -7px;
+    }
+    
+    .sequence-display {
+        gap: 0.5rem;
+    }
+    
+    .sequence-step {
+        min-width: 40px;
+        padding: 0.3rem;
+    }
+    
+    .step-player {
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .timeline-dice-section {
+        padding: 0.8rem;
+    }
+    
+    .timeline-dice {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .timeline-die {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+    
+    .sequence-display {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 }
 
 .timeline-details {

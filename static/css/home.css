@@ -268,7 +268,7 @@ h1, h2, h3 {
 }
 
 .players-grid, .tokens-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
 }
 
 .board-grid {

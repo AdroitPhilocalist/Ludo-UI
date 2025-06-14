@@ -277,33 +277,62 @@ class LudoGame {
     }
     
     async playTurn(rollerPlayerId, diceValues) {
-        // Execute a full turn with 3 dice (like Python version)
-        console.log(`Player ${rollerPlayerId} rolled dice:`, diceValues);
+    // Execute a full turn with 3 dice (like Python version)
+    console.log(`Player ${rollerPlayerId} rolled dice:`, diceValues);
+    
+    const activePlayers = this.getActivePlayers();
+    const numPlayers = activePlayers.length;
+    
+    // Generate move sequence based on current player and dice arrangement
+    const moveSequence = this.generateMoveSequence(rollerPlayerId, numPlayers);
+    
+    // Track dice usage for this turn sequence
+    const turnDiceTracker = {
+        allDiceValues: [...diceValues],
+        usedDice: [],
+        availableDice: [...diceValues],
+        moveSequence: moveSequence,
+        currentMoveIndex: 0
+    };
+    
+    // Store the tracker for logging purposes
+    this.currentTurnTracker = turnDiceTracker;
+    
+    // Perform the three moves
+    for (let i = 0; i < 3; i++) {
+        const currentPlayer = moveSequence[i];
+        const diceValue = diceValues[i];
         
-        const activePlayers = this.getActivePlayers();
-        const numPlayers = activePlayers.length;
-        
-        // Generate move sequence based on current player and dice arrangement
-        const moveSequence = this.generateMoveSequence(rollerPlayerId, numPlayers);
-        
-        // Perform the three moves
-        for (let i = 0; i < 3; i++) {
-            const currentPlayer = moveSequence[i];
-            const diceValue = diceValues[i];
-            
-            if (this.moveCount[currentPlayer] >= this.maxMoves) {
-                continue; // Skip if player has reached move limit
-            }
-            
-            await this.performFullMove(currentPlayer, diceValue, diceValues);
-            
-            // Add delay between moves for better visualization
-            await new Promise(resolve => setTimeout(resolve, 500));
+        if (this.moveCount[currentPlayer] >= this.maxMoves) {
+            // Update tracker even if move is skipped
+            turnDiceTracker.usedDice.push(diceValue);
+            turnDiceTracker.availableDice = turnDiceTracker.availableDice.filter(d => d !== diceValue);
+            turnDiceTracker.currentMoveIndex++;
+            continue;
         }
         
-        // Check for game end conditions
-        this.checkGameEnd();
+        // Update tracker before the move
+        turnDiceTracker.currentMoveIndex = i;
+        
+        await this.performFullMove(currentPlayer, diceValue, diceValues);
+        
+        // Update tracker after the move
+        turnDiceTracker.usedDice.push(diceValue);
+        const diceIndex = turnDiceTracker.availableDice.indexOf(diceValue);
+        if (diceIndex > -1) {
+            turnDiceTracker.availableDice.splice(diceIndex, 1);
+        }
+        
+        // Add delay between moves for better visualization
+        await new Promise(resolve => setTimeout(resolve, 500));
     }
+    
+    // Clear the tracker
+    this.currentTurnTracker = null;
+    
+    // Check for game end conditions
+    this.checkGameEnd();
+}
     
     generateMoveSequence(rollerPlayerId, numPlayers) {
         // Generate move sequence based on game rules
@@ -324,69 +353,69 @@ class LudoGame {
     }
     
      async performFullMove(playerId, diceValue, allDiceValues) {
-        // Perform a move and handle all bonus moves (like Python version)
-        if (this.moveCount[playerId] >= this.maxMoves) {
-            return;
-        }
+    // Perform a move and handle all bonus moves (like Python version)
+    if (this.moveCount[playerId] >= this.maxMoves) {
+        return;
+    }
+    
+    const initPositions = this.getAllPositions();
+    const usedValues = [diceValue];
+    
+    let tokenIndex = this.selectToken(playerId);
+    
+    // Highlight the token that will move
+    this.highlightMovingToken(playerId, tokenIndex);
+    
+    let result = await this.moveToken(playerId, tokenIndex, diceValue);
+    
+    // Handle all bonus moves iteratively
+    let currentValue = diceValue;
+    while ((currentValue === 6 || result.finished || result.captured) && 
+           this.moveCount[playerId] < this.maxMoves) {
         
-        const initPositions = this.getAllPositions();
-        const usedValues = [diceValue];
+        // Show bonus move indicator
+        await this.showBonusMoveIndicator(playerId, tokenIndex);
         
-        let tokenIndex = this.selectToken(playerId);
+        // Generate new bonus dice value
+        currentValue = Math.floor(Math.random() * 6) + 1;
+        usedValues.push(currentValue);
         
-        // Highlight the token that will move
+        // Select token for bonus move
+        tokenIndex = this.selectToken(playerId);
+        
+        // Highlight the next token
         this.highlightMovingToken(playerId, tokenIndex);
         
-        let result = await this.moveToken(playerId, tokenIndex, diceValue);
+        result = await this.moveToken(playerId, tokenIndex, currentValue);
         
-        // Handle all bonus moves iteratively
-        let currentValue = diceValue;
-        while ((currentValue === 6 || result.finished || result.captured) && 
-               this.moveCount[playerId] < this.maxMoves) {
-            
-            // Show bonus move indicator
-            await this.showBonusMoveIndicator(playerId, tokenIndex);
-            
-            // Generate new bonus dice value
-            currentValue = Math.floor(Math.random() * 6) + 1;
-            usedValues.push(currentValue);
-            
-            // Select token for bonus move
-            tokenIndex = this.selectToken(playerId);
-            
-            // Highlight the next token
-            this.highlightMovingToken(playerId, tokenIndex);
-            
-            result = await this.moveToken(playerId, tokenIndex, currentValue);
-            
-            // Add visual delay between bonus moves
-            await this.delay(800);
-        }
-        
-        const finalPositions = this.getAllPositions();
-        
-        // Record the complete move
-        const moveData = {
-            finalPositions: finalPositions,
-            initPositions: initPositions,
-            player: playerId,
-            token: tokenIndex + 1,
-            allDiceValues: allDiceValues,
-            usedValues: usedValues,
-            timestamp: new Date(),
-            moveType: usedValues.length > 1 ? 'bonus' : 'regular',
-            diceValue: usedValues[0],
-            result: result
-        };
-        
-        this.gameHistory.push(moveData);
-        this.logMove(moveData);
-        
-        this.moveCount[playerId]++;
-        
-        // Update UI
-        this.updateGameStatus();
+        // Add visual delay between bonus moves
+        await this.delay(800);
     }
+    
+    const finalPositions = this.getAllPositions();
+    
+    // Record the complete move
+    const moveData = {
+        finalPositions: finalPositions,
+        initPositions: initPositions,
+        player: playerId,
+        token: tokenIndex + 1,
+        allDiceValues: allDiceValues,
+        usedValues: usedValues,
+        timestamp: new Date(),
+        moveType: usedValues.length > 1 ? 'bonus' : 'regular',
+        diceValue: usedValues[0],
+        result: result
+    };
+    
+    this.gameHistory.push(moveData);
+    this.logMove(moveData);
+    
+    this.moveCount[playerId]++;
+    
+    // Update UI
+    this.updateGameStatus();
+}
 
     highlightMovingToken(playerId, tokenIndex) {
         // Clear previous highlights
@@ -1188,37 +1217,109 @@ class LudoGame {
     }
     
     logMove(moveData) {
-        // Enhanced move logging with detailed information
-        const timestamp = new Date();
-        // Get actual board coordinates for from and to positions
-        const fromBoardIndex = this.getActualBoardIndex(moveData.player, moveData.initPositions, moveData.token - 1);
-        const toBoardIndex = this.getActualBoardIndex(moveData.player, moveData.finalPositions, moveData.token - 1);
-        const detailedMove = {
-            id: this.detailedGameHistory.length + 1,
-            timestamp: timestamp,
-            round: this.currentRound,
-            player: moveData.player,
-            playerName: this.getPlayerNameFromId(moveData.player),
-            token: moveData.token,
-            diceValue: moveData.diceValue,
-            moveType: moveData.moveType || 'regular',
-            fromPosition: moveData.initPositions ? moveData.initPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
-            toPosition: moveData.finalPositions ? moveData.finalPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
-            fromBoardIndex: fromBoardIndex, // New: actual board coordinates
-            toBoardIndex: toBoardIndex,     // New: actual board coordinates
-            captured: moveData.result ? moveData.result.captured : false,
-            finished: moveData.result ? moveData.result.finished : false,
-            usedValues: moveData.usedValues || [moveData.diceValue],
-            allDiceValues: moveData.allDiceValues || [moveData.diceValue],
-            distance: moveData.diceValue,
-            gameState: JSON.parse(JSON.stringify(this.playerPositions))
-        };
-        
-        this.detailedGameHistory.push(detailedMove);
-        this.updatePlayerStatistics(detailedMove);
-        
-        console.log('Move logged:', detailedMove);
+    // Enhanced move logging with detailed information including dice tracking
+    const timestamp = new Date();
+    
+    // Get actual board coordinates for from and to positions
+    const fromBoardIndex = this.getActualBoardIndex(moveData.player, moveData.initPositions, moveData.token - 1);
+    const toBoardIndex = this.getActualBoardIndex(moveData.player, moveData.finalPositions, moveData.token - 1);
+    
+    // Calculate available dice for this specific move
+    const availableDice = this.calculateAvailableDiceForMove(moveData);
+    
+    const detailedMove = {
+        id: this.detailedGameHistory.length + 1,
+        timestamp: timestamp,
+        round: this.currentRound,
+        player: moveData.player,
+        playerName: this.getPlayerNameFromId(moveData.player),
+        token: moveData.token,
+        diceValue: moveData.diceValue,
+        moveType: moveData.moveType || 'regular',
+        fromPosition: moveData.initPositions ? moveData.initPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
+        toPosition: moveData.finalPositions ? moveData.finalPositions[((moveData.player - 1) * parseInt(this.config.numTokens)) + (moveData.token - 1)] : 0,
+        fromBoardIndex: fromBoardIndex,
+        toBoardIndex: toBoardIndex,
+        captured: moveData.result ? moveData.result.captured : false,
+        finished: moveData.result ? moveData.result.finished : false,
+        usedValues: moveData.usedValues || [moveData.diceValue],
+        allDiceValues: moveData.allDiceValues || [moveData.diceValue],
+        availableDice: availableDice, // New: dice available for this move
+        distance: moveData.diceValue,
+        gameState: JSON.parse(JSON.stringify(this.playerPositions)),
+        moveSequenceInfo: this.getMoveSequenceInfo(moveData) // New: move sequence context
+    };
+    
+    this.detailedGameHistory.push(detailedMove);
+    this.updatePlayerStatistics(detailedMove);
+    
+    console.log('Move logged:', detailedMove);
+}
+
+// New method to calculate available dice for a specific move
+calculateAvailableDiceForMove(moveData) {
+    // If this is a bonus move, return the bonus dice values
+    if (moveData.moveType === 'bonus') {
+        return moveData.usedValues;
     }
+    
+    // For regular moves from the 3-dice system, we need to track the sequence
+    const currentRoundMoves = this.detailedGameHistory.filter(move => 
+        move.round === this.currentRound && 
+        move.moveType !== 'bonus' &&
+        move.allDiceValues && 
+        JSON.stringify(move.allDiceValues) === JSON.stringify(moveData.allDiceValues)
+    );
+    
+    // Get all dice values from this roll
+    const allDiceFromRoll = [...moveData.allDiceValues];
+    
+    // Remove dice values that have been used in previous moves of this sequence
+    const usedDiceInSequence = [];
+    currentRoundMoves.forEach(move => {
+        if (move.id !== this.detailedGameHistory.length) { // Don't count the current move
+            usedDiceInSequence.push(move.diceValue);
+        }
+    });
+    
+    // Calculate remaining available dice
+    const availableDice = [...allDiceFromRoll];
+    usedDiceInSequence.forEach(usedValue => {
+        const index = availableDice.indexOf(usedValue);
+        if (index > -1) {
+            availableDice.splice(index, 1);
+        }
+    });
+    
+    return availableDice;
+}
+
+// New method to get move sequence information
+getMoveSequenceInfo(moveData) {
+    const activePlayers = this.getActivePlayers();
+    const numPlayers = activePlayers.length;
+    
+    // Find how many moves in this dice roll sequence have occurred
+    const currentRoundMoves = this.detailedGameHistory.filter(move => 
+        move.round === this.currentRound && 
+        move.moveType !== 'bonus' &&
+        move.allDiceValues && 
+        JSON.stringify(move.allDiceValues) === JSON.stringify(moveData.allDiceValues)
+    );
+    
+    const movePosition = currentRoundMoves.length; // 0-based position in the sequence
+    
+    // Generate the expected sequence for this roll
+    const moveSequence = this.generateMoveSequence(moveData.player, numPlayers);
+    
+    return {
+        positionInSequence: movePosition + 1, // 1-based for display
+        totalMovesInSequence: 3,
+        expectedPlayer: moveSequence[movePosition],
+        isRoller: moveData.player === moveSequence[0],
+        sequencePattern: moveSequence
+    };
+}
     // New method to get actual board coordinates
     getActualBoardIndex(playerId, positions, tokenIndex) {
         if (!positions) return { row: 'N/A', col: 'N/A' };
@@ -1647,9 +1748,8 @@ function populateTimeline(gameHistory) {
         if (move.finished) badges.push('<span class="move-badge finish">Finish</span>');
         if (badges.length === 0) badges.push('<span class="move-badge regular">Regular</span>');
         
-        const diceDisplay = move.allDiceValues.map(val => 
-            `<div class="timeline-die">${val}</div>`
-        ).join('');
+        // Create dice display showing available dice for this move
+        const diceDisplay = createDiceDisplay(move);
         
         // Enhanced move description with board coordinates
         const fromDesc = move.fromBoardIndex ? 
@@ -1663,6 +1763,9 @@ function populateTimeline(gameHistory) {
         // Create detailed position information
         const positionInfo = createPositionInfoElement(move);
         
+        // Create sequence information
+        const sequenceInfo = createSequenceInfoElement(move);
+        
         timelineEntry.innerHTML = `
             <div class="timeline-header">
                 <div class="timeline-player">
@@ -1672,7 +1775,11 @@ function populateTimeline(gameHistory) {
                 <div class="timeline-time">${timeFormatted}</div>
             </div>
             <div class="timeline-content">
-                <div class="timeline-dice">${diceDisplay}</div>
+                <div class="timeline-dice-section">
+                    <div class="dice-section-label">Available Dice for this Move:</div>
+                    <div class="timeline-dice">${diceDisplay}</div>
+                    ${sequenceInfo}
+                </div>
                 <div class="timeline-details">
                     <strong>Move #${move.id}</strong> - Token ${move.token}
                     <br>
@@ -1688,7 +1795,7 @@ function populateTimeline(gameHistory) {
                         </div>
                     </div>
                     <div class="move-details-extra">
-                        Used dice value: <strong>${move.diceValue}</strong>
+                        Selected dice value: <strong>${move.diceValue}</strong>
                         ${move.usedValues.length > 1 ? ` (Bonus chain: ${move.usedValues.join(', ')})` : ''}
                         ${badges.join(' ')}
                     </div>
@@ -1700,6 +1807,50 @@ function populateTimeline(gameHistory) {
         container.appendChild(timelineEntry);
     });
 }
+
+// New function to create dice display showing available dice
+function createDiceDisplay(move) {
+    const availableDice = move.availableDice || move.allDiceValues || [move.diceValue];
+    const selectedDice = move.diceValue;
+    
+    return availableDice.map(val => {
+        const isSelected = val === selectedDice;
+        const diceClass = isSelected ? 'timeline-die selected-die' : 'timeline-die available-die';
+        const diceTitle = isSelected ? 'Selected by player' : 'Available but not selected';
+        
+        return `<div class="${diceClass}" title="${diceTitle}">${val}</div>`;
+    }).join('');
+}
+
+// New function to create sequence information
+function createSequenceInfoElement(move) {
+    if (!move.moveSequenceInfo) return '';
+    
+    const seqInfo = move.moveSequenceInfo;
+    const playerColors = ['#e74c3c', '#3498db', '#f1c40f', '#27ae60'];
+    
+    // Create sequence visualization
+    const sequenceDisplay = seqInfo.sequencePattern.map((playerId, index) => {
+        const isCurrentMove = index === (seqInfo.positionInSequence - 1);
+        const color = playerColors[playerId - 1] || '#667eea';
+        const className = isCurrentMove ? 'sequence-step current-step' : 'sequence-step';
+        
+        return `
+            <div class="${className}" style="border-color: ${color};">
+                <div class="step-player" style="background-color: ${color};">P${playerId}</div>
+                <div class="step-position">${index + 1}</div>
+            </div>
+        `;
+    }).join('');
+    
+    return `
+        <div class="sequence-info">
+            <div class="sequence-label">Move ${seqInfo.positionInSequence} of ${seqInfo.totalMovesInSequence} in this dice roll:</div>
+            <div class="sequence-display">${sequenceDisplay}</div>
+        </div>
+    `;
+}
+
 
 // New function to create detailed position information
 function createPositionInfoElement(move) {
