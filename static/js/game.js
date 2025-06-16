@@ -129,19 +129,24 @@ class LudoGame {
       Math.floor(Math.random() * 6) + 1,
       Math.floor(Math.random() * 6) + 1,
     ];
+    
   }
 
   isSafe(pathIndex, playerId) {
     // Check if position is safe: either predefined safe square or occupied by multiple own tokens
     const position = this.getPositionFromPathIndex(pathIndex, playerId);
     if (!position) return false;
-
     const posKey = `${position.row},${position.col}`;
     const isInSafeSquares = this.safeSquares.includes(posKey);
-    const multipleTokens =
-      this.playerPositions[playerId].filter((pos) => pos === pathIndex).length >
-      1;
+    // const multipleTokens =
+    //   this.playerPositions[playerId].filter((pos) => pos === pathIndex).length >
+    //   1;
+    const hasDuplicateValues = obj => {
+    const values = Object.values(obj);
+    return new Set(values).size !== values.length;};
 
+    const multipleTokens = hasDuplicateValues(this.playerPositions);
+    console.log("check",multipleTokens);
     return isInSafeSquares || multipleTokens;
   }
 
@@ -163,6 +168,7 @@ class LudoGame {
   async moveToken(playerId, tokenIndex, diceValue) {
     // Move the selected token of the player using dice value
     const currentPathIndex = this.playerPositions[playerId][tokenIndex];
+    //console.log(currentPathIndex);
 
     // If already finished, no movement
     if (currentPathIndex >= this.finalPosition) {
@@ -186,6 +192,14 @@ class LudoGame {
     // Check for opponent capture
     let captured = false;
     const activePlayers = this.getActivePlayers();
+    const arePositionsEqual = (obj1, obj2) => {
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    if (keys1.length !== keys2.length) return false;
+
+    return keys1.every(key => obj2.hasOwnProperty(key) && obj1[key] === obj2[key]);
+};
 
     for (
       let oppPlayerId = 1;
@@ -195,11 +209,16 @@ class LudoGame {
       if (oppPlayerId === playerId) continue;
 
       for (let i = 0; i < this.playerPositions[oppPlayerId].length; i++) {
+        //console.log(this.getPositionFromPathIndex(this.playerPositions[oppPlayerId][i], oppPlayerId) === this.getPositionFromPathIndex(newPathIndex, playerId));
+        console.log("Condition 1",this.isSafe(newPathIndex, oppPlayerId));
+        console.log("Condition 2",arePositionsEqual(this.getPositionFromPathIndex(this.playerPositions[oppPlayerId][i], oppPlayerId),this.getPositionFromPathIndex(newPathIndex, playerId)));
         if (
-          this.playerPositions[oppPlayerId][i] === newPathIndex &&
+         arePositionsEqual(this.getPositionFromPathIndex(this.playerPositions[oppPlayerId][i], oppPlayerId),this.getPositionFromPathIndex(newPathIndex, playerId)) &&
           !this.isSafe(newPathIndex, oppPlayerId)
-        ) {
+        ){
           // Reset opponent token to start
+          //console.log(this.isSafe(newPathIndex, oppPlayerId));
+          console.log("error occuring in moveToken");
           this.playerPositions[oppPlayerId][i] = 0;
 
           // Animate capture
@@ -438,6 +457,7 @@ class LudoGame {
       diceValue: usedValues[0],
       result: result,
     };
+    //console.log("Move recorded:", moveData);
 
     this.gameHistory.push(moveData);
     this.logMove(moveData);
@@ -450,36 +470,36 @@ class LudoGame {
 
   getPlayerColor(playerId) {
     const playerColors = {
-        1: '#e74c3c', // Red
-        2: '#3498db', // Blue  
-        3: '#f1c40f', // Yellow
-        4: '#27ae60'  // Green
+      1: "#e74c3c", // Red
+      2: "#3498db", // Blue
+      3: "#f1c40f", // Yellow
+      4: "#27ae60", // Green
     };
-    return playerColors[playerId] || '#667eea';
-}
+    return playerColors[playerId] || "#667eea";
+  }
 
-// Update the showBonusDiceRoll method to use player colors
-async showBonusDiceRoll(playerId, diceValue, bonusCount) {
-    const container = document.getElementById('bonusDiceContainer');
-    const playerName = document.getElementById('bonusPlayerName');
-    const streakElement = document.getElementById('bonusStreak');
-    const diceElement = document.getElementById('bonusDice');
-    const valueElement = document.getElementById('bonusDiceValue');
-    const messageElement = document.getElementById('bonusMessage');
-    const bonusCard = container.querySelector('.bonus-dice-card');
-    
+  // Update the showBonusDiceRoll method to use player colors
+  async showBonusDiceRoll(playerId, diceValue, bonusCount) {
+    const container = document.getElementById("bonusDiceContainer");
+    const playerName = document.getElementById("bonusPlayerName");
+    const streakElement = document.getElementById("bonusStreak");
+    const diceElement = document.getElementById("bonusDice");
+    const valueElement = document.getElementById("bonusDiceValue");
+    const messageElement = document.getElementById("bonusMessage");
+    const bonusCard = container.querySelector(".bonus-dice-card");
+
     // Get player color
     const playerColor = this.getPlayerColor(playerId);
-    
+
     // Update player info with color coordination
     const playerNameText = this.getPlayerNameFromId(playerId);
     playerName.textContent = `Player ${playerId} (${playerNameText})`;
     playerName.style.color = playerColor;
-    
+
     // Update streak with player color
     streakElement.textContent = `×${bonusCount + 1}`;
     streakElement.style.background = `linear-gradient(135deg, ${playerColor}, ${playerColor}dd)`;
-    
+
     // Add player color accent to card
     bonusCard.style.borderColor = playerColor;
     bonusCard.style.boxShadow = `
@@ -488,40 +508,40 @@ async showBonusDiceRoll(playerId, diceValue, bonusCount) {
         inset 0 1px 0 rgba(255, 255, 255, 0.6),
         0 0 60px ${playerColor}60
     `;
-    
+
     // Rest of the method remains the same...
-    messageElement.textContent = 'Rolling for bonus move...';
-    
-    valueElement.classList.remove('show');
+    messageElement.textContent = "Rolling for bonus move...";
+
+    valueElement.classList.remove("show");
     valueElement.textContent = diceValue;
-    
-    container.classList.remove('hide');
-    container.classList.add('show');
-    
-    diceElement.classList.add('rolling');
-    
+
+    container.classList.remove("hide");
+    container.classList.add("show");
+
+    diceElement.classList.add("rolling");
+
     await this.delay(2000);
-    
-    diceElement.classList.remove('rolling');
+
+    diceElement.classList.remove("rolling");
     this.setBonusDiceFace(diceElement, diceValue);
-    
-    valueElement.classList.add('show');
-    
+
+    valueElement.classList.add("show");
+
     if (diceValue === 6) {
-        messageElement.textContent = 'Another 6! More bonus moves!';
-        messageElement.style.color = '#e74c3c';
+      messageElement.textContent = "Another 6! More bonus moves!";
+      messageElement.style.color = "#e74c3c";
     } else {
-        messageElement.textContent = `Rolled ${diceValue} - Moving token!`;
-        messageElement.style.color = '#27ae60';
+      messageElement.textContent = `Rolled ${diceValue} - Moving token!`;
+      messageElement.style.color = "#27ae60";
     }
-    
+
     await this.delay(1500);
-    
-    container.classList.remove('show');
-    container.classList.add('hide');
-    
+
+    container.classList.remove("show");
+    container.classList.add("hide");
+
     await this.delay(600);
-}
+  }
 
   // Method to set bonus dice face rotation
   setBonusDiceFace(diceElement, value) {

@@ -108,13 +108,45 @@ class DiceRoller {
         diceElements.forEach((dice, index) => {
             dice.classList.add(animations[index]);
         });
-        
-        // Generate random values
-        const values = [
+
+
+        const USE_STATIC_DICE = true; // Toggle this for testing
+        const STATIC_DICE_SETS = [
+        [5, 1, 5],  // Round 1
+        [1, 5, 1],  // Round 2
+        [5, 1, 5],  // Round 3
+        [1, 5, 1], // Round 4
+        [2, 1, 1],  // Round 5
+        ];
+        let values = [];
+        if (USE_STATIC_DICE && STATIC_DICE_SETS.length > 0) {
+        // Use static values cyclically
+        const roundIndex = (this.rollHistory.length) % STATIC_DICE_SETS.length;
+        values = STATIC_DICE_SETS[roundIndex];
+        console.log(`Using static dice for round ${roundIndex + 1}:`, values);
+    } else {
+        // Use random values
+        values = [
             Math.floor(Math.random() * 6) + 1,
             Math.floor(Math.random() * 6) + 1,
             Math.floor(Math.random() * 6) + 1
         ];
+        console.log('Using random dice:', values);
+    }
+        
+        // Generate random values
+        // const values = [
+        //     Math.floor(Math.random() * 6) + 1,
+        //     Math.floor(Math.random() * 6) + 1,
+        //     Math.floor(Math.random() * 6) + 1
+        // ];
+        // const values = [
+        //     2,
+        //     3,
+        //     1
+        // ];
+
+        
         
         // Wait for longest animation to complete
         await new Promise(resolve => setTimeout(resolve, 2000));
