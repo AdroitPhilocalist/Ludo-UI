@@ -5451,7 +5451,149 @@ body {
 }
 
 
+/* ...existing code... */
 
+/* Blocked/Disabled styling for 13-square board - Green and Blue areas */
+.board-size-13 .square.green-home,
+.board-size-13 .square.blue-home {
+    background: #b3b3b3 !important;
+    border: 3px solid #808080 !important;
+    color: #666666 !important;
+    position: relative;
+    cursor: not-allowed;
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Blocked home squares inner border */
+.board-size-13 .square.green-home::before,
+.board-size-13 .square.blue-home::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+/* Blocked indicator overlay */
+.board-size-13 .square.green-home::after,
+.board-size-13 .square.blue-home::after {
+    content: '✕';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 900;
+    color: #666666;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}
+
+/* Blocked home entrance paths */
+.board-size-13 .square.green-entrance,
+.board-size-13 .square.blue-entrance {
+    background: #b3b3b3 !important;
+    border: 2px solid #808080 !important;
+    color: #666666 !important;
+    cursor: not-allowed;
+    position: relative;
+    box-shadow: 
+        inset 0 1px 3px rgba(0, 0, 0, 0.2),
+        0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Blocked entrance path indicator */
+.board-size-13 .square.green-entrance::before,
+.board-size-13 .square.blue-entrance::before {
+    content: '🚫';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    opacity: 0.7;
+    z-index: 2;
+}
+
+/* Remove original entrance path labels for blocked areas */
+.board-size-13 .square.green-entrance::after,
+.board-size-13 .square.blue-entrance::after {
+    display: none;
+}
+
+/* Hover effects for blocked areas - minimal feedback */
+.board-size-13 .square.green-home:hover,
+.board-size-13 .square.blue-home:hover {
+    transform: none;
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.board-size-13 .square.green-entrance:hover,
+.board-size-13 .square.blue-entrance:hover {
+    transform: none;
+    box-shadow: 
+        inset 0 1px 3px rgba(0, 0, 0, 0.3),
+        0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments for blocked indicators */
+@media (max-width: 1400px) {
+    .board-size-13 .square.green-home::after,
+    .board-size-13 .square.blue-home::after {
+        font-size: 16px;
+    }
+    
+    .board-size-13 .square.green-entrance::before,
+    .board-size-13 .square.blue-entrance::before {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .board-size-13 .square.green-home::after,
+    .board-size-13 .square.blue-home::after {
+        font-size: 14px;
+    }
+    
+    .board-size-13 .square.green-entrance::before,
+    .board-size-13 .square.blue-entrance::before {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 768px) {
+    .board-size-13 .square.green-home::after,
+    .board-size-13 .square.blue-home::after {
+        font-size: 12px;
+    }
+    
+    .board-size-13 .square.green-entrance::before,
+    .board-size-13 .square.blue-entrance::before {
+        font-size: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .board-size-13 .square.green-home::after,
+    .board-size-13 .square.blue-home::after {
+        font-size: 10px;
+    }
+    
+    .board-size-13 .square.green-entrance::before,
+    .board-size-13 .square.blue-entrance::before {
+        font-size: 7px;
+    }
+}
+
+/* ...existing code... */
 
 
 
