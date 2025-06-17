@@ -455,31 +455,272 @@ body {
     border: 3px solid #6c757d;
     font-weight: 600;
     position: relative;
+    overflow: hidden;
 }
 
-/* Add center area highlighting for home squares */
+/* RED HOME - Simple and clean like traditional Ludo */
 .square.red-home {
-    background: linear-gradient(135deg, var(--red-light), #f1948a);
-    border: 3px solid var(--red-color);
-    color: #922b21;
+    background: #ff4444;
+    border: 3px solid #cc0000;
+    color: #ffffff;
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(204, 0, 0, 0.3);
 }
 
+.square.red-home::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+/* BLUE HOME - Simple and clean */
 .square.blue-home {
-    background: linear-gradient(135deg, var(--blue-light), #85c1e9);
-    border: 3px solid var(--blue-color);
-    color: #1b4f72;
+    background: #4488ff;
+    border: 3px solid #0066cc;
+    color: #ffffff;
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(0, 102, 204, 0.3);
 }
 
+.square.blue-home::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+/* GREEN HOME - Simple and clean */
 .square.green-home {
-    background: linear-gradient(135deg, var(--green-light), #82e0aa);
-    border: 3px solid var(--green-color);
-    color: #0e4b1c;
+    background: #44aa44;
+    border: 3px solid #228822;
+    color: #ffffff;
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(34, 136, 34, 0.3);
 }
 
+.square.green-home::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+/* YELLOW HOME - Simple and clean */
 .square.yellow-home {
-    background: linear-gradient(135deg, var(--yellow-light), #f7dc6f);
-    border: 3px solid var(--yellow-color);
-    color: #7d6608;
+    background: #ffdd44;
+    border: 3px solid #ccaa00;
+    color: #ffffff;
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 3px 8px rgba(204, 170, 0, 0.3);
+}
+
+.square.yellow-home::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+/* Simplified player indicators */
+.square.red-home::after {
+    content: 'R';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.square.blue-home::after {
+    content: 'B';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.square.green-home::after {
+    content: 'G';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.square.yellow-home::after {
+    content: 'Y';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive adjustments for different board sizes */
+@media (max-width: 1400px) {
+    .square.red-home::after,
+    .square.blue-home::after,
+    .square.green-home::after,
+    .square.yellow-home::after {
+        width: 14px;
+        height: 14px;
+        font-size: 9px;
+        bottom: 3px;
+        right: 3px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .square.red-home::after,
+    .square.blue-home::after,
+    .square.green-home::after,
+    .square.yellow-home::after {
+        width: 12px;
+        height: 12px;
+        font-size: 8px;
+        bottom: 3px;
+        right: 3px;
+    }
+}
+
+@media (max-width: 768px) {
+    .square.red-home::after,
+    .square.blue-home::after,
+    .square.green-home::after,
+    .square.yellow-home::after {
+        width: 10px;
+        height: 10px;
+        font-size: 7px;
+        bottom: 2px;
+        right: 2px;
+    }
+    
+    .square.red-home::before,
+    .square.blue-home::before,
+    .square.green-home::before,
+    .square.yellow-home::before {
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .square.red-home::after,
+    .square.blue-home::after,
+    .square.green-home::after,
+    .square.yellow-home::after {
+        width: 8px;
+        height: 8px;
+        font-size: 6px;
+        bottom: 2px;
+        right: 2px;
+    }
+}
+
+/* Simple hover effects for home squares */
+.square.red-home:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        0 5px 15px rgba(204, 0, 0, 0.5);
+}
+
+.square.blue-home:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        0 5px 15px rgba(0, 102, 204, 0.5);
+}
+
+.square.green-home:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        0 5px 15px rgba(34, 136, 34, 0.5);
+}
+
+.square.yellow-home:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        0 5px 15px rgba(204, 170, 0, 0.5);
 }
 
 /* Enhanced Center Square */
@@ -5171,3 +5412,47 @@ body {
         bottom: 0;
     }
 }
+
+
+
+
+.board-size-13 .square[data-row="1"][data-col="1"],
+.board-size-13 .square[data-row="1"][data-col="2"],
+.board-size-13 .square[data-row="1"][data-col="3"],
+.board-size-13 .square[data-row="1"][data-col="4"],
+.board-size-13 .square[data-row="2"][data-col="1"],
+.board-size-13 .square[data-row="2"][data-col="4"],
+.board-size-13 .square[data-row="3"][data-col="1"],
+.board-size-13 .square[data-row="3"][data-col="4"],
+.board-size-13 .square[data-row="4"][data-col="1"],
+.board-size-13 .square[data-row="4"][data-col="2"],
+.board-size-13 .square[data-row="4"][data-col="3"],
+.board-size-13 .square[data-row="4"][data-col="4"] {
+    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa); /* Maintains subtle gradient for consistency */
+    border: 1px solid #ddd;
+}
+
+.board-size-13 .square[data-row="10"][data-col="10"],
+.board-size-13 .square[data-row="10"][data-col="11"],
+.board-size-13 .square[data-row="10"][data-col="12"],
+.board-size-13 .square[data-row="10"][data-col="13"],
+.board-size-13 .square[data-row="11"][data-col="10"],
+.board-size-13 .square[data-row="12"][data-col="10"],
+.board-size-13 .square[data-row="13"][data-col="10"],
+.board-size-13 .square[data-row="11"][data-col="13"],
+.board-size-13 .square[data-row="13"][data-col="11"],
+.board-size-13 .square[data-row="13"][data-col="12"],
+.board-size-13 .square[data-row="13"][data-col="13"],
+.board-size-13 .square[data-row="12"][data-col="13"] {
+    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa); /* Maintains subtle gradient for consistency */
+    border: 1px solid #ddd;
+}
+
+
+
+
+
+
+

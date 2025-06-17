@@ -1221,10 +1221,10 @@ class LudoGame {
     return {
       RED: {
         // Top-left home area
-        startRow: centerOffset + 1,
-        endRow: centerOffset + centerSize,
-        startCol: centerOffset + 1,
-        endCol: centerOffset + centerSize,
+        startRow: centerOffset,
+        endRow: centerOffset + centerSize -1,
+        startCol: centerOffset,
+        endCol: centerOffset + centerSize - 1,
       },
       BLUE: {
         // Top-right home area
