@@ -17,17 +17,41 @@ class LudoGame {
     this.safeSquares = []; // Dynamic safe squares
     this.playerPositions = {}; // Track actual game positions (like Python version)
 
+
+    // Add autoplay properties
+    this.isAutoplayMode = false;
+    this.autoplayTimeoutId = null;
+    this.autoplayDelay = 3000;
     this.initializeGame();
   }
 
-  initializeGame() {
+  async initializeGame() {
     console.log("Initializing Ludo Game with config:", this.config);
     this.setupGameConfiguration();
     this.initializeTokens();
     this.initializeGameLogs();
     this.generateBoard();
     this.updateStatusDisplay();
-    this.connectDiceRoller();
+    // Wait for dice roller to be ready before connecting
+    await this.waitForDiceRoller();
+  }
+
+  // New method to wait for dice roller initialization
+  async waitForDiceRoller() {
+    console.log("Waiting for dice roller to be ready...");
+    
+    const isDiceRollerReady = await window.ensureDiceRollerReady();
+    
+    if (isDiceRollerReady) {
+      console.log("Dice roller is ready, connecting...");
+      this.connectDiceRoller();
+    } else {
+      console.log("Dice roller failed to initialize properly");
+      // Try again after a delay
+      setTimeout(() => {
+        this.waitForDiceRoller();
+      }, 2000);
+    }
   }
 
   setupGameConfiguration() {
@@ -959,6 +983,11 @@ class LudoGame {
   endGame(winnerId) {
     this.gameState = "GAME_OVER";
 
+    // Stop autoplay if active
+    if (this.isAutoplayMode) {
+      this.stopAutoplay();
+    }
+
     if (winnerId) {
       const playerName = this.getPlayerNameFromId(winnerId);
       console.log(`Game Over! Player ${winnerId} (${playerName}) wins!`);
@@ -1054,6 +1083,173 @@ class LudoGame {
     this.gameState = "WAITING_FOR_DICE";
 
     console.log("Turn completed, game ready for next roll");
+     // Check if game should continue in autoplay mode
+    if (this.isAutoplayMode && this.gameState === "WAITING_FOR_DICE") {
+      this.scheduleAutoRoll();
+    }
+  }
+
+  // Debug method to check autoplay readiness
+  checkAutoplayReadiness() {
+    console.log("=== Autoplay Readiness Check ===");
+    console.log("Game instance:", !!window.ludoGame);
+    console.log("Game state:", this.gameState);
+    console.log("Autoplay mode:", this.isAutoplayMode);
+    console.log("DiceRoller available:", !!window.diceRoller);
+    console.log("DiceRoller isRolling:", window.diceRoller ? window.diceRoller.isRolling : "N/A");
+    console.log("rollDice function:", typeof window.rollDice);
+    console.log("ensureDiceRollerReady function:", typeof window.ensureDiceRollerReady);
+    console.log("================================");
+    
+    return {
+      gameReady: !!window.ludoGame && this.gameState === "WAITING_FOR_DICE",
+      diceRollerReady: !!window.diceRoller && !window.diceRoller.isRolling,
+      functionsReady: typeof window.rollDice === 'function' && typeof window.ensureDiceRollerReady === 'function'
+    };
+  }
+
+
+
+   // Enhanced method to schedule automatic dice roll
+  scheduleAutoRoll() {
+    // Clear any existing timeout
+    if (this.autoplayTimeoutId) {
+      clearTimeout(this.autoplayTimeoutId);
+    }
+    
+    // Check if game is still active
+    if (this.gameState === "GAME_OVER") {
+      console.log("Game over, stopping autoplay");
+      this.stopAutoplay();
+      return;
+    }
+    
+    console.log(`Scheduling next auto-roll in ${this.autoplayDelay}ms...`);
+    
+    // Schedule next roll
+    this.autoplayTimeoutId = setTimeout(() => {
+      if (this.isAutoplayMode && this.gameState === "WAITING_FOR_DICE") {
+        console.log("Auto-roll timer triggered, executing roll...");
+        this.triggerAutoRoll();
+      } else {
+        console.log("Auto-roll timer triggered but conditions not met:", {
+          isAutoplayMode: this.isAutoplayMode,
+          gameState: this.gameState
+        });
+      }
+    }, this.autoplayDelay);
+  }
+
+  // Enhanced method to trigger automatic roll
+  async triggerAutoRoll() {
+    console.log("triggerAutoRoll called, checking conditions...");
+    
+    // First, ensure dice roller is ready
+    const isDiceRollerReady = await window.ensureDiceRollerReady();
+    
+    console.log("diceRoller ready:", isDiceRollerReady);
+    console.log("diceRoller available:", !!window.diceRoller);
+    console.log("diceRoller isRolling:", window.diceRoller ? window.diceRoller.isRolling : "N/A");
+    
+    if (isDiceRollerReady && window.diceRoller && !window.diceRoller.isRolling) {
+      console.log("Triggering automatic dice roll...");
+      const success = window.rollDice(true); // Pass true to indicate this is auto-triggered
+      
+      if (!success) {
+        console.log("Failed to trigger dice roll, retrying...");
+        setTimeout(() => {
+          if (this.isAutoplayMode) {
+            this.triggerAutoRoll();
+          }
+        }, 1000);
+      }
+    } else {
+      console.log("Dice roller not ready or currently rolling, retrying...");
+      // Retry after a longer delay
+      setTimeout(() => {
+        if (this.isAutoplayMode) {
+          console.log("Retrying auto roll...");
+          this.triggerAutoRoll();
+        }
+      }, 1000); // Increased delay to 1 second
+    }
+  }
+
+  // Enhanced method to start autoplay mode
+  async startAutoplay() {
+    console.log("Starting autoplay mode");
+    
+    // First ensure dice roller is ready
+    const isDiceRollerReady = await window.ensureDiceRollerReady();
+    
+    if (!isDiceRollerReady) {
+      alert("Dice roller is not ready. Please wait a moment and try again.");
+      return;
+    }
+    
+    this.isAutoplayMode = true;
+    
+    // Disable manual dice rolling
+    this.setDiceButtonState(false);
+    
+    // Update autoplay button
+    this.updateAutoplayButton();
+    
+    // Start auto-rolling if game is ready
+    if (this.gameState === "WAITING_FOR_DICE") {
+      this.scheduleAutoRoll();
+    }
+  }
+
+  // New method to stop autoplay mode
+  stopAutoplay() {
+    console.log("Stopping autoplay mode");
+    this.isAutoplayMode = false;
+    
+    // Clear any pending auto-roll
+    if (this.autoplayTimeoutId) {
+      clearTimeout(this.autoplayTimeoutId);
+      this.autoplayTimeoutId = null;
+    }
+    
+    // Re-enable manual dice rolling
+    this.setDiceButtonState(true);
+    
+    // Update autoplay button
+    this.updateAutoplayButton();
+  }
+
+  // New method to set dice button state
+  setDiceButtonState(enabled) {
+    const rollButton = document.getElementById("rollDiceBtn");
+    if (rollButton) {
+      rollButton.disabled = !enabled;
+      
+      if (!enabled) {
+        // Add visual indication that button is disabled due to autoplay
+        rollButton.classList.add("autoplay-disabled");
+        rollButton.title = "Disabled during autoplay mode";
+      } else {
+        rollButton.classList.remove("autoplay-disabled");
+        rollButton.title = "";
+      }
+    }
+  }
+
+  // New method to update autoplay button appearance
+  updateAutoplayButton() {
+    const autoplayBtn = document.getElementById("autoplayBtn");
+    if (autoplayBtn) {
+      if (this.isAutoplayMode) {
+        autoplayBtn.innerHTML = '<i class="fas fa-hand-paper me-1"></i> Manual';
+        autoplayBtn.className = "btn btn-warning me-2";
+        autoplayBtn.title = "Click to switch to manual mode";
+      } else {
+        autoplayBtn.innerHTML = '<i class="fas fa-play me-1"></i> Autoplay';
+        autoplayBtn.className = "btn btn-secondary me-2";
+        autoplayBtn.title = "Click to enable autoplay mode";
+      }
+    }
   }
 
   // ============ EXISTING METHODS (Keep all existing UI methods) ============
@@ -2521,6 +2717,30 @@ function addScrollEffects() {
   scrollBody.dispatchEvent(new Event("scroll"));
 }
 
+
+// Enhanced global function to toggle autoplay
+async function toggleAutoplay() {
+  if (!window.ludoGame) {
+    alert("No active game found!");
+    return;
+  }
+  
+  // Check readiness
+  const readiness = window.ludoGame.checkAutoplayReadiness();
+  console.log("Readiness check:", readiness);
+  
+  if (!readiness.diceRollerReady) {
+    alert("Dice system is not ready yet. Please wait a moment and try again.");
+    return;
+  }
+  
+  if (window.ludoGame.isAutoplayMode) {
+    window.ludoGame.stopAutoplay();
+  } else {
+    await window.ludoGame.startAutoplay();
+  }
+}
+
 // Initialize scroll effects when modal is shown
 document
   .getElementById("gameInfoModal")
@@ -2533,5 +2753,6 @@ window.openGameInfo = openGameInfo;
 window.openGameLogs = openGameLogs;
 window.exportGameLogs = exportGameLogs;
 window.clearGameLogs = clearGameLogs;
+window.toggleAutoplay = toggleAutoplay;
 
 console.log("Enhanced Ludo Game loaded with full gameplay logic!");

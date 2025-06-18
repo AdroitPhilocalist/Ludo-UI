@@ -76,8 +76,14 @@ class DiceRoller {
         return [currentPlayer, currentPlayer, currentPlayer];
     }
     
-    async rollDice() {
+    async rollDice(isAutoTriggered = false) {
         if (this.isRolling) return;
+
+        // Only prevent manual clicks during autoplay, allow auto-triggered rolls
+        if (window.ludoGame && window.ludoGame.isAutoplayMode && !isAutoTriggered) {
+            console.log("Manual dice rolling disabled during autoplay mode");
+            return;
+        }
         
         this.isRolling = true;
         const rollButton = document.getElementById('rollDiceBtn');
@@ -110,7 +116,7 @@ class DiceRoller {
         });
 
 
-        const USE_STATIC_DICE = true; // Toggle this for testing
+        const USE_STATIC_DICE = false; // Toggle this for testing
         const STATIC_DICE_SETS = [
         [5, 1, 5],  // Round 1
         [1, 5, 1],  // Round 2
@@ -182,10 +188,19 @@ class DiceRoller {
         // Animate move sequence
         this.animateMoveSequence(values);
         
-        // Re-enable button after a delay
+         // Re-enable button after a delay (only if not in autoplay mode)
         setTimeout(() => {
-            rollButton.disabled = false;
-            rollButton.innerHTML = '<i class="fas fa-dice-d6 me-2"></i><span class="roll-text">Roll Dice</span>';
+            const isAutoplayMode = window.ludoGame && window.ludoGame.isAutoplayMode;
+            
+            if (!isAutoplayMode) {
+                rollButton.disabled = false;
+                rollButton.innerHTML = '<i class="fas fa-dice-d6 me-2"></i><span class="roll-text">Roll Dice</span>';
+            } else {
+                // Keep button disabled and show autoplay state
+                rollButton.disabled = true;
+                rollButton.innerHTML = '<i class="fas fa-dice-d6 me-2"></i><span class="roll-text">Roll Dice</span>';
+            }
+            
             this.isRolling = false;
             
             // Switch to next player
@@ -262,19 +277,60 @@ let diceRoller;
 
 // Initialize dice roller when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing DiceRoller...');
     diceRoller = new DiceRoller();
+    window.diceRoller = diceRoller; // Make it globally available
+    console.log('DiceRoller initialized and available globally:', !!window.diceRoller);
 });
 
-// Global function for rolling dice
-function rollDice() {
+// Enhanced global function for rolling dice
+function rollDice(isAutoTriggered = false) {
+    console.log('rollDice called, isAutoTriggered:', isAutoTriggered);
+    console.log('diceRoller available:', !!diceRoller);
+    
     if (diceRoller) {
-        diceRoller.rollDice();
+        // Only prevent manual clicks during autoplay, allow auto-triggered rolls
+        if (window.ludoGame && window.ludoGame.isAutoplayMode && !isAutoTriggered) {
+            console.log("Cannot manually roll dice during autoplay mode");
+            return false;
+        }
+        
+        diceRoller.rollDice(isAutoTriggered);  // Pass the parameter to the method
+        return true;
+    } else {
+        console.log('DiceRoller not initialized yet');
+        return false;
     }
 }
 
 // Export for use in game.js
 window.DiceRoller = DiceRoller;
 window.rollDice = rollDice;
+// Add initialization check function
+function ensureDiceRollerReady() {
+    return new Promise((resolve) => {
+        if (window.diceRoller) {
+            resolve(true);
+            return;
+        }
+        
+        // Wait for dice roller to be ready
+        const checkInterval = setInterval(() => {
+            if (window.diceRoller) {
+                clearInterval(checkInterval);
+                resolve(true);
+            }
+        }, 100);
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            resolve(false);
+        }, 5000);
+    });
+}
+
+window.ensureDiceRollerReady = ensureDiceRollerReady;
 
 // Add dice utilities
 window.DiceUtils = {
