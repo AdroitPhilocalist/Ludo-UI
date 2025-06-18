@@ -146,7 +146,7 @@ class LudoGame {
     return new Set(values).size !== values.length;};
 
     const multipleTokens = hasDuplicateValues(this.playerPositions);
-    console.log("check",multipleTokens);
+    // console.log("check",multipleTokens);
     return isInSafeSquares || multipleTokens;
   }
 
@@ -179,6 +179,7 @@ class LudoGame {
 
     // If move leads to or beyond final position, promote the token
     if (newPathIndex >= this.finalPosition) {
+      console.log("Token finished!");
       this.playerPositions[playerId][tokenIndex] = this.finalPosition;
       await this.updateTokenVisualPosition(
         playerId,
@@ -210,15 +211,15 @@ class LudoGame {
 
       for (let i = 0; i < this.playerPositions[oppPlayerId].length; i++) {
         //console.log(this.getPositionFromPathIndex(this.playerPositions[oppPlayerId][i], oppPlayerId) === this.getPositionFromPathIndex(newPathIndex, playerId));
-        console.log("Condition 1",this.isSafe(newPathIndex, oppPlayerId));
-        console.log("Condition 2",arePositionsEqual(this.getPositionFromPathIndex(this.playerPositions[oppPlayerId][i], oppPlayerId),this.getPositionFromPathIndex(newPathIndex, playerId)));
+        //console.log("Condition 1",this.isSafe(newPathIndex, oppPlayerId));
+        //console.log("Condition 2",arePositionsEqual(this.getPositionFromPathIndex(this.playerPositions[oppPlayerId][i], oppPlayerId),this.getPositionFromPathIndex(newPathIndex, playerId)));
         if (
          arePositionsEqual(this.getPositionFromPathIndex(this.playerPositions[oppPlayerId][i], oppPlayerId),this.getPositionFromPathIndex(newPathIndex, playerId)) &&
           !this.isSafe(newPathIndex, oppPlayerId)
         ){
           // Reset opponent token to start
           //console.log(this.isSafe(newPathIndex, oppPlayerId));
-          console.log("error occuring in moveToken");
+          //console.log("error occuring in moveToken");
           this.playerPositions[oppPlayerId][i] = 0;
 
           // Animate capture
@@ -410,6 +411,13 @@ class LudoGame {
 
     let result = await this.moveToken(playerId, tokenIndex, diceValue);
 
+    // Track the most significant result across all moves in this sequence
+    let overallResult = {
+      finalPos: result.finalPos,
+      finished: result.finished,
+      captured: result.captured
+    };
+
     // Handle all bonus moves iteratively with UI
     let currentValue = diceValue;
     let bonusCount = 0;
@@ -437,6 +445,15 @@ class LudoGame {
       this.highlightMovingToken(playerId, tokenIndex);
 
       result = await this.moveToken(playerId, tokenIndex, currentValue);
+      // Update overall result - preserve significant achievements
+      if (result.finished) {
+        overallResult.finished = true;
+      }
+      if (result.captured) {
+        overallResult.captured = true;
+      }
+      // Always update final position to the latest
+      overallResult.finalPos = result.finalPos;
 
       // Add visual delay between bonus moves
       await this.delay(500);
@@ -455,9 +472,9 @@ class LudoGame {
       timestamp: new Date(),
       moveType: usedValues.length > 1 ? "bonus" : "regular",
       diceValue: usedValues[0],
-      result: result,
+      result: overallResult,
     };
-    //console.log("Move recorded:", moveData);
+    console.log("Move recorded:", moveData);
 
     this.gameHistory.push(moveData);
     this.logMove(moveData);
@@ -1688,42 +1705,51 @@ class LudoGame {
   }
 
   updatePlayerStatistics(moveData) {
-    const playerId = moveData.player;
-    const stats = this.playerStatistics[playerId];
+  const playerId = moveData.player;
+  const stats = this.playerStatistics[playerId];
 
-    if (stats) {
-      stats.totalMoves++;
-      stats.totalDistance += moveData.distance;
+  if (stats) {
+    stats.totalMoves++;
+    
+    // Calculate actual distance moved (not just dice value)
+    const actualDistance = moveData.toPosition - moveData.fromPosition;
+    stats.totalDistance += actualDistance;
 
-      if (moveData.moveType === "bonus") {
-        stats.bonusMoves++;
-      }
-
-      if (moveData.captured) {
-        stats.captures++;
-      }
-
-      if (moveData.finished) {
-        stats.finishedTokens++;
-      }
-
-      // Calculate longest bonus streak
-      if (
-        moveData.usedValues &&
-        moveData.usedValues.length > stats.longestBonus
-      ) {
-        stats.longestBonus = moveData.usedValues.length;
-      }
+    if (moveData.moveType === "bonus") {
+      stats.bonusMoves++;
     }
+
+    if (moveData.captured) {
+      stats.captures++;
+    }
+
+    if (moveData.finished) {
+      stats.finishedTokens++;
+    }
+
+    // Calculate longest bonus streak
+    if (
+      moveData.usedValues &&
+      moveData.usedValues.length > stats.longestBonus
+    ) {
+      stats.longestBonus = moveData.usedValues.length;
+    }
+    
+    // Update averages immediately after updating statistics
+    this.updatePlayerAverages(playerId);
   }
+}
 
   updatePlayerAverages(playerId) {
-    const stats = this.playerStatistics[playerId];
-    if (stats && stats.diceRolls.length > 0) {
-      const sum = stats.diceRolls.reduce((a, b) => a + b, 0);
-      stats.averageDice = (sum / stats.diceRolls.length).toFixed(2);
-    }
+  const stats = this.playerStatistics[playerId];
+  console.log("stats for player", playerId, stats);
+  if (stats && stats.totalMoves > 0) {
+    // Calculate average distance per move (total distance / total moves)
+    stats.averageDice = (stats.totalDistance / stats.totalMoves).toFixed(2);
+  } else {
+    stats.averageDice = "0.00";
   }
+}
 
   getGameDuration() {
     if (!this.gameStartTime) return "00:00";

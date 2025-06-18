@@ -117,6 +117,8 @@ class DiceRoller {
         [5, 1, 5],  // Round 3
         [1, 5, 1], // Round 4
         [2, 1, 1],  // Round 5
+        // [55,20,1],
+        
         ];
         let values = [];
         if (USE_STATIC_DICE && STATIC_DICE_SETS.length > 0) {
