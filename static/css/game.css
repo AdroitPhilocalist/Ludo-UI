@@ -491,7 +491,7 @@ body {
         inset 0 -2px 4px rgba(0, 0, 0, 0.2),
         0 3px 8px rgba(0, 102, 204, 0.3);
 }
-
+/*
 .square.blue-home::before {
     content: '';
     position: absolute;
@@ -503,7 +503,7 @@ body {
     border-radius: 2px;
     pointer-events: none;
 }
-
+*/
 /* GREEN HOME - Simple and clean */
 .square.green-home {
     background: #44aa44;
@@ -515,6 +515,7 @@ body {
         0 3px 8px rgba(34, 136, 34, 0.3);
 }
 
+/*
 .square.green-home::before {
     content: '';
     position: absolute;
@@ -526,6 +527,7 @@ body {
     border-radius: 2px;
     pointer-events: none;
 }
+*/
 
 /* YELLOW HOME - Simple and clean */
 .square.yellow-home {
@@ -570,6 +572,7 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 } */
 
+/*
 .square.blue-home::after {
     content: 'B';
     position: absolute;
@@ -588,7 +591,8 @@ body {
     text-shadow: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-
+*/
+/*
 .square.green-home::after {
     content: 'G';
     position: absolute;
@@ -607,6 +611,7 @@ body {
     text-shadow: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
+ */
 
 /* .square.yellow-home::after {
     content: 'Y';
@@ -777,6 +782,7 @@ body {
     justify-content: center;
 } */
 
+/*
 .square.blue-home::after {
     content: 'B';
     position: absolute;
@@ -793,7 +799,8 @@ body {
     align-items: center;
     justify-content: center;
 }
-
+*/
+/*
 .square.green-home::after {
     content: 'G';
     position: absolute;
@@ -810,6 +817,7 @@ body {
     align-items: center;
     justify-content: center;
 }
+*/
 
 /* .square.yellow-home::after {
     content: 'Y';
@@ -1373,6 +1381,7 @@ body {
 }
 
 /* Safe Squares - Changed to vibrant purple/magenta */
+/*
 .square.safe-square {
     background: linear-gradient(135deg, #e8d5ff, #c39bd3);
     border: 3px solid #8e44ad;
@@ -1380,8 +1389,9 @@ body {
     font-weight: 700;
     position: relative;
     box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
-}
+}*/
 
+/*
 .square.safe-square::before {
     content: '⭐';
     position: absolute;
@@ -1392,8 +1402,9 @@ body {
     z-index: 1;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
     color: #9b59b6;
-}
+}*/
 
+/*
 .square.safe-square::after {
     content: 'SAFE';
     position: absolute;
@@ -1415,9 +1426,10 @@ body {
     background: linear-gradient(135deg, #d2b4de, #e8d5ff);
     border-color: #9b59b6;
 }
-
+*/
 
 /* Responsive safe square icon and text sizes */
+/*
 @media (max-width: 1400px) {
     .square.safe-square::before {
         font-size: 18px;
@@ -1459,7 +1471,7 @@ body {
         padding: 1px;
     }
 }
-
+*/
 /* Token Styles */
 .token {
     width: 24px;
@@ -5450,84 +5462,53 @@ body {
     border: 1px solid #ddd;
 }
 
+.board-size-13 .square[data-row="10"][data-col="1"],
+.board-size-13 .square[data-row="10"][data-col="2"],
+.board-size-13 .square[data-row="10"][data-col="3"],
+.board-size-13 .square[data-row="10"][data-col="4"],
+.board-size-13 .square[data-row="11"][data-col="1"],
+.board-size-13 .square[data-row="12"][data-col="4"],
+.board-size-13 .square[data-row="13"][data-col="1"],
+.board-size-13 .square[data-row="11"][data-col="4"],
+.board-size-13 .square[data-row="12"][data-col="1"],
+.board-size-13 .square[data-row="13"][data-col="2"],
+.board-size-13 .square[data-row="13"][data-col="3"],
+.board-size-13 .square[data-row="13"][data-col="4"] {
+    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa); /* Maintains subtle gradient for consistency */
+    border: 1px solid #ddd;
+}
+
+.board-size-13 .square[data-row="1"][data-col="10"],
+.board-size-13 .square[data-row="1"][data-col="11"],
+.board-size-13 .square[data-row="1"][data-col="12"],
+.board-size-13 .square[data-row="1"][data-col="13"],
+.board-size-13 .square[data-row="2"][data-col="13"],
+.board-size-13 .square[data-row="3"][data-col="13"],
+.board-size-13 .square[data-row="4"][data-col="13"],
+.board-size-13 .square[data-row="4"][data-col="10"],
+.board-size-13 .square[data-row="4"][data-col="11"],
+.board-size-13 .square[data-row="4"][data-col="12"],
+.board-size-13 .square[data-row="3"][data-col="10"],
+.board-size-13 .square[data-row="2"][data-col="10"] {
+    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa); /* Maintains subtle gradient for consistency */
+    border: 1px solid #ddd;
+}
+
+.board-size-13 .square[data-row="8"][data-col="2"],
+.board-size-13 .square[data-row="2"][data-col="6"],
+.board-size-13 .square[data-row="6"][data-col="12"],
+.board-size-13 .square[data-row="12"][data-col="8"]{
+    background: white;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa); /* Maintains subtle gradient for consistency */
+    border: 1px solid #ddd;
+}
 
 /* ...existing code... */
 
-/* Blocked/Disabled styling for 13-square board - Green and Blue areas */
-.board-size-13 .square.green-home,
-.board-size-13 .square.blue-home {
-    background: #b3b3b3 !important;
-    border: 3px solid #808080 !important;
-    color: #666666 !important;
-    position: relative;
-    cursor: not-allowed;
-    box-shadow: 
-        inset 0 2px 4px rgba(0, 0, 0, 0.2),
-        0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Blocked home squares inner border */
-.board-size-13 .square.green-home::before,
-.board-size-13 .square.blue-home::before {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    right: 3px;
-    bottom: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
-    pointer-events: none;
-}
-
-/* Blocked indicator overlay */
-.board-size-13 .square.green-home::after,
-.board-size-13 .square.blue-home::after {
-    content: '✕';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 18px;
-    font-weight: 900;
-    color: #666666;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    z-index: 2;
-}
-
-/* Blocked home entrance paths */
-.board-size-13 .square.green-entrance,
-.board-size-13 .square.blue-entrance {
-    background: #b3b3b3 !important;
-    border: 2px solid #808080 !important;
-    color: #666666 !important;
-    cursor: not-allowed;
-    position: relative;
-    box-shadow: 
-        inset 0 1px 3px rgba(0, 0, 0, 0.2),
-        0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Blocked entrance path indicator */
-.board-size-13 .square.green-entrance::before,
-.board-size-13 .square.blue-entrance::before {
-    content: '🚫';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    opacity: 0.7;
-    z-index: 2;
-}
-
-/* Remove original entrance path labels for blocked areas */
-.board-size-13 .square.green-entrance::after,
-.board-size-13 .square.blue-entrance::after {
-    display: none;
-}
-
 /* Make green and blue starting positions white for 13-square board */
+/*
 .board-size-13 .square.green-start,
 .board-size-13 .square.blue-start {
     background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
@@ -5537,94 +5518,23 @@ body {
     box-shadow: 
         inset 0 2px 4px rgba(255, 255, 255, 0.8),
         0 2px 4px rgba(0, 0, 0, 0.1) !important;
-}
+}*/
 
 /* Remove special starting square styling for blocked players */
+/*
 .board-size-13 .square.green-start::before,
 .board-size-13 .square.blue-start::before {
     display: none;
-}
+}*/
 
-.board-size-13 .square.green-start::after,
+/*.board-size-13 .square.green-start::after,
 .board-size-13 .square.blue-start::after {
     display: none;
-}
+}*/
 
-/* Restore normal hover effects for blocked starting squares */
-.board-size-13 .square.green-start:hover,
-.board-size-13 .square.blue-start:hover {
-    background-color: #f0f8ff !important;
-    transform: scale(1.05) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Hover effects for blocked areas - minimal feedback */
-.board-size-13 .square.green-home:hover,
-.board-size-13 .square.blue-home:hover {
-    transform: none;
-    box-shadow: 
-        inset 0 2px 4px rgba(0, 0, 0, 0.3),
-        0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.board-size-13 .square.green-entrance:hover,
-.board-size-13 .square.blue-entrance:hover {
-    transform: none;
-    box-shadow: 
-        inset 0 1px 3px rgba(0, 0, 0, 0.3),
-        0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive adjustments for blocked indicators */
-@media (max-width: 1400px) {
-    .board-size-13 .square.green-home::after,
-    .board-size-13 .square.blue-home::after {
-        font-size: 16px;
-    }
-    
-    .board-size-13 .square.green-entrance::before,
-    .board-size-13 .square.blue-entrance::before {
-        font-size: 10px;
-    }
-}
-
-@media (max-width: 1200px) {
-    .board-size-13 .square.green-home::after,
-    .board-size-13 .square.blue-home::after {
-        font-size: 14px;
-    }
-    
-    .board-size-13 .square.green-entrance::before,
-    .board-size-13 .square.blue-entrance::before {
-        font-size: 9px;
-    }
-}
-
-@media (max-width: 768px) {
-    .board-size-13 .square.green-home::after,
-    .board-size-13 .square.blue-home::after {
-        font-size: 12px;
-    }
-    
-    .board-size-13 .square.green-entrance::before,
-    .board-size-13 .square.blue-entrance::before {
-        font-size: 8px;
-    }
-}
-
-@media (max-width: 480px) {
-    .board-size-13 .square.green-home::after,
-    .board-size-13 .square.blue-home::after {
-        font-size: 10px;
-    }
-    
-    .board-size-13 .square.green-entrance::before,
-    .board-size-13 .square.blue-entrance::before {
-        font-size: 7px;
-    }
-}
 
 /* Temporarily hide coordinate text - Comment this section to show coordinates */
+
 .coord-text {
     display: none !important;
 }
@@ -5654,7 +5564,3 @@ body {
         font-size: 6px;
     }
 }
-
-
-
-

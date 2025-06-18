@@ -528,10 +528,12 @@ export const BOARD_13_CONFIG = {
     },
     
     SAFE_SQUARES: [
-        { row: 8, col: 2 },   // Red side
-        { row: 2, col: 6 },   // Blue side
-        { row: 6, col: 12 },  // Yellow side
-        { row: 12, col: 8 }   // Green side
+        { row: 6, col: 1 },
+        { row: 8, col: 13 },
+        //{ row: 8, col: 2 },   // Red side
+        //{ row: 2, col: 6 },   // Blue side
+        //{ row: 6, col: 12 },  // Yellow side
+        //{ row: 12, col: 8 }   // Green side
     ],
     
     HOME_ENTRANCE_PATHS: {
