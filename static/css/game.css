@@ -469,7 +469,7 @@ body {
         0 3px 8px rgba(204, 0, 0, 0.3);
 }
 
-.square.red-home::before {
+/* .square.red-home::before {
     content: '';
     position: absolute;
     top: 3px;
@@ -479,7 +479,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 2px;
     pointer-events: none;
-}
+} */
 
 /* BLUE HOME - Simple and clean */
 .square.blue-home {
@@ -538,7 +538,7 @@ body {
         0 3px 8px rgba(204, 170, 0, 0.3);
 }
 
-.square.yellow-home::before {
+/* .square.yellow-home::before {
     content: '';
     position: absolute;
     top: 3px;
@@ -548,11 +548,11 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 2px;
     pointer-events: none;
-}
+} */
 
 /* Simplified player indicators */
-.square.red-home::after {
-    content: 'R';
+/* .square.red-home::after {
+    content: ' ';
     position: absolute;
     bottom: 4px;
     right: 4px;
@@ -568,7 +568,7 @@ body {
     justify-content: center;
     text-shadow: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
+} */
 
 .square.blue-home::after {
     content: 'B';
@@ -608,7 +608,7 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.square.yellow-home::after {
+/* .square.yellow-home::after {
     content: 'Y';
     position: absolute;
     bottom: 4px;
@@ -625,7 +625,7 @@ body {
     justify-content: center;
     text-shadow: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
+} */
 
 /* Responsive adjustments for different board sizes */
 @media (max-width: 1400px) {
@@ -760,8 +760,8 @@ body {
 }
 
 /* Player indicators in home areas */
-.square.red-home::after {
-    content: 'R';
+/* .square.red-home::after {
+    content: ' ';
     position: absolute;
     bottom: 2px;
     right: 2px;
@@ -775,7 +775,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-}
+} */
 
 .square.blue-home::after {
     content: 'B';
@@ -811,7 +811,7 @@ body {
     justify-content: center;
 }
 
-.square.yellow-home::after {
+/* .square.yellow-home::after {
     content: 'Y';
     position: absolute;
     bottom: 2px;
@@ -826,7 +826,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-}
+} */
 
 /* Home Finish Area */
 .square.home-finish {
@@ -5527,6 +5527,37 @@ body {
     display: none;
 }
 
+/* Make green and blue starting positions white for 13-square board */
+.board-size-13 .square.green-start,
+.board-size-13 .square.blue-start {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+    border: 2px solid #bdc3c7 !important;
+    color: #2c3e50 !important;
+    cursor: pointer !important;
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.8),
+        0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Remove special starting square styling for blocked players */
+.board-size-13 .square.green-start::before,
+.board-size-13 .square.blue-start::before {
+    display: none;
+}
+
+.board-size-13 .square.green-start::after,
+.board-size-13 .square.blue-start::after {
+    display: none;
+}
+
+/* Restore normal hover effects for blocked starting squares */
+.board-size-13 .square.green-start:hover,
+.board-size-13 .square.blue-start:hover {
+    background-color: #f0f8ff !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Hover effects for blocked areas - minimal feedback */
 .board-size-13 .square.green-home:hover,
 .board-size-13 .square.blue-home:hover {
@@ -5593,7 +5624,36 @@ body {
     }
 }
 
-/* ...existing code... */
+/* Temporarily hide coordinate text - Comment this section to show coordinates */
+.coord-text {
+    display: none !important;
+}
+
+/* Original coordinate text styling (will be active when above section is commented) */
+.coord-text {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 8px;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 1px 2px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Hide coordinate text in production */
+.square.has-tokens .coord-text {
+    display: none;
+}
+
+/* Responsive coordinate text sizes */
+@media (max-width: 480px) {
+    .coord-text {
+        font-size: 6px;
+    }
+}
 
 
 
