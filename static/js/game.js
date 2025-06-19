@@ -213,20 +213,27 @@ class LudoGame {
 
     // If already finished, no movement
     if (currentPathIndex >= this.finalPosition) {
-      return { finalPos: currentPathIndex, finished: true, captured: false };
+      return { finalPos: currentPathIndex, finished: true, captured: false, pointsEarned: 0 };
     }
 
     const newPathIndex = currentPathIndex + diceValue;
+    let pointsEarned = 0;
 
-    // If move leads to or beyond final position, promote the token
+    // Calculate points earned (1 point per square moved)
     if (newPathIndex >= this.finalPosition) {
+      // If move leads to or beyond final position
       const actualMovement = this.finalPosition - currentPathIndex;
       pointsEarned = actualMovement;
       this.playerPositions[playerId][tokenIndex] = this.finalPosition;
       await this.updateTokenVisualPosition(playerId, tokenIndex, this.finalPosition, true);
+      
       // Update score
       await this.updatePlayerScore(playerId, pointsEarned);
-      return { finalPos: this.finalPosition, finished: true, captured: false };
+      
+      return { finalPos: this.finalPosition, finished: true, captured: false, pointsEarned };
+    } else {
+      // Normal movement
+      pointsEarned = diceValue;
     }
 
     // Check for opponent capture
@@ -261,7 +268,10 @@ class LudoGame {
     this.playerPositions[playerId][tokenIndex] = newPathIndex;
     await this.updateTokenVisualPosition(playerId, tokenIndex, newPathIndex, true);
 
-    return { finalPos: newPathIndex, finished: false, captured };
+    // Update score
+    await this.updatePlayerScore(playerId, pointsEarned);
+
+    return { finalPos: newPathIndex, finished: false, captured, pointsEarned };
   }
 
   // Enhanced selectToken method that chooses strategy based on player
@@ -671,14 +681,15 @@ class LudoGame {
 }
 
   getPlayerColor(playerId) {
-    const playerColors = {
-      1: "#e74c3c", // Red
-      2: "#3498db", // Blue
-      3: "#f1c40f", // Yellow
-      4: "#27ae60", // Green
-    };
-    return playerColors[playerId] || "#667eea";
-  }
+  // Fixed color mapping to match actual player colors
+  const colors = {
+    1: '#e74c3c', // Red for Player 1
+    2: '#f1c40f', // Yellow for Player 2 
+    3: '#27ae60', // Green for Player 3
+    4: '#3498db'  // Blue for Player 4
+  };
+  return colors[playerId] || '#95a5a6';
+}
 
   // Update the showBonusDiceRoll method to use player colors
   async showBonusDiceRoll(playerId, diceValue, bonusCount) {
@@ -1114,11 +1125,7 @@ class LudoGame {
     const activePlayers = this.getActivePlayers();
 
     // Check if any player has all tokens finished
-    for (
-      let playerIndex = 0;
-      playerIndex < activePlayers.length;
-      playerIndex++
-    ) {
+    for (let playerIndex = 0; playerIndex < activePlayers.length; playerIndex++) {
       const playerId = playerIndex + 1;
       const allFinished = this.playerPositions[playerId].every(
         (pos) => pos >= this.finalPosition
@@ -1137,7 +1144,7 @@ class LudoGame {
     });
 
     if (allReachedLimit) {
-      this.endGame(null); // Draw/time limit
+      this.endGame(null); // No one finished, determine by score
     }
   }
 
@@ -1149,30 +1156,197 @@ class LudoGame {
       this.stopAutoplay();
     }
 
-    if (winnerId) {
-      const playerName = this.getPlayerNameFromId(winnerId);
-      console.log(`Game Over! Player ${winnerId} (${playerName}) wins!`);
-
-      // Add winner celebration animation
-      const winnerTokens = document.querySelectorAll(
-        `[data-player="${playerName}"]`
-      );
-      winnerTokens.forEach((token) => {
-        token.classList.add("winner");
-      });
-
-      // Show victory message
-      this.showVictoryMessage(winnerId, playerName);
-    } else {
-      console.log("Game Over! Draw - Move limit reached");
-      this.showDrawMessage();
-    }
+    // Calculate final scores and determine actual winner
+    const finalWinner = this.determineFinalWinner(winnerId);
+    
+    // Show grand winner announcement
+    this.showGrandWinnerAnnouncement(finalWinner);
 
     // Disable dice rolling
     const rollButton = document.getElementById("rollDiceBtn");
     if (rollButton) {
       rollButton.disabled = true;
       rollButton.textContent = "Game Over";
+    }
+  }
+
+  // New method to determine final winner based on scores
+  determineFinalWinner(gameWinnerId) {
+    const activePlayers = this.getActivePlayers();
+    const finalScores = [];
+    
+    activePlayers.forEach((playerName, playerIndex) => {
+      const playerId = playerIndex + 1;
+      finalScores.push({
+        playerId,
+        playerName,
+        score: this.playerScores[playerId],
+        allTokensFinished: this.playerPositions[playerId].every(pos => pos >= this.finalPosition),
+        strategy: this.playerStrategies[playerId]
+      });
+    });
+    
+    // Sort by score (highest first)
+    finalScores.sort((a, b) => b.score - a.score);
+    
+    // If someone finished all tokens, they win regardless of score
+    const playerWithAllTokensFinished = finalScores.find(p => p.allTokensFinished);
+    
+    if (playerWithAllTokensFinished) {
+      return {
+        winner: playerWithAllTokensFinished,
+        rankings: finalScores,
+        winType: 'COMPLETION'
+      };
+    } else {
+      return {
+        winner: finalScores[0],
+        rankings: finalScores,
+        winType: 'SCORE'
+      };
+    }
+  }
+
+  // New method for grand winner announcement
+  showGrandWinnerAnnouncement(gameResult) {
+    // Remove score display
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    if (scoreDisplay) {
+      scoreDisplay.style.animation = 'slideOutRight 0.5s ease-in-out forwards';
+    }
+    
+    // Create winner announcement overlay
+    const winnerOverlay = document.createElement('div');
+    winnerOverlay.className = 'winner-announcement-overlay';
+    
+    const { winner, rankings, winType } = gameResult;
+    const winnerColor = this.getPlayerColor(winner.playerId);
+    
+    winnerOverlay.innerHTML = `
+      <div class="winner-announcement-container">
+        <!-- Animated Background -->
+        <div class="winner-bg-animation">
+          <div class="winner-particle"></div>
+          <div class="winner-particle"></div>
+          <div class="winner-particle"></div>
+          <div class="winner-particle"></div>
+          <div class="winner-particle"></div>
+          <div class="winner-particle"></div>
+          <div class="winner-particle"></div>
+          <div class="winner-particle"></div>
+        </div>
+        
+        <!-- Crown Animation -->
+        <div class="winner-crown-container">
+          <div class="winner-crown">
+            <i class="fas fa-crown"></i>
+          </div>
+        </div>
+        
+        <!-- Winner Content -->
+        <div class="winner-content">
+          <div class="winner-title">
+            <div class="winner-title-text">VICTORY!</div>
+            <div class="winner-subtitle">${winType === 'COMPLETION' ? 'All Tokens Completed' : 'Highest Score Achieved'}</div>
+          </div>
+          
+          <div class="winner-player-display">
+            <div class="winner-player-badge" style="background: ${winnerColor};">
+              <div class="winner-player-number">P${winner.playerId}</div>
+            </div>
+            <div class="winner-player-info">
+              <div class="winner-player-name">${winner.playerName}</div>
+              <div class="winner-player-strategy">
+                <i class="fas ${winner.strategy === 'AGGRESSIVE' ? 'fa-fire' : 'fa-route'}"></i>
+                ${winner.strategy} Strategy
+              </div>
+            </div>
+          </div>
+          
+          <div class="winner-score-display">
+            <div class="winner-final-score">
+              <div class="winner-score-value">${winner.score}</div>
+              <div class="winner-score-label">Final Score</div>
+            </div>
+          </div>
+          
+          <!-- Rankings Table -->
+          <div class="winner-rankings">
+            <div class="rankings-title">Final Rankings</div>
+            <div class="rankings-table">
+              ${rankings.map((player, index) => `
+                <div class="ranking-row ${index === 0 ? 'first-place' : ''}" style="animation-delay: ${index * 0.2}s;">
+                  <div class="ranking-position">
+                    <span class="position-number">${index + 1}</span>
+                    ${index === 0 ? '<i class="fas fa-crown"></i>' : ''}
+                  </div>
+                  <div class="ranking-player">
+                    <div class="ranking-badge" style="background: ${this.getPlayerColor(player.playerId)};"></div>
+                    <span class="ranking-name">Player ${player.playerId}</span>
+                    <span class="ranking-strategy">${player.strategy}</span>
+                  </div>
+                  <div class="ranking-score">${player.score} pts</div>
+                  <div class="ranking-status">
+                    ${player.allTokensFinished ? 
+                      '<i class="fas fa-check-circle text-success"></i> Complete' : 
+                      '<i class="fas fa-clock text-warning"></i> In Progress'
+                    }
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="winner-actions">
+            <button class="winner-btn winner-btn-primary" onclick="regenerateBoard()">
+              <i class="fas fa-redo"></i>
+              New Game
+            </button>
+            <button class="winner-btn winner-btn-secondary" onclick="goHome()">
+              <i class="fas fa-home"></i>
+              Home
+            </button>
+            <button class="winner-btn winner-btn-info" onclick="this.parentElement.parentElement.parentElement.parentElement.remove()">
+              <i class="fas fa-times"></i>
+              Close
+            </button>
+          </div>
+        </div>
+        
+        <!-- Confetti Animation -->
+        <div class="confetti-container">
+          ${Array.from({length: 50}, (_, i) => `
+            <div class="confetti confetti-${i % 6}" style="
+              left: ${Math.random() * 100}%;
+              animation-delay: ${Math.random() * 3}s;
+              animation-duration: ${3 + Math.random() * 2}s;
+            "></div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(winnerOverlay);
+    
+    // Trigger entrance animation
+    setTimeout(() => {
+      winnerOverlay.classList.add('show');
+    }, 100);
+    
+    // Play victory sound (if available)
+    this.playVictorySound();
+  }
+
+  // New method to play victory sound
+  playVictorySound() {
+    try {
+      const audio = new Audio('data:audio/wav;base64,UklGRpgGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YYoGAAA=');
+      audio.play().catch(() => {
+        // Sound failed to play, that's okay
+      });
+    } catch (e) {
+      // Ignore sound errors
     }
   }
 
@@ -1411,6 +1585,100 @@ class LudoGame {
         autoplayBtn.title = "Click to enable autoplay mode";
       }
     }
+  }
+
+  // New method to create score display
+  createScoreDisplay() {
+  const scoreContainer = document.createElement('div');
+  scoreContainer.id = 'scoreDisplay';
+  scoreContainer.className = 'score-display-container';
+  
+  const activePlayers = this.getActivePlayers();
+  let scoreHTML = `
+    <div class="score-display-header">
+      <i class="fas fa-trophy"></i>
+      <span>Live Scores</span>
+    </div>
+    <div class="score-players-grid">
+  `;
+  
+  activePlayers.forEach((playerName, playerIndex) => {
+    const playerId = playerIndex + 1;
+    const playerColor = this.getPlayerColor(playerId);
+    
+    scoreHTML += `
+      <div class="score-player-card" data-player="${playerId}">
+        <div class="score-player-header" style="background: ${playerColor};">
+          <div class="score-player-badge">P${playerId}</div>
+          <div class="score-player-name">${playerName}</div>
+          <div class="score-player-strategy">${this.playerStrategies[playerId]}</div>
+        </div>
+        <div class="score-value-container">
+          <div class="score-value" id="score-${playerId}">0</div>
+          <div class="score-label">Points</div>
+          <div class="score-animation" id="scoreAnim-${playerId}"></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  scoreHTML += `
+    </div>
+    <div class="score-display-footer">
+      <div class="max-possible-score">Max: ${this.finalPosition * parseInt(this.config.numTokens)} pts</div>
+    </div>
+  `;
+  
+  scoreContainer.innerHTML = scoreHTML;
+  document.body.appendChild(scoreContainer);
+}
+
+  // New method to update player score with animation
+  async updatePlayerScore(playerId, pointsEarned) {
+    if (pointsEarned <= 0) return;
+    
+    this.playerScores[playerId] += pointsEarned;
+    
+    // Animate score change
+    const scoreElement = document.getElementById(`score-${playerId}`);
+    const scoreAnimElement = document.getElementById(`scoreAnim-${playerId}`);
+    
+    if (scoreElement && scoreAnimElement) {
+      // Show points earned animation
+      scoreAnimElement.textContent = `+${pointsEarned}`;
+      scoreAnimElement.className = 'score-animation show';
+      
+      // Update the score with counting animation
+      const currentScore = parseInt(scoreElement.textContent);
+      const newScore = this.playerScores[playerId];
+      
+      await this.animateScoreCount(scoreElement, currentScore, newScore);
+      
+      // Remove animation
+      setTimeout(() => {
+        scoreAnimElement.className = 'score-animation';
+      }, 2000);
+    }
+  }
+
+  // New method to animate score counting
+  async animateScoreCount(element, startScore, endScore) {
+    const duration = 1000; // 1 second
+    const steps = 30;
+    const stepValue = (endScore - startScore) / steps;
+    const stepDuration = duration / steps;
+    
+    for (let i = 0; i <= steps; i++) {
+      const currentValue = Math.round(startScore + (stepValue * i));
+      element.textContent = currentValue;
+      element.style.transform = `scale(${1 + (Math.sin(i / steps * Math.PI) * 0.1)})`;
+      
+      if (i < steps) {
+        await new Promise(resolve => setTimeout(resolve, stepDuration));
+      }
+    }
+    
+    element.style.transform = 'scale(1)';
   }
 
   // ============ EXISTING METHODS (Keep all existing UI methods) ============
@@ -2376,7 +2644,6 @@ function populateDiceAnalytics(diceStats) {
   }
 }
 
-// Enhanced recent activity with board coordinates
 function populateRecentActivity(recentMoves) {
   const container = document.getElementById("recentActivityList");
   container.innerHTML = "";
@@ -2400,6 +2667,15 @@ function populateRecentActivity(recentMoves) {
       ? "fas fa-star"
       : "fas fa-arrows-alt";
 
+    // Get player color for activity icon
+    const playerColors = {
+      1: "#e74c3c", // Red for Player 1
+      2: "#f1c40f", // Yellow for Player 2
+      3: "#27ae60", // Green for Player 3
+      4: "#3498db"  // Blue for Player 4
+    };
+    const playerColor = playerColors[move.player] || "#667eea";
+
     // Get simplified board position description
     const fromPos = move.fromBoardIndex
       ? `[${move.fromBoardIndex.row},${move.fromBoardIndex.col}]`
@@ -2409,7 +2685,7 @@ function populateRecentActivity(recentMoves) {
       : `Path ${move.toPosition}`;
 
     activityItem.innerHTML = `
-            <div class="activity-icon">
+            <div class="activity-icon" style="background: ${playerColor};">
                 <i class="${icon}"></i>
             </div>
             <div class="activity-content">
@@ -2488,8 +2764,14 @@ function populateTimeline(gameHistory) {
       timelineEntry.dataset.player = move.player;
       timelineEntry.dataset.moveType = move.moveType;
 
-      const playerColors = ["#e74c3c", "#3498db", "#f1c40f", "#27ae60"];
-      const color = playerColors[move.player - 1] || "#667eea";
+      // Fixed player colors to match the actual game colors
+      const playerColors = {
+        1: "#e74c3c", // Red for Player 1
+        2: "#f1c40f", // Yellow for Player 2 (was incorrectly blue)
+        3: "#27ae60", // Green for Player 3
+        4: "#3498db"  // Blue for Player 4
+      };
+      const color = playerColors[move.player] || "#667eea";
 
       const timeFormatted = move.timestamp.toLocaleTimeString();
       const badges = [];
@@ -2595,20 +2877,27 @@ function createSequenceInfoElement(move) {
   if (!move.moveSequenceInfo) return "";
 
   const seqInfo = move.moveSequenceInfo;
-  const playerColors = ["#e74c3c", "#3498db", "#f1c40f", "#27ae60"];
+  
+  // Fixed player colors to match the actual game colors
+  const playerColors = {
+    1: "#e74c3c", // Red for Player 1
+    2: "#f1c40f", // Yellow for Player 2
+    3: "#27ae60", // Green for Player 3
+    4: "#3498db"  // Blue for Player 4
+  };
 
   // Create sequence visualization
   const sequenceDisplay = seqInfo.sequencePattern
     .map((playerId, index) => {
       const isCurrentMove = index === seqInfo.positionInSequence - 1;
-      const color = playerColors[playerId - 1] || "#667eea";
+      const color = playerColors[playerId] || "#667eea";
       const className = isCurrentMove
         ? "sequence-step current-step"
         : "sequence-step";
 
       return `
             <div class="${className}" style="border-color: ${color};">
-                <div class="step-player" style="background-color: ${color};">P${playerId}</div>
+                <div class="step-player" style="background-color: ${color}; ${playerId === 2 ? 'color: #2c3e50;' : ''}"">P${playerId}</div>
                 <div class="step-position">${index + 1}</div>
             </div>
         `;

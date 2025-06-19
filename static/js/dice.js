@@ -15,12 +15,33 @@ class DiceRoller {
     }
     
     updatePlayerIndicator() {
-        const indicator = document.getElementById('currentPlayerIndicator');
-        if (indicator) {
-            indicator.textContent = `Player ${this.currentPlayer}`;
-            indicator.className = `player-indicator player-${this.currentPlayer}`;
-        }
+  const indicator = document.querySelector('.player-indicator');
+  if (indicator) {
+    // Remove existing player classes
+    indicator.classList.remove('player-1', 'player-2', 'player-3', 'player-4');
+    
+    // Add current player class
+    indicator.classList.add(`player-${this.currentPlayer}`);
+    indicator.textContent = `Player ${this.currentPlayer}`;
+    
+    // Set correct colors
+    const colors = {
+      1: 'linear-gradient(135deg, #e74c3c, #c0392b)', // Red
+      2: 'linear-gradient(135deg, #f1c40f, #d4ac0d)', // Yellow
+      3: 'linear-gradient(135deg, #27ae60, #229954)', // Green
+      4: 'linear-gradient(135deg, #3498db, #2980b9)'  // Blue
+    };
+    
+    indicator.style.background = colors[this.currentPlayer] || 'linear-gradient(135deg, #667eea, #764ba2)';
+    
+    // Set text color for yellow background
+    if (this.currentPlayer === 2) {
+      indicator.style.color = '#2c3e50';
+    } else {
+      indicator.style.color = 'white';
     }
+  }
+}
     
     updateMoveSequence() {
         const moveOrder = document.getElementById('moveOrder');
