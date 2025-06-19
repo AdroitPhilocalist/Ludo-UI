@@ -1,70 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <!-- AOS Animation Library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/home.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/animations.css') }}"
+    />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='images/favicon.ico') }}"
+    />
     <title>Ludo Master - Ultimate Board Game Experience</title>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Animated Background -->
     <div class="animated-bg">
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-            <div class="shape shape-4"></div>
-            <div class="shape shape-5"></div>
-        </div>
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+      </div>
     </div>
 
     <!-- Main Container -->
-    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center">
-        <div class="row w-100 justify-content-center">
-            <div class="col-lg-6 col-xl-5">
-                <!-- Game Logo/Title -->
-                <div class="text-center mb-5" data-aos="fade-down" data-aos-duration="1000">
-                    <div class="game-logo mb-4">
-                        <i class="fas fa-dice-six game-icon"></i>
-                        <h1 class="game-title">LUDO<span class="highlight">MASTER</span></h1>
-                    </div>
-                    <p class="game-subtitle">Experience the Ultimate Board Game Adventure</p>
-                </div>
+    <div
+      class="container-fluid min-vh-100 d-flex align-items-center justify-content-center"
+    >
+      <div class="row w-100 justify-content-center">
+        <div class="col-lg-6 col-xl-5">
+          <!-- Game Logo/Title -->
+          <div
+            class="text-center mb-5"
+            data-aos="fade-down"
+            data-aos-duration="1000"
+          >
+            <div class="game-logo mb-4">
+              <i class="fas fa-dice-six game-icon"></i>
+              <h1 class="game-title">
+                LUDO<span class="highlight">MASTER</span>
+              </h1>
+            </div>
+            <p class="game-subtitle">
+              Experience the Ultimate Board Game Adventure
+            </p>
+          </div>
 
-                <!-- Game Configuration Card -->
-                <div class="config-card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-                    <div class="card-header">
-                        <h3><i class="fas fa-cog me-2"></i>Game Configuration</h3>
-                        <p>Customize your gaming experience</p>
-                    </div>
-                    
-                    <form id="config-form" class="config-form">
-                        <!-- Players Selection -->
-                        <div class="config-section" data-aos="fade-right" data-aos-duration="800" data-aos-delay="400">
-                            <label class="config-label">
-                                <i class="fas fa-users"></i>
-                                Number of Players
-                            </label>
-                            <div class="selection-grid players-grid">
-                                <input type="radio" id="players-2" name="num-players" value="2" checked>
-                                <label for="players-2" class="selection-card">
-                                    <span class="selection-number">2</span>
-                                    <span class="selection-text">Players</span>
-                                </label>
-                                
-                                <!-- <input type="radio" id="players-3" name="num-players" value="3">
+          <!-- Game Configuration Card -->
+          <div
+            class="config-card"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+            data-aos-delay="200"
+          >
+            <div class="card-header">
+              <h3><i class="fas fa-cog me-2"></i>Game Configuration</h3>
+              <p>Customize your gaming experience</p>
+            </div>
+
+            <form id="config-form" class="config-form">
+              <!-- Players Selection -->
+              <div
+                class="config-section"
+                data-aos="fade-right"
+                data-aos-duration="800"
+                data-aos-delay="400"
+              >
+                <label class="config-label">
+                  <i class="fas fa-users"></i>
+                  Number of Players
+                </label>
+                <div class="selection-grid players-grid">
+                  <input
+                    type="radio"
+                    id="players-2"
+                    name="num-players"
+                    value="2"
+                    checked
+                  />
+                  <label for="players-2" class="selection-card">
+                    <span class="selection-number">2</span>
+                    <span class="selection-text">Players</span>
+                  </label>
+
+                  <!-- <input type="radio" id="players-3" name="num-players" value="3">
                                 <label for="players-3" class="selection-card">
                                     <span class="selection-number">3</span>
                                     <span class="selection-text">Players</span>
@@ -75,191 +119,322 @@
                                     <span class="selection-number">4</span>
                                     <span class="selection-text">Players</span>
                                 </label> -->
-                            </div>
-                        </div>
-
-
-
-                        <!-- Player Strategy Selection (NEW) -->
-                        <div class="config-section strategy-section" data-aos="fade-left" data-aos-duration="800" data-aos-delay="500">
-                            <label class="config-label">
-                                <i class="fas fa-brain"></i>
-                                Player Strategies
-                            </label>
-                            
-                            <!-- Player 1 Strategy -->
-                            <div class="player-strategy-config">
-                                <h5 class="strategy-player-title">
-                                    <i class="fas fa-user-circle" style="color: #e74c3c;"></i>
-                                    Player 1 Strategy
-                                </h5>
-                                <div class="strategy-grid">
-                                    <input type="radio" id="p1-predictable" name="player1-strategy" value="PREDICTABLE" checked>
-                                    <label for="p1-predictable" class="strategy-card predictable">
-                                        <div class="strategy-icon">
-                                            <i class="fas fa-route"></i>
-                                        </div>
-                                        <div class="strategy-name">Predictable</div>
-                                        <div class="strategy-desc">Systematic & Safe</div>
-                                    </label>
-                                    
-                                    <input type="radio" id="p1-aggressive" name="player1-strategy" value="AGGRESSIVE">
-                                    <label for="p1-aggressive" class="strategy-card aggressive">
-                                        <div class="strategy-icon">
-                                            <i class="fas fa-fire"></i>
-                                        </div>
-                                        <div class="strategy-name">Aggressive</div>
-                                        <div class="strategy-desc">Risk & Reward</div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Player 2 Strategy -->
-                            <div class="player-strategy-config">
-                                <h5 class="strategy-player-title">
-                                    <i class="fas fa-user-circle" style="color: #3498db;"></i>
-                                    Player 2 Strategy
-                                </h5>
-                                <div class="strategy-grid">
-                                    <input type="radio" id="p2-predictable" name="player2-strategy" value="PREDICTABLE">
-                                    <label for="p2-predictable" class="strategy-card predictable">
-                                        <div class="strategy-icon">
-                                            <i class="fas fa-route"></i>
-                                        </div>
-                                        <div class="strategy-name">Predictable</div>
-                                        <div class="strategy-desc">Systematic & Safe</div>
-                                    </label>
-                                    
-                                    <input type="radio" id="p2-aggressive" name="player2-strategy" value="AGGRESSIVE" checked>
-                                    <label for="p2-aggressive" class="strategy-card aggressive">
-                                        <div class="strategy-icon">
-                                            <i class="fas fa-fire"></i>
-                                        </div>
-                                        <div class="strategy-name">Aggressive</div>
-                                        <div class="strategy-desc">Risk & Reward</div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tokens Selection -->
-                        <div class="config-section" data-aos="fade-left" data-aos-duration="800" data-aos-delay="600">
-                            <label class="config-label">
-                                <i class="fas fa-chess-pawn"></i>
-                                Tokens per Player
-                            </label>
-                            <div class="selection-grid tokens-grid">
-                                <input type="radio" id="tokens-1" name="num-tokens" value="1">
-                                <label for="tokens-1" class="selection-card">
-                                    <span class="selection-number">1</span>
-                                    <span class="selection-text">Token</span>
-                                </label>
-                                
-                                <input type="radio" id="tokens-2" name="num-tokens" value="2" checked>
-                                <label for="tokens-2" class="selection-card">
-                                    <span class="selection-number">2</span>
-                                    <span class="selection-text">Tokens</span>
-                                </label>
-                                
-                                <input type="radio" id="tokens-3" name="num-tokens" value="3">
-                                <label for="tokens-3" class="selection-card">
-                                    <span class="selection-number">3</span>
-                                    <span class="selection-text">Tokens</span>
-                                </label>
-                                
-                                <input type="radio" id="tokens-4" name="num-tokens" value="4">
-                                <label for="tokens-4" class="selection-card">
-                                    <span class="selection-number">4</span>
-                                    <span class="selection-text">Tokens</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Board Size Selection -->
-                        <div class="config-section" data-aos="fade-right" >
-                            <label class="config-label">
-                                <i class="fas fa-th-large"></i>
-                                Board Size (Squares)
-                            </label>
-                            <div class="selection-grid board-grid">
-                                <input type="radio" id="board-7" name="board-size" value="7">
-                                <label for="board-7" class="selection-card">
-                                    <span class="selection-number">7</span>
-                                    <span class="selection-text">Quick</span>
-                                </label>
-                                
-                                <input type="radio" id="board-9" name="board-size" value="9">
-                                <label for="board-9" class="selection-card">
-                                    <span class="selection-number">9</span>
-                                    <span class="selection-text">Classic</span>
-                                </label>
-                                
-                                <input type="radio" id="board-11" name="board-size" value="11">
-                                <label for="board-11" class="selection-card">
-                                    <span class="selection-number">11</span>
-                                    <span class="selection-text">Extended</span>
-                                </label>
-                                
-                                <input type="radio" id="board-13" name="board-size" value="13"  checked>
-                                <label for="board-13" class="selection-card">
-                                    <span class="selection-number">13</span>
-                                    <span class="selection-text">Epic</span>
-                                </label>
-                            </div>
-                        </div>
-
-
-                        <!-- Number of Rounds Selection (NEW) -->
-                        <div class="config-section" data-aos="fade-right" data-aos-duration="800" data-aos-delay="550">
-                            <label class="config-label">
-                                <i class="fas fa-clock"></i>
-                                Number of Rounds
-                            </label>
-                            <div class="selection-grid rounds-grid">
-                                <input type="radio" id="rounds-12" name="num-rounds" value="12">
-                                <label for="rounds-12" class="selection-card">
-                                    <span class="selection-number">12</span>
-                                    <span class="selection-text">Quick</span>
-                                </label>
-                                
-                                <input type="radio" id="rounds-16" name="num-rounds" value="16" checked>
-                                <label for="rounds-16" class="selection-card">
-                                    <span class="selection-number">16</span>
-                                    <span class="selection-text">Standard</span>
-                                </label>
-                                
-                                <input type="radio" id="rounds-20" name="num-rounds" value="20">
-                                <label for="rounds-20" class="selection-card">
-                                    <span class="selection-number">20</span>
-                                    <span class="selection-text">Extended</span>
-                                </label>
-                                
-                                <input type="radio" id="rounds-24" name="num-rounds" value="24">
-                                <label for="rounds-24" class="selection-card">
-                                    <span class="selection-number">24</span>
-                                    <span class="selection-text">Marathon</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        
-
-                        
-
-                        <!-- Start Game Button -->
-                        <div class="text-center mt-5" >
-                            <button type="submit" class="start-btn">
-                                <span class="btn-text">
-                                    <i class="fas fa-play me-2"></i>
-                                    Start Epic Game
-                                </span>
-                                <div class="btn-ripple"></div>
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            </div>
+              </div>
+
+              <!-- Player Strategy Selection (NEW) -->
+              <div
+                class="config-section strategy-section"
+                data-aos="fade-left"
+                data-aos-duration="800"
+                data-aos-delay="500"
+              >
+                <label class="config-label">
+                  <i class="fas fa-brain"></i>
+                  Player Strategies
+                </label>
+
+                <!-- Player 1 Strategy -->
+                <div class="player-strategy-config">
+                  <h5 class="strategy-player-title">
+                    <i class="fas fa-user-circle" style="color: #e74c3c"></i>
+                    Player 1 Strategy
+                  </h5>
+                  <div class="strategy-grid">
+                    <input
+                      type="radio"
+                      id="p1-predictable"
+                      name="player1-strategy"
+                      value="PREDICTABLE"
+                      checked
+                    />
+                    <label
+                      for="p1-predictable"
+                      class="strategy-card predictable"
+                    >
+                      <div class="strategy-icon">
+                        <i class="fas fa-route"></i>
+                      </div>
+                      <div class="strategy-name">Predictable</div>
+                      <div class="strategy-desc">Systematic & Safe</div>
+                    </label>
+
+                    <input
+                      type="radio"
+                      id="p1-aggressive"
+                      name="player1-strategy"
+                      value="AGGRESSIVE"
+                    />
+                    <label for="p1-aggressive" class="strategy-card aggressive">
+                      <div class="strategy-icon">
+                        <i class="fas fa-fire"></i>
+                      </div>
+                      <div class="strategy-name">Aggressive</div>
+                      <div class="strategy-desc">Risk & Reward</div>
+                    </label>
+                    <input
+                      type="radio"
+                      id="p1-responsible"
+                      name="player1-strategy"
+                      value="RESPONSIBLE"
+                    />
+                    <label
+                      for="p1-responsible"
+                      class="strategy-card responsible"
+                    >
+                      <div class="strategy-icon">
+                        <i class="fas fa-shield-alt"></i>
+                      </div>
+                      <div class="strategy-name">Responsible</div>
+                      <div class="strategy-desc">Strategic Pairs</div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Player 2 Strategy -->
+                <div class="player-strategy-config">
+                  <h5 class="strategy-player-title">
+                    <i class="fas fa-user-circle" style="color: #3498db"></i>
+                    Player 2 Strategy
+                  </h5>
+                  <div class="strategy-grid">
+                    <input
+                      type="radio"
+                      id="p2-predictable"
+                      name="player2-strategy"
+                      value="PREDICTABLE"
+                    />
+                    <label
+                      for="p2-predictable"
+                      class="strategy-card predictable"
+                    >
+                      <div class="strategy-icon">
+                        <i class="fas fa-route"></i>
+                      </div>
+                      <div class="strategy-name">Predictable</div>
+                      <div class="strategy-desc">Systematic & Safe</div>
+                    </label>
+
+                    <input
+                      type="radio"
+                      id="p2-aggressive"
+                      name="player2-strategy"
+                      value="AGGRESSIVE"
+                      checked
+                    />
+                    <label for="p2-aggressive" class="strategy-card aggressive">
+                      <div class="strategy-icon">
+                        <i class="fas fa-fire"></i>
+                      </div>
+                      <div class="strategy-name">Aggressive</div>
+                      <div class="strategy-desc">Risk & Reward</div>
+                    </label>
+                    <input
+                      type="radio"
+                      id="p1-responsible"
+                      name="player1-strategy"
+                      value="RESPONSIBLE"
+                    />
+                    <label
+                      for="p1-responsible"
+                      class="strategy-card responsible"
+                    >
+                      <div class="strategy-icon">
+                        <i class="fas fa-shield-alt"></i>
+                      </div>
+                      <div class="strategy-name">Responsible</div>
+                      <div class="strategy-desc">Strategic Pairs</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tokens Selection -->
+              <div
+                class="config-section"
+                data-aos="fade-left"
+                data-aos-duration="800"
+                data-aos-delay="600"
+              >
+                <label class="config-label">
+                  <i class="fas fa-chess-pawn"></i>
+                  Tokens per Player
+                </label>
+                <div class="selection-grid tokens-grid">
+                  <input
+                    type="radio"
+                    id="tokens-1"
+                    name="num-tokens"
+                    value="1"
+                  />
+                  <label for="tokens-1" class="selection-card">
+                    <span class="selection-number">1</span>
+                    <span class="selection-text">Token</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="tokens-2"
+                    name="num-tokens"
+                    value="2"
+                    checked
+                  />
+                  <label for="tokens-2" class="selection-card">
+                    <span class="selection-number">2</span>
+                    <span class="selection-text">Tokens</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="tokens-3"
+                    name="num-tokens"
+                    value="3"
+                  />
+                  <label for="tokens-3" class="selection-card">
+                    <span class="selection-number">3</span>
+                    <span class="selection-text">Tokens</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="tokens-4"
+                    name="num-tokens"
+                    value="4"
+                  />
+                  <label for="tokens-4" class="selection-card">
+                    <span class="selection-number">4</span>
+                    <span class="selection-text">Tokens</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Board Size Selection -->
+              <div class="config-section" data-aos="fade-right">
+                <label class="config-label">
+                  <i class="fas fa-th-large"></i>
+                  Board Size (Squares)
+                </label>
+                <div class="selection-grid board-grid">
+                  <input
+                    type="radio"
+                    id="board-7"
+                    name="board-size"
+                    value="7"
+                  />
+                  <label for="board-7" class="selection-card">
+                    <span class="selection-number">7</span>
+                    <span class="selection-text">Quick</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="board-9"
+                    name="board-size"
+                    value="9"
+                  />
+                  <label for="board-9" class="selection-card">
+                    <span class="selection-number">9</span>
+                    <span class="selection-text">Classic</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="board-11"
+                    name="board-size"
+                    value="11"
+                  />
+                  <label for="board-11" class="selection-card">
+                    <span class="selection-number">11</span>
+                    <span class="selection-text">Extended</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="board-13"
+                    name="board-size"
+                    value="13"
+                    checked
+                  />
+                  <label for="board-13" class="selection-card">
+                    <span class="selection-number">13</span>
+                    <span class="selection-text">Epic</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Number of Rounds Selection (NEW) -->
+              <div
+                class="config-section"
+                data-aos="fade-right"
+                data-aos-duration="800"
+                data-aos-delay="550"
+              >
+                <label class="config-label">
+                  <i class="fas fa-clock"></i>
+                  Number of Rounds
+                </label>
+                <div class="selection-grid rounds-grid">
+                  <input
+                    type="radio"
+                    id="rounds-12"
+                    name="num-rounds"
+                    value="12"
+                  />
+                  <label for="rounds-12" class="selection-card">
+                    <span class="selection-number">12</span>
+                    <span class="selection-text">Quick</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="rounds-16"
+                    name="num-rounds"
+                    value="16"
+                    checked
+                  />
+                  <label for="rounds-16" class="selection-card">
+                    <span class="selection-number">16</span>
+                    <span class="selection-text">Standard</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="rounds-20"
+                    name="num-rounds"
+                    value="20"
+                  />
+                  <label for="rounds-20" class="selection-card">
+                    <span class="selection-number">20</span>
+                    <span class="selection-text">Extended</span>
+                  </label>
+
+                  <input
+                    type="radio"
+                    id="rounds-24"
+                    name="num-rounds"
+                    value="24"
+                  />
+                  <label for="rounds-24" class="selection-card">
+                    <span class="selection-number">24</span>
+                    <span class="selection-text">Marathon</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Start Game Button -->
+              <div class="text-center mt-5">
+                <button type="submit" class="start-btn">
+                  <span class="btn-text">
+                    <i class="fas fa-play me-2"></i>
+                    Start Epic Game
+                  </span>
+                  <div class="btn-ripple"></div>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -268,14 +443,14 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/home.js') }}"></script>
-    
+
     <script>
-        // Initialize AOS animations
-        AOS.init({
-            duration: 1000,
-            easing: 'ease-in-out',
-            once: true
-        });
+      // Initialize AOS animations
+      AOS.init({
+        duration: 1000,
+        easing: "ease-in-out",
+        once: true,
+      });
     </script>
-</body>
+  </body>
 </html>
