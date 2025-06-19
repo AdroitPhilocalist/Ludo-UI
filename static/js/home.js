@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
             numPlayers: formData.get('num-players'),
             numTokens: formData.get('num-tokens'),
             boardSize: formData.get('board-size'),
+            numRounds: formData.get('num-rounds'), 
             player1Strategy: formData.get('player1-strategy'),
             player2Strategy: formData.get('player2-strategy')
         };
@@ -46,10 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate form
         if (!config.numPlayers || !config.numTokens || !config.boardSize || 
-            !config.player1Strategy || !config.player2Strategy) {
-            showNotification('Please select all options including player strategies!', 'error');
-            return;
-        }
+        !config.numRounds || !config.player1Strategy || !config.player2Strategy) {
+        showNotification('Please select all options including number of rounds and player strategies!', 'error');
+        return;
+    }
 
         // Add loading state
         startBtn.classList.add('loading');

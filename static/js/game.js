@@ -79,28 +79,29 @@ class LudoGame {
     // Calculate dynamic final position based on board size
     this.finalPosition = this.calculateFinalPosition();
 
-    // Set dynamic move limits
+    // Set dynamic move limits based on selected rounds
     const numPlayers = parseInt(this.config.numPlayers);
-    const baseRounds = 16;
-    this.maxMoves = Math.floor(baseRounds * 1.5);
+    const selectedRounds = parseInt(this.config.numRounds); // Use selected rounds
+    this.maxMoves = selectedRounds; // Use the exact number of rounds selected
 
     // Initialize move counters for all players
     for (let i = 1; i <= numPlayers; i++) {
-      this.moveCount[i] = 0;
+        this.moveCount[i] = 0;
     }
 
     // Get safe squares from board configuration
     this.safeSquares = this.boardConfig.SAFE_SQUARES.map(
-      (sq) => `${sq.row},${sq.col}`
+        (sq) => `${sq.row},${sq.col}`
     );
 
     console.log("Game configuration:", {
-      finalPosition: this.finalPosition,
-      maxMoves: this.maxMoves,
-      safeSquares: this.safeSquares,
-      boardConfig: this.boardConfig,
+        finalPosition: this.finalPosition,
+        maxMoves: this.maxMoves,
+        selectedRounds: selectedRounds,
+        safeSquares: this.safeSquares,
+        boardConfig: this.boardConfig,
     });
-  }
+}
 
   calculateFinalPosition() {
     // Calculate final position based on path length
@@ -209,70 +210,76 @@ class LudoGame {
 
   // Enhanced moveToken method that works with both strategies
   async moveToken(playerId, tokenIndex, diceValue) {
-    const currentPathIndex = this.playerPositions[playerId][tokenIndex];
+  const currentPathIndex = this.playerPositions[playerId][tokenIndex];
 
-    // If already finished, no movement
-    if (currentPathIndex >= this.finalPosition) {
-      return { finalPos: currentPathIndex, finished: true, captured: false, pointsEarned: 0 };
-    }
+  // If already finished, no movement
+  if (currentPathIndex >= this.finalPosition) {
+    return { finalPos: currentPathIndex, finished: true, captured: false, pointsEarned: 0 };
+  }
 
-    const newPathIndex = currentPathIndex + diceValue;
-    let pointsEarned = 0;
+  const newPathIndex = currentPathIndex + diceValue;
+  let pointsEarned = 0;
 
-    // Calculate points earned (1 point per square moved)
-    if (newPathIndex >= this.finalPosition) {
-      // If move leads to or beyond final position
-      const actualMovement = this.finalPosition - currentPathIndex;
-      pointsEarned = actualMovement;
-      this.playerPositions[playerId][tokenIndex] = this.finalPosition;
-      await this.updateTokenVisualPosition(playerId, tokenIndex, this.finalPosition, true);
-      
-      // Update score
-      await this.updatePlayerScore(playerId, pointsEarned);
-      
-      return { finalPos: this.finalPosition, finished: true, captured: false, pointsEarned };
-    } else {
-      // Normal movement
-      pointsEarned = diceValue;
-    }
-
-    // Check for opponent capture
-    let captured = false;
-    const activePlayers = this.getActivePlayers();
-    const newPosition = this.getPositionFromPathIndex(newPathIndex, playerId);
-
-    for (let oppPlayerId = 1; oppPlayerId <= activePlayers.length; oppPlayerId++) {
-      if (oppPlayerId === playerId) continue;
-
-      for (let oppTokenIndex = 0; oppTokenIndex < parseInt(this.config.numTokens); oppTokenIndex++) {
-        const oppPathIndex = this.playerPositions[oppPlayerId][oppTokenIndex];
-        const oppPosition = this.getPositionFromPathIndex(oppPathIndex, oppPlayerId);
-        
-        if (oppPosition && newPosition &&
-            oppPosition.row === newPosition.row && 
-            oppPosition.col === newPosition.col &&
-            !this.isSafe(oppPathIndex, oppPlayerId)) {
-          
-          // Capture the opponent token
-          this.playerPositions[oppPlayerId][oppTokenIndex] = 0;
-          await this.animateCapture(oppPlayerId, oppTokenIndex);
-          await this.updateTokenVisualPosition(oppPlayerId, oppTokenIndex, 0, true);
-          captured = true;
-          
-          console.log(`Player ${playerId} captured Player ${oppPlayerId}'s token ${oppTokenIndex + 1}`);
-        }
-      }
-    }
-
-    // Update current token position and animate movement
-    this.playerPositions[playerId][tokenIndex] = newPathIndex;
-    await this.updateTokenVisualPosition(playerId, tokenIndex, newPathIndex, true);
-
+  // Calculate points earned (1 point per square moved)
+  if (newPathIndex >= this.finalPosition) {
+    // If move leads to or beyond final position
+    const actualMovement = this.finalPosition - currentPathIndex;
+    pointsEarned = actualMovement;
+    this.playerPositions[playerId][tokenIndex] = this.finalPosition;
+    await this.updateTokenVisualPosition(playerId, tokenIndex, this.finalPosition, true);
+    
     // Update score
     await this.updatePlayerScore(playerId, pointsEarned);
-
-    return { finalPos: newPathIndex, finished: false, captured, pointsEarned };
+    
+    return { finalPos: this.finalPosition, finished: true, captured: false, pointsEarned };
+  } else {
+    // Normal movement
+    pointsEarned = diceValue;
   }
+
+  // Check for opponent capture
+  let captured = false;
+  const activePlayers = this.getActivePlayers();
+  const newPosition = this.getPositionFromPathIndex(newPathIndex, playerId);
+
+  for (let oppPlayerId = 1; oppPlayerId <= activePlayers.length; oppPlayerId++) {
+    if (oppPlayerId === playerId) continue;
+
+    for (let oppTokenIndex = 0; oppTokenIndex < parseInt(this.config.numTokens); oppTokenIndex++) {
+      const oppPathIndex = this.playerPositions[oppPlayerId][oppTokenIndex];
+      const oppPosition = this.getPositionFromPathIndex(oppPathIndex, oppPlayerId);
+      
+      if (oppPosition && newPosition &&
+          oppPosition.row === newPosition.row && 
+          oppPosition.col === newPosition.col &&
+          !this.isSafe(oppPathIndex, oppPlayerId)) {
+        
+        // IMPORTANT: Deduct points for captured token before resetting position
+        const pointsToDeduct = oppPathIndex; // Points to lose = distance covered
+        await this.updatePlayerScore(oppPlayerId, -pointsToDeduct); // Negative points = deduction
+        
+        console.log(`Player ${oppPlayerId}'s token at position ${oppPathIndex} was captured. Deducting ${pointsToDeduct} points.`);
+        
+        // Capture the opponent token (reset to home)
+        this.playerPositions[oppPlayerId][oppTokenIndex] = 0;
+        await this.animateCapture(oppPlayerId, oppTokenIndex);
+        await this.updateTokenVisualPosition(oppPlayerId, oppTokenIndex, 0, true);
+        captured = true;
+        
+        console.log(`Player ${playerId} captured Player ${oppPlayerId}'s token ${oppTokenIndex + 1}`);
+      }
+    }
+  }
+
+  // Update current token position and animate movement
+  this.playerPositions[playerId][tokenIndex] = newPathIndex;
+  await this.updateTokenVisualPosition(playerId, tokenIndex, newPathIndex, true);
+
+  // Update score
+  await this.updatePlayerScore(playerId, pointsEarned);
+
+  return { finalPos: newPathIndex, finished: false, captured, pointsEarned };
+}
 
   // Enhanced selectToken method that chooses strategy based on player
   selectToken(playerId, diceValue = null, availableDice = []) {
@@ -1634,52 +1641,73 @@ class LudoGame {
 }
 
   // New method to update player score with animation
-  async updatePlayerScore(playerId, pointsEarned) {
-    if (pointsEarned <= 0) return;
-    
-    this.playerScores[playerId] += pointsEarned;
-    
-    // Animate score change
-    const scoreElement = document.getElementById(`score-${playerId}`);
-    const scoreAnimElement = document.getElementById(`scoreAnim-${playerId}`);
-    
-    if (scoreElement && scoreAnimElement) {
-      // Show points earned animation
-      scoreAnimElement.textContent = `+${pointsEarned}`;
-      scoreAnimElement.className = 'score-animation show';
-      
-      // Update the score with counting animation
-      const currentScore = parseInt(scoreElement.textContent);
-      const newScore = this.playerScores[playerId];
-      
-      await this.animateScoreCount(scoreElement, currentScore, newScore);
-      
-      // Remove animation
-      setTimeout(() => {
-        scoreAnimElement.className = 'score-animation';
-      }, 2000);
+  async updatePlayerScore(playerId, pointsChange) {
+  if (pointsChange === 0) return;
+  
+  const previousScore = this.playerScores[playerId];
+  this.playerScores[playerId] = Math.max(0, this.playerScores[playerId] + pointsChange); // Ensure score doesn't go below 0
+  
+  // Animate score change
+  const scoreElement = document.getElementById(`score-${playerId}`);
+  const scoreAnimElement = document.getElementById(`scoreAnim-${playerId}`);
+  
+  if (scoreElement && scoreAnimElement) {
+    // Show points change animation with appropriate styling
+    if (pointsChange > 0) {
+      scoreAnimElement.textContent = `+${pointsChange}`;
+      scoreAnimElement.className = 'score-animation show positive';
+    } else {
+      scoreAnimElement.textContent = `${pointsChange}`; // Already has negative sign
+      scoreAnimElement.className = 'score-animation show negative';
     }
+    
+    // Update the score with counting animation
+    const newScore = this.playerScores[playerId];
+    
+    await this.animateScoreCount(scoreElement, previousScore, newScore, pointsChange < 0);
+    
+    // Remove animation
+    setTimeout(() => {
+      scoreAnimElement.className = 'score-animation';
+    }, 2000);
   }
+  
+  console.log(`Player ${playerId} score updated: ${previousScore} → ${this.playerScores[playerId]} (${pointsChange > 0 ? '+' : ''}${pointsChange})`);
+}
 
   // New method to animate score counting
-  async animateScoreCount(element, startScore, endScore) {
-    const duration = 1000; // 1 second
-    const steps = 30;
-    const stepValue = (endScore - startScore) / steps;
-    const stepDuration = duration / steps;
-    
-    for (let i = 0; i <= steps; i++) {
-      const currentValue = Math.round(startScore + (stepValue * i));
-      element.textContent = currentValue;
-      element.style.transform = `scale(${1 + (Math.sin(i / steps * Math.PI) * 0.1)})`;
-      
-      if (i < steps) {
-        await new Promise(resolve => setTimeout(resolve, stepDuration));
-      }
-    }
-    
-    element.style.transform = 'scale(1)';
+  async animateScoreCount(element, startScore, endScore, isDecrease = false) {
+  const duration = 1000; // 1 second
+  const steps = 30;
+  const stepValue = (endScore - startScore) / steps;
+  const stepDuration = duration / steps;
+  
+  // Add visual feedback for score changes
+  if (isDecrease) {
+    element.style.color = '#e74c3c'; // Red for decrease
+  } else {
+    element.style.color = '#27ae60'; // Green for increase
   }
+  
+  for (let i = 0; i <= steps; i++) {
+    const currentValue = Math.round(startScore + (stepValue * i));
+    element.textContent = currentValue;
+    
+    // Enhanced animation for score changes
+    const scaleEffect = 1 + (Math.sin(i / steps * Math.PI) * 0.15);
+    element.style.transform = `scale(${scaleEffect})`;
+    
+    if (i < steps) {
+      await new Promise(resolve => setTimeout(resolve, stepDuration));
+    }
+  }
+  
+  // Reset styling
+  element.style.transform = 'scale(1)';
+  setTimeout(() => {
+    element.style.color = '#2c3e50'; // Back to normal color
+  }, 1000);
+}
 
   // ============ EXISTING METHODS (Keep all existing UI methods) ============
 
@@ -2150,63 +2178,65 @@ class LudoGame {
 
   // Enhanced logging to include strategy information
   logMove(moveData) {
-    // Enhanced move logging with detailed information including dice tracking and strategy
-    const timestamp = new Date();
+  // Enhanced move logging with detailed information including dice tracking, strategy, and points
+  const timestamp = new Date();
 
-    // Get actual board coordinates for from and to positions
-    const fromBoardIndex = this.getActualBoardIndex(
-      moveData.player,
-      moveData.initPositions,
-      typeof moveData.token === 'number' ? moveData.token - 1 : 0
-    );
-    const toBoardIndex = this.getActualBoardIndex(
-      moveData.player,
-      moveData.finalPositions,
-      typeof moveData.token === 'number' ? moveData.token - 1 : 0
-    );
+  // Get actual board coordinates for from and to positions
+  const fromBoardIndex = this.getActualBoardIndex(
+    moveData.player,
+    moveData.initPositions,
+    typeof moveData.token === 'number' ? moveData.token - 1 : 0
+  );
+  const toBoardIndex = this.getActualBoardIndex(
+    moveData.player,
+    moveData.finalPositions,
+    typeof moveData.token === 'number' ? moveData.token - 1 : 0
+  );
 
-    // Calculate available dice for this specific move
-    const availableDice = this.calculateAvailableDiceForMove(moveData);
+  // Calculate available dice for this specific move
+  const availableDice = this.calculateAvailableDiceForMove(moveData);
 
-    const detailedMove = {
-      id: this.detailedGameHistory.length + 1,
-      timestamp: timestamp,
-      round: this.currentRound,
-      player: moveData.player,
-      playerName: this.getPlayerNameFromId(moveData.player),
-      strategy: moveData.strategy || this.playerStrategies[moveData.player] || 'PREDICTABLE', // Add strategy info
-      token: moveData.token,
-      diceValue: moveData.diceValue,
-      moveType: moveData.moveType || "regular",
-      fromPosition: moveData.initPositions
-        ? moveData.initPositions[
-            (moveData.player - 1) * parseInt(this.config.numTokens) +
-              (typeof moveData.token === 'number' ? moveData.token - 1 : 0)
-          ]
-        : 0,
-      toPosition: moveData.finalPositions
-        ? moveData.finalPositions[
-            (moveData.player - 1) * parseInt(this.config.numTokens) +
-              (typeof moveData.token === 'number' ? moveData.token - 1 : 0)
-          ]
-        : 0,
-      fromBoardIndex: fromBoardIndex,
-      toBoardIndex: toBoardIndex,
-      captured: moveData.result ? moveData.result.captured : false,
-      finished: moveData.result ? moveData.result.finished : false,
-      usedValues: moveData.usedValues || [moveData.diceValue],
-      allDiceValues: moveData.allDiceValues || [moveData.diceValue],
-      availableDice: availableDice,
-      distance: moveData.diceValue,
-      gameState: JSON.parse(JSON.stringify(this.playerPositions)),
-      moveSequenceInfo: this.getMoveSequenceInfo(moveData),
-    };
+  const detailedMove = {
+    id: this.detailedGameHistory.length + 1,
+    timestamp: timestamp,
+    round: this.currentRound,
+    player: moveData.player,
+    playerName: this.getPlayerNameFromId(moveData.player),
+    strategy: moveData.strategy || this.playerStrategies[moveData.player] || 'PREDICTABLE',
+    token: moveData.token,
+    diceValue: moveData.diceValue,
+    moveType: moveData.moveType || "regular",
+    fromPosition: moveData.initPositions
+      ? moveData.initPositions[
+          (moveData.player - 1) * parseInt(this.config.numTokens) +
+            (typeof moveData.token === 'number' ? moveData.token - 1 : 0)
+        ]
+      : 0,
+    toPosition: moveData.finalPositions
+      ? moveData.finalPositions[
+          (moveData.player - 1) * parseInt(this.config.numTokens) +
+            (typeof moveData.token === 'number' ? moveData.token - 1 : 0)
+        ]
+      : 0,
+    fromBoardIndex: fromBoardIndex,
+    toBoardIndex: toBoardIndex,
+    captured: moveData.result ? moveData.result.captured : false,
+    finished: moveData.result ? moveData.result.finished : false,
+    pointsEarned: moveData.result ? moveData.result.pointsEarned || moveData.diceValue : moveData.diceValue, // Track points earned
+    currentPlayerScore: this.playerScores[moveData.player], // Track current score after move
+    usedValues: moveData.usedValues || [moveData.diceValue],
+    allDiceValues: moveData.allDiceValues || [moveData.diceValue],
+    availableDice: availableDice,
+    distance: moveData.diceValue,
+    gameState: JSON.parse(JSON.stringify(this.playerPositions)),
+    moveSequenceInfo: this.getMoveSequenceInfo(moveData),
+  };
 
-    this.detailedGameHistory.push(detailedMove);
-    this.updatePlayerStatistics(detailedMove);
+  this.detailedGameHistory.push(detailedMove);
+  this.updatePlayerStatistics(detailedMove);
 
-    console.log("Move logged:", detailedMove);
-  }
+  console.log("Move logged:", detailedMove);
+}
 
   // New method to calculate available dice for a specific move
   calculateAvailableDiceForMove(moveData) {
@@ -2502,21 +2532,23 @@ window.LudoUtils = {
   },
 
   getGameStats: function () {
-    const config = window.gameConfig;
-    const gridSize = this.getBoardDimensions(config.boardSize);
-    return {
-      players: config.numPlayers,
-      tokens: config.numTokens,
-      boardSize: config.boardSize,
-      gridDimensions: `${gridSize}×${gridSize}`,
-      totalSquares: this.getTotalSquares(config.boardSize),
-    };
-  },
+        const config = window.gameConfig;
+        const gridSize = this.getBoardDimensions(config.boardSize);
+        return {
+            players: config.numPlayers,
+            tokens: config.numTokens,
+            boardSize: config.boardSize,
+            rounds: config.numRounds, // Add rounds information
+            gridDimensions: `${gridSize}×${gridSize}`,
+            totalSquares: this.getTotalSquares(config.boardSize),
+        };
+    },
 
   getGameState: function () {
     return window.ludoGame
       ? {
           currentRound: window.ludoGame.currentRound,
+          maxRounds: window.ludoGame.maxMoves,
           gameState: window.ludoGame.gameState,
           moveCount: window.ludoGame.moveCount,
           playerPositions: window.ludoGame.playerPositions,

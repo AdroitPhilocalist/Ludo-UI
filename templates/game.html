@@ -70,6 +70,11 @@
                 >{{ board_size }}</span
               >
             </div>
+            <div class="config-item me-4">
+        <i class="fas fa-clock me-1"></i>
+        <span class="config-label">Rounds:</span>
+        <span class="config-value" id="display-rounds">{{ num_rounds }}</span>
+    </div>
           </div>
 
           <div class="game-controls">
@@ -876,6 +881,7 @@
         numPlayers: "{{ num_players }}",
         numTokens: "{{ num_tokens }}",
         boardSize: "{{ board_size }}",
+        numRounds: "{{ num_rounds }}",
         player1Strategy: "{{ player1_strategy }}",
         player2Strategy: "{{ player2_strategy }}"
       };

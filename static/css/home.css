@@ -568,3 +568,21 @@ h1, h2, h3 {
         font-size: 1.5rem;
     }
 }
+
+.rounds-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive adjustments for rounds grid */
+@media (max-width: 768px) {
+    .rounds-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .rounds-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+}

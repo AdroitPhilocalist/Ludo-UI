@@ -5802,6 +5802,17 @@ body {
     margin-bottom: 0.3rem;
     transition: all 0.3s ease;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: color 0.5s ease, transform 0.3s ease;
+}
+.score-value.decreasing {
+    color: #e74c3c !important;
+    animation: scoreShake 0.6s ease-in-out;
+}
+
+@keyframes scoreShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
 }
 
 .score-label {
@@ -5830,6 +5841,53 @@ body {
     opacity: 1;
     transform: translateY(0) scale(1);
     animation: scorePopBounce 2s ease-out;
+}
+
+.score-animation.negative {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    color: white !important;
+}
+
+.score-animation.positive {
+    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+    color: white !important;
+}
+
+.score-animation.negative::before {
+    content: '💔 ';
+}
+
+.score-animation.positive::before {
+    content: '✨ ';
+}
+
+/* Enhanced score animation for negative values */
+.score-animation.negative.show {
+    animation: scoreNegativeBounce 2s ease-out;
+}
+
+@keyframes scoreNegativeBounce {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    15% {
+        transform: translateY(-8px) scale(1.2);
+    }
+    30% {
+        transform: translateY(0) scale(1);
+    }
+    45% {
+        transform: translateY(-5px) scale(1.1);
+    }
+    60% {
+        transform: translateY(0) scale(1);
+    }
+    75% {
+        transform: translateY(-3px) scale(1.05);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+    }
 }
 
 @keyframes scorePopBounce {
