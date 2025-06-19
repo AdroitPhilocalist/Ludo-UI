@@ -309,18 +309,279 @@ class LudoGame {
     return { gameEnded: false, winnerId: null };
   }
 
-  // Enhanced selectToken method that chooses strategy based on player
-  selectToken(playerId, diceValue = null, availableDice = []) {
-    const strategy = this.playerStrategies[playerId];
-    if (strategy === 'AGGRESSIVE') {
-      // console.log(diceValue, availableDice);
-      const result = this.selectTokenAggressive(playerId, diceValue, availableDice);
-      // Return just the tokenIndex for consistency with predictable strategy
-      return result ? result.tokenIndex : null;
-    } else {
-      return this.selectTokenPredictable(playerId);
+  // Update the selectToken method to handle the new strategy
+selectToken(playerId, diceValue = null, availableDice = []) {
+  const strategy = this.playerStrategies[playerId];
+  
+  if (strategy === 'AGGRESSIVE') {
+    const result = this.selectTokenAggressive(playerId, diceValue, availableDice);
+    return result ? result.tokenIndex : null;
+  } else if (strategy === 'RESPONSIBLE') {
+    const result = this.selectTokenResponsible(playerId, diceValue, availableDice);
+    return result ? result.tokenIndex : null;
+  } else {
+    return this.selectTokenPredictable(playerId);
+  }
+}
+
+// New method for Responsible Pair strategy
+selectTokenResponsible(playerId, diceValue, availableDice = []) {
+  const numTokens = parseInt(this.config.numTokens);
+  
+  // Get all available dice values for decision making
+  const diceOptions = availableDice.length > 0 ? availableDice : [diceValue];
+  
+  console.log(`Responsible strategy for Player ${playerId}, dice options:`, diceOptions);
+
+  // Find unfinished tokens
+  const unfinishedTokens = [];
+  for (let i = 0; i < numTokens; i++) {
+    if (this.playerPositions[playerId][i] < this.finalPosition) {
+      unfinishedTokens.push(i);
     }
   }
+
+  if (unfinishedTokens.length === 0) {
+    console.log(`Player ${playerId} has no more tokens to move - all finished!`);
+    return { tokenIndex: null, chosenDice: diceValue };
+  }
+
+  // Priority 1: Promotion (finishing a token)
+  for (const dice of diceOptions.sort((a, b) => b - a)) {
+    for (const tokenIndex of unfinishedTokens) {
+      const currentPos = this.playerPositions[playerId][tokenIndex];
+      const newPos = currentPos + dice;
+      
+      if (newPos >= this.finalPosition) {
+        console.log(`Priority 1 - Promotion: Token ${tokenIndex + 1} with dice ${dice}`);
+        return { tokenIndex, chosenDice: dice };
+      }
+    }
+  }
+
+  // Priority 2: Capture opportunities
+  for (const dice of diceOptions.sort((a, b) => b - a)) {
+    for (const tokenIndex of unfinishedTokens) {
+      const currentPos = this.playerPositions[playerId][tokenIndex];
+      const newPos = currentPos + dice;
+      
+      if (newPos < this.finalPosition && this.canCaptureOpponent(playerId, newPos)) {
+        console.log(`Priority 2 - Capture: Token ${tokenIndex + 1} with dice ${dice}`);
+        return { tokenIndex, chosenDice: dice };
+      }
+    }
+  }
+
+  // Priority 3a: Situational aggressive movement (when opponent close to promotion)
+  const opponentNearPromotion = this.checkOpponentNearPromotion(playerId);
+  if (opponentNearPromotion) {
+    // Move highest point token or nearest to finish
+    const bestTokenForAggression = this.getBestTokenForSituationalAggression(playerId, unfinishedTokens, diceOptions);
+    if (bestTokenForAggression) {
+      console.log(`Priority 3a - Situational Aggression: Token ${bestTokenForAggression.tokenIndex + 1} with dice ${bestTokenForAggression.chosenDice}`);
+      return bestTokenForAggression;
+    }
+  }
+
+  // Priority 3b: Move to safe square
+  for (const dice of diceOptions.sort((a, b) => b - a)) {
+    for (const tokenIndex of unfinishedTokens) {
+      const currentPos = this.playerPositions[playerId][tokenIndex];
+      const newPos = currentPos + dice;
+      
+      if (newPos < this.finalPosition && this.isSafePosition(newPos, playerId)) {
+        console.log(`Priority 3b - Safe Square: Token ${tokenIndex + 1} with dice ${dice}`);
+        return { tokenIndex, chosenDice: dice };
+      }
+    }
+  }
+
+  // Priority 4: Chase opponent token for capture with last two tokens
+  const chaseResult = this.getChaseOpportunity(playerId, unfinishedTokens, diceOptions);
+  if (chaseResult) {
+    console.log(`Priority 4 - Chase: Token ${chaseResult.tokenIndex + 1} with dice ${chaseResult.chosenDice}`);
+    return chaseResult;
+  }
+
+  // Priority 5: Move tokens alternately in pairs till 26th square (safe square for 13-square board)
+  const safeSquareTarget = this.getSafeSquareTarget(); // 26 for 13-square board
+  const pairMoveResult = this.getPairMovementBeforeSafe(playerId, unfinishedTokens, diceOptions, safeSquareTarget);
+  if (pairMoveResult) {
+    console.log(`Priority 5 - Pair Movement (Before Safe): Token ${pairMoveResult.tokenIndex + 1} with dice ${pairMoveResult.chosenDice}`);
+    return pairMoveResult;
+  }
+
+  // Priority 6: Move tokens alternately in pairs after reaching safe square
+  const pairMoveAfterSafe = this.getPairMovementAfterSafe(playerId, unfinishedTokens, diceOptions, safeSquareTarget);
+  if (pairMoveAfterSafe) {
+    console.log(`Priority 6 - Pair Movement (After Safe): Token ${pairMoveAfterSafe.tokenIndex + 1} with dice ${pairMoveAfterSafe.chosenDice}`);
+    return pairMoveAfterSafe;
+  }
+
+  // Fallback: Move first available token with highest dice
+  const maxDice = Math.max(...diceOptions);
+  const firstToken = unfinishedTokens[0];
+  
+  console.log(`Fallback - Default: Token ${firstToken + 1} with highest dice ${maxDice}`);
+  return { tokenIndex: firstToken, chosenDice: maxDice };
+}
+
+// Helper method to check if any opponent is near promotion
+checkOpponentNearPromotion(playerId) {
+  const activePlayers = this.getActivePlayers();
+  const promotionThreshold = Math.max(1, Math.floor(this.finalPosition * 0.9)); // Within 10% of finish
+  
+  for (let oppPlayerId = 1; oppPlayerId <= activePlayers.length; oppPlayerId++) {
+    if (oppPlayerId === playerId) continue;
+    
+    // Check if any opponent token is close to finish
+    for (let tokenIndex = 0; tokenIndex < parseInt(this.config.numTokens); tokenIndex++) {
+      const oppTokenPos = this.playerPositions[oppPlayerId][tokenIndex];
+      if (oppTokenPos >= promotionThreshold && oppTokenPos < this.finalPosition) {
+        console.log(`Opponent Player ${oppPlayerId} token ${tokenIndex + 1} near promotion at position ${oppTokenPos}`);
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+// Helper method to get best token for situational aggression
+getBestTokenForSituationalAggression(playerId, unfinishedTokens, diceOptions) {
+  const maxDice = Math.max(...diceOptions);
+  
+  // Option 1: Move the token nearest to finish (highest position)
+  let nearestToFinish = -1;
+  let highestPos = -1;
+  
+  for (const tokenIndex of unfinishedTokens) {
+    const pos = this.playerPositions[playerId][tokenIndex];
+    if (pos > highestPos) {
+      highestPos = pos;
+      nearestToFinish = tokenIndex;
+    }
+  }
+  
+  if (nearestToFinish !== -1) {
+    return { tokenIndex: nearestToFinish, chosenDice: maxDice };
+  }
+  
+  return null;
+}
+
+// Helper method to get safe square target based on board size
+getSafeSquareTarget() {
+  const boardSize = parseInt(this.config.boardSize);
+  
+  // Define safe square targets for different board sizes
+  const safeTargets = {
+    7: 15,   // Mid-game safe square for 7-square board
+    9: 19,   // Mid-game safe square for 9-square board  
+    11: 23,  // Mid-game safe square for 11-square board
+    13: 26   // Mid-game safe square for 13-square board
+  };
+  
+  return safeTargets[boardSize] || Math.floor(this.finalPosition * 0.5);
+}
+
+// Helper method to find chase opportunities
+getChaseOpportunity(playerId, unfinishedTokens, diceOptions) {
+  const activePlayers = this.getActivePlayers();
+  
+  // Find opponent tokens within chasing range
+  for (let oppPlayerId = 1; oppPlayerId <= activePlayers.length; oppPlayerId++) {
+    if (oppPlayerId === playerId) continue;
+    
+    for (let oppTokenIndex = 0; oppTokenIndex < parseInt(this.config.numTokens); oppTokenIndex++) {
+      const oppTokenPos = this.playerPositions[oppPlayerId][oppTokenIndex];
+      
+      if (oppTokenPos === 0 || oppTokenPos >= this.finalPosition) continue; // Skip home or finished tokens
+      
+      // Check if any of our tokens can chase this opponent
+      for (const dice of diceOptions.sort((a, b) => b - a)) {
+        for (const tokenIndex of unfinishedTokens) {
+          const currentPos = this.playerPositions[playerId][tokenIndex];
+          const newPos = currentPos + dice;
+          
+          // Check if this move gets us closer to the opponent token for future capture
+          const currentDistance = this.getTokenDistance(currentPos, oppTokenPos, playerId, oppPlayerId);
+          const newDistance = this.getTokenDistance(newPos, oppTokenPos, playerId, oppPlayerId);
+          
+          if (newDistance < currentDistance && newDistance <= 6 && newPos < this.finalPosition) {
+            // Only chase if we're getting significantly closer
+            return { tokenIndex, chosenDice: dice };
+          }
+        }
+      }
+    }
+  }
+  
+  return null;
+}
+
+// Helper method to calculate distance between tokens considering board paths
+getTokenDistance(pos1, pos2, playerId1, playerId2) {
+  // Simple distance calculation - can be enhanced with actual path distance
+  const position1 = this.getPositionFromPathIndex(pos1, playerId1);
+  const position2 = this.getPositionFromPathIndex(pos2, playerId2);
+  
+  if (!position1 || !position2) return Infinity;
+  
+  return Math.abs(position1.row - position2.row) + Math.abs(position1.col - position2.col);
+}
+
+// Helper method for pair movement before reaching safe square
+getPairMovementBeforeSafe(playerId, unfinishedTokens, diceOptions, safeTarget) {
+  const maxDice = Math.max(...diceOptions);
+  
+  // Find tokens that haven't reached the safe target yet
+  const tokensBeforeSafe = unfinishedTokens.filter(tokenIndex => 
+    this.playerPositions[playerId][tokenIndex] < safeTarget
+  );
+  
+  if (tokensBeforeSafe.length === 0) return null;
+  
+  // Move tokens alternately - prioritize the one that's furthest behind
+  let selectedToken = tokensBeforeSafe[0];
+  let minPosition = this.playerPositions[playerId][selectedToken];
+  
+  for (const tokenIndex of tokensBeforeSafe) {
+    const pos = this.playerPositions[playerId][tokenIndex];
+    if (pos < minPosition) {
+      minPosition = pos;
+      selectedToken = tokenIndex;
+    }
+  }
+  
+  return { tokenIndex: selectedToken, chosenDice: maxDice };
+}
+
+// Helper method for pair movement after reaching safe square
+getPairMovementAfterSafe(playerId, unfinishedTokens, diceOptions, safeTarget) {
+  const maxDice = Math.max(...diceOptions);
+  
+  // Find tokens that have reached the safe target
+  const tokensAfterSafe = unfinishedTokens.filter(tokenIndex => 
+    this.playerPositions[playerId][tokenIndex] >= safeTarget
+  );
+  
+  if (tokensAfterSafe.length === 0) return null;
+  
+  // Move the token that's furthest behind among those past the safe point
+  let selectedToken = tokensAfterSafe[0];
+  let minPosition = this.playerPositions[playerId][selectedToken];
+  
+  for (const tokenIndex of tokensAfterSafe) {
+    const pos = this.playerPositions[playerId][tokenIndex];
+    if (pos < minPosition) {
+      minPosition = pos;
+      selectedToken = tokenIndex;
+    }
+  }
+  
+  return { tokenIndex: selectedToken, chosenDice: maxDice };
+}
 
   // Original predictable strategy (keep existing logic)
   // Enhanced selectTokenPredictable to return null when no tokens available
@@ -607,199 +868,268 @@ class LudoGame {
     return [rollerPlayerId, rollerPlayerId, rollerPlayerId];
   }
 
-  // Enhanced performFullMove to handle strategy-based dice selection
   async performFullMove(playerId, diceValue, allDiceValues) {
-    if (this.moveCount[playerId] >= this.maxMoves) {
-      console.log(`Player ${playerId} has reached move limit`);
+  if (this.moveCount[playerId] >= this.maxMoves) {
+    console.log(`Player ${playerId} has reached move limit`);
+    return { gameWon: false };
+  }
+
+  const initPositions = this.getAllPositions();
+  let usedValues = [];
+  let overallResult = { finalPos: 0, finished: false, captured: false, gameWon: false };
+
+  const strategy = this.playerStrategies[playerId];
+  
+  if (strategy === 'AGGRESSIVE') {
+    // Existing aggressive strategy logic
+    const availableDice = allDiceValues;
+    const decision = this.selectTokenAggressive(playerId, diceValue, availableDice);
+    
+    if (!decision || decision.tokenIndex === null) {
+      console.log(`No valid moves for aggressive player ${playerId}`);
       return { gameWon: false };
     }
 
-    const initPositions = this.getAllPositions();
-    let usedValues = [];
-    let overallResult = { finalPos: 0, finished: false, captured: false, gameWon: false };
+    const tokenIndex = decision.tokenIndex;
+    const chosenDice = decision.chosenDice;
+    usedValues.push(chosenDice);
 
-    const strategy = this.playerStrategies[playerId];
+    // Remove the chosen dice from available dice
+    const removeFirstOccurrence = (arr, value) => {
+      const index = arr.indexOf(value);
+      if (index !== -1) arr.splice(index, 1);
+      return arr;
+    };
+    allDiceValues = removeFirstOccurrence(allDiceValues, chosenDice);
 
-    if (strategy === 'AGGRESSIVE') {
-      // For aggressive strategy, get the full decision object
-      const availableDice = allDiceValues;
-      // console.log(diceValue, availableDice);
-      const decision = this.selectTokenAggressive(playerId, diceValue, availableDice);
+    this.highlightMovingToken(playerId, tokenIndex);
 
-      if (!decision || decision.tokenIndex === null) {
-        console.log(`No valid moves for aggressive player ${playerId}`);
-        return { gameWon: false };
+    let result = await this.moveToken(playerId, tokenIndex, chosenDice);
+    overallResult = { ...result };
+
+    if (result.gameWon) {
+      console.log(`Game won by player ${result.winnerId}! Ending immediately.`);
+      this.endGame(result.winnerId);
+      return { gameWon: true, winnerId: result.winnerId };
+    }
+
+    // Handle bonus moves for aggressive strategy
+    let currentValue = chosenDice;
+    let bonusCount = 0;
+
+    while ((currentValue === 6 || result.finished || result.captured) && 
+           this.moveCount[playerId] < this.maxMoves &&
+           this.gameState !== "GAME_OVER") {
+      bonusCount++;
+      await this.showBonusMoveIndicator(playerId, tokenIndex);
+
+      currentValue = Math.floor(Math.random() * 6) + 1;
+      usedValues.push(currentValue);
+
+      await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
+
+      const bonusDecision = this.selectTokenAggressive(playerId, currentValue, [currentValue]);
+      if (!bonusDecision || bonusDecision.tokenIndex === null) {
+        console.log(`No more tokens available for bonus move for player ${playerId}`);
+        break;
       }
 
-      const tokenIndex = decision.tokenIndex;
-      const chosenDice = decision.chosenDice;
-      const removeFirstOccurrence = (arr, value) => {
-        const index = arr.indexOf(value);
-        if (index !== -1) arr.splice(index, 1);
-        return arr;
-      };
-      // Remove the chosen dice from available dice
-      allDiceValues = removeFirstOccurrence(allDiceValues, chosenDice);
-      usedValues.push(chosenDice);
-      // Highlight the token that will move
-      this.highlightMovingToken(playerId, tokenIndex);
+      const bonusTokenIndex = bonusDecision.tokenIndex;
+      this.highlightMovingToken(playerId, bonusTokenIndex);
 
-      let result = await this.moveToken(playerId, tokenIndex, chosenDice);
-      overallResult = { ...result };
-
-      // CRITICAL: If game was won, end immediately
+      result = await this.moveToken(playerId, bonusTokenIndex, currentValue);
+      
       if (result.gameWon) {
-        console.log(`Game won by player ${result.winnerId}! Ending immediately.`);
+        console.log(`Game won by player ${result.winnerId} during bonus move! Ending immediately.`);
         this.endGame(result.winnerId);
         return { gameWon: true, winnerId: result.winnerId };
       }
       
-      // Handle bonus moves for aggressive strategy ONLY if game hasn't ended
-      let currentValue = chosenDice;
-      let bonusCount = 0;
+      if (result.finished) overallResult.finished = true;
+      if (result.captured) overallResult.captured = true;
+      overallResult.finalPos = result.finalPos;
 
-      while ((currentValue === 6 || result.finished || result.captured) &&
-        this.moveCount[playerId] < this.maxMoves &&
-        this.gameState !== "GAME_OVER") { // Check game state
-        bonusCount++;
-        await this.showBonusMoveIndicator(playerId, tokenIndex);
+      await this.delay(500);
+    }
 
-        currentValue = Math.floor(Math.random() * 6) + 1;
-        usedValues.push(currentValue);
+  } else if (strategy === 'RESPONSIBLE') {
+    // New responsible strategy logic
+    const availableDice = allDiceValues;
+    const decision = this.selectTokenResponsible(playerId, diceValue, availableDice);
+    
+    if (!decision || decision.tokenIndex === null) {
+      console.log(`No valid moves for responsible player ${playerId}`);
+      return { gameWon: false };
+    }
 
-        await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
+    const tokenIndex = decision.tokenIndex;
+    const chosenDice = decision.chosenDice;
+    usedValues.push(chosenDice);
 
-        // For bonus moves, still use aggressive strategy
-        const bonusDecision = this.selectTokenAggressive(playerId, currentValue, [currentValue]);
-        if (!bonusDecision || bonusDecision.tokenIndex === null) {
-          console.log(`No more tokens available for bonus move for player ${playerId}`);
-          break;
-        }
+    // Remove the chosen dice from available dice
+    const removeFirstOccurrence = (arr, value) => {
+      const index = arr.indexOf(value);
+      if (index !== -1) arr.splice(index, 1);
+      return arr;
+    };
+    allDiceValues = removeFirstOccurrence(allDiceValues, chosenDice);
 
-        const bonusTokenIndex = bonusDecision.tokenIndex;
-        this.highlightMovingToken(playerId, bonusTokenIndex);
+    this.highlightMovingToken(playerId, tokenIndex);
 
-        result = await this.moveToken(playerId, bonusTokenIndex, currentValue);
+    let result = await this.moveToken(playerId, tokenIndex, chosenDice);
+    overallResult = { ...result };
 
-        // CRITICAL: Check for game end after each bonus move
-        if (result.gameWon) {
-          console.log(`Game won by player ${result.winnerId} during bonus move! Ending immediately.`);
-          this.endGame(result.winnerId);
-          return { gameWon: true, winnerId: result.winnerId };
-        }
+    if (result.gameWon) {
+      console.log(`Game won by player ${result.winnerId}! Ending immediately.`);
+      this.endGame(result.winnerId);
+      return { gameWon: true, winnerId: result.winnerId };
+    }
 
-        if (result.finished) overallResult.finished = true;
-        if (result.captured) overallResult.captured = true;
-        overallResult.finalPos = result.finalPos;
+    // Handle bonus moves for responsible strategy
+    let currentValue = chosenDice;
+    let bonusCount = 0;
 
-        await this.delay(500);
+    while ((currentValue === 6 || result.finished || result.captured) && 
+           this.moveCount[playerId] < this.maxMoves &&
+           this.gameState !== "GAME_OVER") {
+      bonusCount++;
+      await this.showBonusMoveIndicator(playerId, tokenIndex);
+
+      currentValue = Math.floor(Math.random() * 6) + 1;
+      usedValues.push(currentValue);
+
+      await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
+
+      const bonusDecision = this.selectTokenResponsible(playerId, currentValue, [currentValue]);
+      if (!bonusDecision || bonusDecision.tokenIndex === null) {
+        console.log(`No more tokens available for bonus move for player ${playerId}`);
+        break;
       }
 
-    } else if(strategy === 'PREDICTABLE') {
-      // Use existing predictable strategy logic
-      let tokenIndex = this.selectTokenPredictable(playerId);
-      const removeFirstOccurrence = (arr, value) => {
-        const index = arr.indexOf(value);
-        if (index !== -1) arr.splice(index, 1);
-        return arr;
-      };
-      // Remove the chosen dice from available dice
-      allDiceValues = removeFirstOccurrence(allDiceValues, diceValue);
-      usedValues.push(diceValue);
-      
+      const bonusTokenIndex = bonusDecision.tokenIndex;
+      this.highlightMovingToken(playerId, bonusTokenIndex);
 
+      result = await this.moveToken(playerId, bonusTokenIndex, currentValue);
+      
+      if (result.gameWon) {
+        console.log(`Game won by player ${result.winnerId} during bonus move! Ending immediately.`);
+        this.endGame(result.winnerId);
+        return { gameWon: true, winnerId: result.winnerId };
+      }
+      
+      if (result.finished) overallResult.finished = true;
+      if (result.captured) overallResult.captured = true;
+      overallResult.finalPos = result.finalPos;
+
+      await this.delay(500);
+    }
+
+  } else {
+    // Existing predictable strategy logic
+    let tokenIndex = this.selectTokenPredictable(playerId);
+    usedValues.push(diceValue);
+
+    if (tokenIndex === null) {
+      console.log(`No valid moves for predictable player ${playerId}`);
+      return { gameWon: false };
+    }
+
+    // Remove the used dice value from available dice
+    const removeFirstOccurrence = (arr, value) => {
+      const index = arr.indexOf(value);
+      if (index !== -1) arr.splice(index, 1);
+      return arr;
+    };
+    allDiceValues = removeFirstOccurrence(allDiceValues, diceValue);
+
+    this.highlightMovingToken(playerId, tokenIndex);
+    let result = await this.moveToken(playerId, tokenIndex, diceValue);
+    overallResult = { ...result };
+
+    if (result.gameWon) {
+      console.log(`Game won by player ${result.winnerId}! Ending immediately.`);
+      this.endGame(result.winnerId);
+      return { gameWon: true, winnerId: result.winnerId };
+    }
+
+    // Handle bonus moves for predictable strategy
+    let currentValue = diceValue;
+    let bonusCount = 0;
+
+    while ((currentValue === 6 || result.finished || result.captured) && 
+           this.moveCount[playerId] < this.maxMoves &&
+           this.gameState !== "GAME_OVER") {
+      bonusCount++;
+      await this.showBonusMoveIndicator(playerId, tokenIndex);
+
+      currentValue = Math.floor(Math.random() * 6) + 1;
+      usedValues.push(currentValue);
+
+      await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
+
+      tokenIndex = this.selectTokenPredictable(playerId);
       if (tokenIndex === null) {
-        console.log(`No valid moves for predictable player ${playerId}`);
-        return { gameWon: false };
+        console.log(`No more tokens available for bonus move for player ${playerId}`);
+        break;
       }
 
       this.highlightMovingToken(playerId, tokenIndex);
-      let result = await this.moveToken(playerId, tokenIndex, diceValue);
-      overallResult = { ...result };
-
-      // CRITICAL: If game was won, end immediately
+      result = await this.moveToken(playerId, tokenIndex, currentValue);
+      
       if (result.gameWon) {
-        console.log(`Game won by player ${result.winnerId}! Ending immediately.`);
+        console.log(`Game won by player ${result.winnerId} during bonus move! Ending immediately.`);
         this.endGame(result.winnerId);
         return { gameWon: true, winnerId: result.winnerId };
       }
+      
+      if (result.finished) overallResult.finished = true;
+      if (result.captured) overallResult.captured = true;
+      overallResult.finalPos = result.finalPos;
 
-      // Handle bonus moves for predictable strategy ONLY if game hasn't ended
-      let currentValue = diceValue;
-      let bonusCount = 0;
-
-      while ((currentValue === 6 || result.finished || result.captured) &&
-        this.moveCount[playerId] < this.maxMoves &&
-        this.gameState !== "GAME_OVER") { // Check game state
-        bonusCount++;
-        await this.showBonusMoveIndicator(playerId, tokenIndex);
-        
-        currentValue = Math.floor(Math.random() * 6) + 1;
-        usedValues.push(currentValue);
-
-        await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
-
-        tokenIndex = this.selectTokenPredictable(playerId);
-        if (tokenIndex === null) {
-          console.log(`No more tokens available for bonus move for player ${playerId}`);
-          break;
-        }
-
-        this.highlightMovingToken(playerId, tokenIndex);
-        result = await this.moveToken(playerId, tokenIndex, currentValue);
-
-        // CRITICAL: Check for game end after each bonus move
-        if (result.gameWon) {
-          console.log(`Game won by player ${result.winnerId} during bonus move! Ending immediately.`);
-          this.endGame(result.winnerId);
-          return { gameWon: true, winnerId: result.winnerId };
-        }
-
-        if (result.finished) overallResult.finished = true;
-        if (result.captured) overallResult.captured = true;
-        overallResult.finalPos = result.finalPos;
-
-        await this.delay(500);
-      }
+      await this.delay(500);
     }
-
-    const finalPositions = this.getAllPositions();
-
-    // Fix the token selection for moveData - get the token index properly
-    let selectedTokenIndex;
-    if (strategy === 'AGGRESSIVE') {
-      const decision = this.selectTokenAggressive(playerId, diceValue, [diceValue]);
-      selectedTokenIndex = decision ? decision.tokenIndex : 0;
-    } else if (strategy === 'PREDICTABLE') {
-      selectedTokenIndex = this.selectTokenPredictable(playerId) || 0;
-    }
-
-    // Record the complete move ONLY if game hasn't ended
-    if (this.gameState !== "GAME_OVER") {
-      const moveData = {
-        finalPositions: finalPositions,
-        initPositions: initPositions,
-        player: playerId,
-        token: usedValues.length > 1 ? 'multiple' : selectedTokenIndex + 1,
-        allDiceValues: allDiceValues,
-        usedValues: usedValues,
-        timestamp: new Date(),
-        moveType: usedValues.length > 1 ? "bonus" : "regular",
-        diceValue: usedValues[0],
-        result: overallResult,
-        strategy: strategy
-      };
-
-      console.log("Move recorded:", moveData);
-
-      this.gameHistory.push(moveData);
-      this.logMove(moveData);
-      this.moveCount[playerId]++;
-      this.updateGameStatus();
-    }
-
-    return overallResult;
   }
+
+  const finalPositions = this.getAllPositions();
+
+  // Fix the token selection for moveData - get the token index properly
+  let selectedTokenIndex;
+  if (strategy === 'AGGRESSIVE') {
+    const decision = this.selectTokenAggressive(playerId, diceValue, [diceValue]);
+    selectedTokenIndex = decision ? decision.tokenIndex : 0;
+  } else if (strategy === 'RESPONSIBLE') {
+    const decision = this.selectTokenResponsible(playerId, diceValue, [diceValue]);
+    selectedTokenIndex = decision ? decision.tokenIndex : 0;
+  } else {
+    selectedTokenIndex = this.selectTokenPredictable(playerId) || 0;
+  }
+
+  // Record the complete move ONLY if game hasn't ended
+  if (this.gameState !== "GAME_OVER") {
+    const moveData = {
+      finalPositions: finalPositions,
+      initPositions: initPositions,
+      player: playerId,
+      token: usedValues.length > 1 ? 'multiple' : selectedTokenIndex + 1,
+      allDiceValues: allDiceValues,
+      usedValues: usedValues,
+      timestamp: new Date(),
+      moveType: usedValues.length > 1 ? "bonus" : "regular",
+      diceValue: usedValues[0],
+      result: overallResult,
+      strategy: strategy
+    };
+
+    console.log("Move recorded:", moveData);
+
+    this.gameHistory.push(moveData);
+    this.logMove(moveData);
+    this.moveCount[playerId]++;
+    this.updateGameStatus();
+  }
+
+  return overallResult;
+}
 
   getPlayerColor(playerId) {
     // Fixed color mapping to match actual player colors

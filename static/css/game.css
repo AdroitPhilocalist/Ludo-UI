@@ -5577,9 +5577,48 @@ body {
   align-items: center;
   gap: 0.3rem;
 }
+/* Strategy indicators */
+.strategy-indicator.responsible {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+}
 
 .strategy-indicator i {
   font-size: 0.9rem;
+  margin-right: 0.3rem;
+}
+
+/* Player indicator colors for responsible strategy */
+.player-indicator.player-responsible {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+}
+
+/* Filter button for responsible strategy players */
+.filter-btn.responsible {
+    border-color: #8e44ad;
+    color: #8e44ad;
+}
+
+.filter-btn.responsible.active {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    border-color: #8e44ad;
+    color: white;
+}
+
+/* Move step colors for responsible strategy indicator */
+.move-step.responsible {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.3);
+}
+
+/* Winner announcement colors for responsible strategy */
+.winner-player-strategy.responsible {
+    color: #8e44ad;
+}
+
+.winner-player-strategy.responsible i {
+    color: #9b59b6;
 }
 
 .player-stat-item {
@@ -5931,6 +5970,8 @@ body {
         opacity: 0;
     }
 }
+
+
 
 /* Winner Announcement Overlay */
 .winner-announcement-overlay {

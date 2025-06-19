@@ -199,7 +199,7 @@ h1, h2, h3 {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 20px;
-    padding: 2.5rem;
+    padding: 3rem;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     position: relative;
@@ -243,7 +243,7 @@ h1, h2, h3 {
 
 /* Configuration Sections */
 .config-section {
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
 }
 
 .config-label {
@@ -269,10 +269,12 @@ h1, h2, h3 {
 
 .players-grid, .tokens-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem; /* Increased gap for better spacing */
 }
 
 .board-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem; /* Increased gap for better spacing */
 }
 
 .selection-grid input[type="radio"] {
@@ -289,6 +291,7 @@ h1, h2, h3 {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    min-height: 120px;
 }
 
 .selection-card::before {
@@ -444,12 +447,12 @@ h1, h2, h3 {
 .strategy-section {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
     border-radius: 15px;
-    padding: 1.5rem;
+    padding: 2rem; /* Increased padding */
     border: 2px solid rgba(102, 126, 234, 0.2);
 }
 
 .player-strategy-config {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .player-strategy-config:last-child {
@@ -468,8 +471,8 @@ h1, h2, h3 {
 
 .strategy-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(3, 1fr); /* Changed from 2 to 3 columns for better use of space */
+    gap: 1.5rem; /* Increased gap */
 }
 
 .strategy-grid input[type="radio"] {
@@ -486,6 +489,7 @@ h1, h2, h3 {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    min-height: 140px;
 }
 
 .strategy-card::before {
@@ -549,6 +553,134 @@ h1, h2, h3 {
     opacity: 0.8;
 }
 
+/* Enhanced responsive design for wider layout */
+@media (max-width: 1200px) {
+    .config-card {
+        padding: 2.5rem;
+    }
+    
+    .players-grid, .tokens-grid, .board-grid, .rounds-grid {
+        gap: 1.2rem;
+    }
+    
+    .strategy-grid {
+        gap: 1.2rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .config-card {
+        padding: 2rem;
+    }
+    
+    .strategy-grid {
+        grid-template-columns: repeat(2, 1fr); /* Back to 2 columns on medium screens */
+    }
+    
+    .players-grid, .tokens-grid, .board-grid, .rounds-grid {
+        grid-template-columns: repeat(3, 1fr); /* Adjust for medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem;
+    }
+
+    .config-card {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .players-grid, .tokens-grid, .board-grid, .rounds-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .strategy-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .selection-card {
+        padding: 1.5rem 1rem;
+        min-height: 100px;
+    }
+    
+    .strategy-card {
+        padding: 1.2rem;
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 2rem;
+        letter-spacing: 1px;
+    }
+    
+    .game-icon {
+        font-size: 3rem;
+    }
+    
+    .config-card {
+        padding: 1rem;
+    }
+    
+    .start-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        width: 100%;
+    }
+    
+    .selection-card {
+        padding: 1rem 0.5rem;
+        min-height: 80px;
+    }
+    
+    .strategy-card {
+        padding: 1rem;
+        min-height: 100px;
+    }
+    
+    .selection-number {
+        font-size: 1.5rem;
+    }
+    
+    .strategy-icon {
+        font-size: 1.5rem;
+    }
+}
+
+/* Enhanced container for very wide screens */
+@media (min-width: 1400px) {
+    .config-card {
+        padding: 3.5rem;
+    }
+    
+    .config-section {
+        margin-bottom: 3.5rem;
+    }
+    
+    .players-grid, .tokens-grid, .board-grid, .rounds-grid {
+        gap: 2rem;
+    }
+    
+    .strategy-grid {
+        gap: 2rem;
+    }
+    
+    .selection-card {
+        padding: 2.5rem 2rem;
+        min-height: 140px;
+    }
+    
+    .strategy-card {
+        padding: 2rem;
+        min-height: 160px;
+    }
+}
+
 /* Responsive adjustments for strategy section */
 @media (max-width: 768px) {
     .strategy-section {
@@ -571,6 +703,7 @@ h1, h2, h3 {
 
 .rounds-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem; /* Increased gap for better spacing */
 }
 
 /* Responsive adjustments for rounds grid */
