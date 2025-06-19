@@ -586,3 +586,41 @@ h1, h2, h3 {
         gap: 0.8rem;
     }
 }
+
+
+
+/* Update the strategy grid for three columns */
+.strategy-grid-three {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.strategy-grid-three input[type="radio"] {
+    display: none;
+}
+
+/* Add styles for the new Responsible strategy card */
+.strategy-card.responsible:hover {
+    border-color: #8e44ad;
+}
+
+.strategy-grid input[type="radio"]:checked + .strategy-card.responsible {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    border-color: #8e44ad;
+    color: white;
+}
+
+/* Responsive adjustments for three-column strategy grid */
+@media (max-width: 768px) {
+    .strategy-grid-three {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .strategy-grid-three {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+}
