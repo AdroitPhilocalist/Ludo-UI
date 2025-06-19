@@ -5544,6 +5544,28 @@ body {
     }
 }
 
+.strategy-indicator {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.strategy-indicator i {
+  font-size: 0.9rem;
+}
+
+.player-stat-item {
+  transition: all 0.3s ease;
+}
+
+.player-stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 /* Enhanced game controls layout */
 .game-controls {
     display: flex;

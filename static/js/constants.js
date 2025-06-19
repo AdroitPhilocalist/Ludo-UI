@@ -746,6 +746,19 @@ export const ALL_CONFIGS = {
     13: BOARD_13_CONFIG
 };
 
+// Player strategies
+export const PLAYER_STRATEGIES = {
+    PREDICTABLE: 'PREDICTABLE',
+    AGGRESSIVE: 'AGGRESSIVE'
+};
+
+// Strategy descriptions
+export const STRATEGY_DESCRIPTIONS = {
+    PREDICTABLE: 'Focuses on completing one token at a time systematically',
+    AGGRESSIVE: 'Prioritizes captures and risky moves for quick victories'
+};
+
+
 // Default export
 export default {
     BOARD_DIMENSIONS,
@@ -759,5 +772,7 @@ export default {
     UTILS,
     ANIMATION,
     COLORS,
-    ALL_CONFIGS
+    ALL_CONFIGS,
+    PLAYER_STRATEGIES,
+    STRATEGY_DESCRIPTIONS
 };

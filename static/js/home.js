@@ -3,10 +3,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     const configForm = document.getElementById('config-form');
     const selectionCards = document.querySelectorAll('.selection-card');
+    const strategyCards = document.querySelectorAll('.strategy-card');
     const startBtn = document.querySelector('.start-btn');
 
     // Add click animations to selection cards
     selectionCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Add pulse animation
+            this.style.animation = 'pulse 0.3s ease';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 300);
+        });
+    });
+
+    // Add click animations to strategy cards
+    strategyCards.forEach(card => {
         card.addEventListener('click', function() {
             // Add pulse animation
             this.style.animation = 'pulse 0.3s ease';
@@ -25,14 +37,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const config = {
             numPlayers: formData.get('num-players'),
             numTokens: formData.get('num-tokens'),
-            boardSize: formData.get('board-size')
+            boardSize: formData.get('board-size'),
+            player1Strategy: formData.get('player1-strategy'),
+            player2Strategy: formData.get('player2-strategy')
         };
 
         console.log('Form data collected:', config); // Debug log
 
         // Validate form
-        if (!config.numPlayers || !config.numTokens || !config.boardSize) {
-            showNotification('Please select all options!', 'error');
+        if (!config.numPlayers || !config.numTokens || !config.boardSize || 
+            !config.player1Strategy || !config.player2Strategy) {
+            showNotification('Please select all options including player strategies!', 'error');
             return;
         }
 
