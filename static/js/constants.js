@@ -746,16 +746,18 @@ export const ALL_CONFIGS = {
     13: BOARD_13_CONFIG
 };
 
-// Player strategies
+// Add to Player strategies section
 export const PLAYER_STRATEGIES = {
     PREDICTABLE: 'PREDICTABLE',
-    AGGRESSIVE: 'AGGRESSIVE'
+    AGGRESSIVE: 'AGGRESSIVE',
+    RESPONSIBLE: 'RESPONSIBLE'
 };
 
-// Strategy descriptions
+// Update Strategy descriptions
 export const STRATEGY_DESCRIPTIONS = {
     PREDICTABLE: 'Focuses on completing one token at a time systematically',
-    AGGRESSIVE: 'Prioritizes captures and risky moves for quick victories'
+    AGGRESSIVE: 'Prioritizes captures and risky moves for quick victories',
+    RESPONSIBLE: 'Strategic pair movement with safety prioritization and situational aggression'
 };
 
 
