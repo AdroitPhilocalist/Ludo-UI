@@ -137,15 +137,15 @@ class DiceRoller {
         });
 
 
-        const USE_STATIC_DICE = true; // Toggle this for testing
+        const USE_STATIC_DICE = false; // Toggle this for testing
         const STATIC_DICE_SETS = [
         // [27, 1, 2],  // Round 1
         // [1, 5, 1],  // Round 2
         // [5, 1, 5],  // Round 3
         // [1, 5, 1], // Round 4
         // [2, 1, 1],  // Round 5
-        [55,20,1],
-        [1,52,1],
+        // [55,20,1],
+        // [1,52,1],
         
         ];
         let values = [];
