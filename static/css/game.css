@@ -1472,16 +1472,15 @@ body {
     }
 }
 */
-/* Token Styles */
 .token {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: 2px solid #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     color: white;
     cursor: pointer;
@@ -1492,6 +1491,10 @@ body {
     transition: all 0.3s ease;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    /* Ensure centering takes priority */
+    margin: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
 }
 
 .token-red {
@@ -1516,18 +1519,18 @@ body {
 }
 
 /* Token hover effects */
-.token:hover {
+/* .token:hover {
     transform: translate(-50%, -50%) scale(1.2);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     z-index: 15;
-}
+} */
 
 /* Token selection effect */
-.token.selected {
+/* .token.selected {
     transform: translate(-50%, -50%) scale(1.3);
     box-shadow: 0 0 20px currentColor, 0 4px 15px rgba(0, 0, 0, 0.4);
     animation: pulse 1s infinite;
-}
+} */
 
 @keyframes pulse {
     0%, 100% { 
@@ -1543,29 +1546,40 @@ body {
     position: relative;
 }
 
+.square .token:first-child:last-child {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
 .square .token:nth-child(2) {
-    top: 35%;
-    left: 35%;
+    top: 30%;
+    left: 30%;
+    transform: translate(-50%, -50%);
 }
 
 .square .token:nth-child(3) {
-    top: 35%;
-    left: 65%;
+    top: 30%;
+    left: 70%;
+    transform: translate(-50%, -50%);
 }
 
 .square .token:nth-child(4) {
-    top: 65%;
-    left: 35%;
+    top: 70%;
+    left: 30%;
+    transform: translate(-50%, -50%);
 }
 
 .square .token:nth-child(5) {
-    top: 65%;
-    left: 65%;
+    top: 70%;
+    left: 70%;
+    transform: translate(-50%, -50%);
 }
 
 .square .token:nth-child(6) {
-    top: 20%;
+    top: 15%;
     left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Coordinate text styling */
@@ -1587,63 +1601,74 @@ body {
     display: none;
 }
 
-/* Responsive token sizes */
 @media (max-width: 1400px) {
     .token {
-        width: 22px;
-        height: 22px;
-        font-size: 9px;
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+    
+    /* Ensure centering is maintained at all responsive sizes */
+    .square .token:first-child:last-child {
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
     }
 }
 
 @media (max-width: 1200px) {
     .token {
-        width: 20px;
-        height: 20px;
-        font-size: 8px;
+        width: 26px;
+        height: 26px;
+        font-size: 10px;
     }
 }
 
 @media (max-width: 768px) {
     .token {
-        width: 18px;
-        height: 18px;
-        font-size: 7px;
-        border-width: 1px;
+        width: 24px;
+        height: 24px;
+        font-size: 9px;
+        border-width: 2px;
     }
     
+    /* Adjust multiple token positioning for smaller screens */
     .square .token:nth-child(2) {
-        top: 30%;
-        left: 30%;
+        top: 28%;
+        left: 28%;
+        transform: translate(-50%, -50%);
     }
     
     .square .token:nth-child(3) {
-        top: 30%;
-        left: 70%;
+        top: 28%;
+        left: 72%;
+        transform: translate(-50%, -50%);
     }
     
     .square .token:nth-child(4) {
-        top: 70%;
-        left: 30%;
+        top: 72%;
+        left: 28%;
+        transform: translate(-50%, -50%);
     }
     
     .square .token:nth-child(5) {
-        top: 70%;
-        left: 70%;
+        top: 72%;
+        left: 72%;
+        transform: translate(-50%, -50%);
     }
 }
 
 @media (max-width: 480px) {
     .token {
-        width: 16px;
-        height: 16px;
-        font-size: 6px;
+        width: 22px;
+        height: 22px;
+        font-size: 8px;
     }
-    
     .coord-text {
         font-size: 6px;
     }
 }
+
 
 /* Token animations for entry/movement */
 @keyframes tokenEntry {
@@ -1665,7 +1690,7 @@ body {
 .token.moving {
     transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     z-index: 50;
-    transform: translate(-50%, -50%) scale(1.3);
+    transform: translate(-50%, -50%) scale(1.4);
     box-shadow: 
         0 8px 25px rgba(0, 0, 0, 0.4),
         0 0 30px currentColor,
@@ -1675,35 +1700,35 @@ body {
 
 @keyframes tokenMoving {
     0% {
-        transform: translate(-50%, -50%) scale(1.3);
+        transform: translate(-50%, -50%) scale(1.4);
         box-shadow: 
             0 8px 25px rgba(0, 0, 0, 0.4),
             0 0 30px currentColor,
             0 0 60px rgba(255, 255, 255, 0.3);
     }
     25% {
-        transform: translate(-50%, -50%) scale(1.5) rotate(90deg);
+        transform: translate(-50%, -50%) scale(1.6) rotate(90deg);
         box-shadow: 
             0 12px 35px rgba(0, 0, 0, 0.5),
             0 0 40px currentColor,
             0 0 80px rgba(255, 255, 255, 0.4);
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.4) rotate(180deg);
+        transform: translate(-50%, -50%) scale(1.5) rotate(180deg);
         box-shadow: 
             0 10px 30px rgba(0, 0, 0, 0.45),
             0 0 35px currentColor,
             0 0 70px rgba(255, 255, 255, 0.35);
     }
     75% {
-        transform: translate(-50%, -50%) scale(1.5) rotate(270deg);
+        transform: translate(-50%, -50%) scale(1.6) rotate(270deg);
         box-shadow: 
             0 12px 35px rgba(0, 0, 0, 0.5),
             0 0 40px currentColor,
             0 0 80px rgba(255, 255, 255, 0.4);
     }
     100% {
-        transform: translate(-50%, -50%) scale(1.3) rotate(360deg);
+        transform: translate(-50%, -50%) scale(1.4) rotate(360deg);
         box-shadow: 
             0 8px 25px rgba(0, 0, 0, 0.4),
             0 0 30px currentColor,
@@ -1753,14 +1778,14 @@ body {
         transform: translate(-50%, -50%) scale(1);
     }
     25% {
-        transform: translate(-50%, -50%) scale(1.1);
+        transform: translate(-50%, -50%) scale(1.15);
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: translate(-50%, -50%) scale(1.3);
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 20px currentColor;
     }
     75% {
-        transform: translate(-50%, -50%) scale(1.1);
+        transform: translate(-50%, -50%) scale(1.15);
     }
 }
 
@@ -1771,11 +1796,11 @@ body {
 
 @keyframes settleMove {
     0% {
-        transform: translate(-50%, -50%) scale(1.3);
+        transform: translate(-50%, -50%) scale(1.4);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 30px currentColor;
     }
     50% {
-        transform: translate(-50%, -50%) scale(0.9);
+        transform: translate(-50%, -50%) scale(0.95);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 15px currentColor;
     }
     100% {
@@ -1957,20 +1982,15 @@ body {
     }
 }
 
-/* Enhanced hover effects for tokens */
 .token:hover {
-    transform: translate(-50%, -50%) scale(1.3);
-    box-shadow: 
-        0 6px 20px rgba(0, 0, 0, 0.4),
-        0 0 25px currentColor,
-        0 0 50px rgba(255, 255, 255, 0.3);
-    z-index: 25;
-    transition: all 0.4s ease;
+    transform: translate(-50%, -50%) scale(1.25) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 15;
 }
 
 /* Token selection effect enhanced */
 .token.selected {
-    transform: translate(-50%, -50%) scale(1.4);
+    transform: translate(-50%, -50%) scale(1.35) !important;
     box-shadow: 
         0 0 30px currentColor, 
         0 6px 20px rgba(0, 0, 0, 0.4),
@@ -1981,14 +2001,14 @@ body {
 
 @keyframes enhancedPulse {
     0%, 100% { 
-        transform: translate(-50%, -50%) scale(1.4);
+        transform: translate(-50%, -50%) scale(1.35);
         box-shadow: 
             0 0 30px currentColor, 
             0 6px 20px rgba(0, 0, 0, 0.4),
             0 0 60px rgba(255, 255, 255, 0.4);
     }
     50% { 
-        transform: translate(-50%, -50%) scale(1.6);
+        transform: translate(-50%, -50%) scale(1.5);
         box-shadow: 
             0 0 40px currentColor, 
             0 8px 25px rgba(0, 0, 0, 0.5),
