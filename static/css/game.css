@@ -5497,6 +5497,624 @@ body {
 
 
 
+/* Strategy Personalities Section */
+.strategy-personalities {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.personality-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(248, 241, 232, 0.2));
+    border-radius: 20px;
+    border: 2px solid;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.personality-card.predictable {
+    border-color: rgba(39, 174, 96, 0.4);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.2);
+}
+
+.personality-card.aggressive {
+    border-color: rgba(231, 76, 60, 0.4);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.2);
+}
+
+.personality-card.responsible {
+    border-color: rgba(142, 68, 173, 0.4);
+    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.2);
+}
+
+.personality-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.personality-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+}
+
+.personality-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.personality-card.predictable .personality-icon {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.personality-card.aggressive .personality-icon {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.personality-card.responsible .personality-icon {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+}
+
+.personality-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #8B4513;
+    margin: 0 0 0.3rem 0;
+}
+
+.personality-motto {
+    font-style: italic;
+    color: #A0522D;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.personality-traits {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.trait-item {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 0.8rem;
+    border-radius: 10px;
+    border-left: 4px solid;
+    color: #654321;
+    transition: all 0.3s ease;
+}
+
+.personality-card.predictable .trait-item {
+    border-left-color: #27ae60;
+}
+
+.personality-card.aggressive .trait-item {
+    border-left-color: #e74c3c;
+}
+
+.personality-card.responsible .trait-item {
+    border-left-color: #8e44ad;
+}
+
+.trait-item:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Turn System Explanation */
+.turn-system-explanation {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.turn-step {
+    display: flex;
+    align-items: flex-start;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(248, 241, 232, 0.2));
+    border-radius: 15px;
+    padding: 1.5rem;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.turn-step:hover {
+    transform: translateX(10px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+}
+
+.strategy-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+.example {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.example.predictable {
+    background: rgba(39, 174, 96, 0.2);
+    color: #27ae60;
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.example.aggressive {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.example.responsible {
+    background: rgba(142, 68, 173, 0.2);
+    color: #8e44ad;
+    border: 1px solid rgba(142, 68, 173, 0.3);
+}
+
+.remaining-dice, .final-dice {
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    color: #667eea;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* Strategy Showdowns */
+.showdown-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.showdown-card {
+    background: linear-gradient(135deg, rgba(255, 20, 147, 0.1), rgba(255, 255, 255, 0.3));
+    border-radius: 20px;
+    border: 2px solid rgba(255, 20, 147, 0.3);
+    padding: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(255, 20, 147, 0.2);
+}
+
+.showdown-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(255, 20, 147, 0.3);
+    border-color: #FF1493;
+}
+
+.showdown-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.vs-players {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.player-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.player-icon.predictable {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.player-icon.aggressive {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.player-icon.responsible {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+}
+
+.vs-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #8B4513;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 2px solid rgba(139, 69, 19, 0.3);
+}
+
+.showdown-header h4 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #8B4513;
+    margin: 0;
+}
+
+.showdown-description p {
+    color: #654321;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.outcome-prediction {
+    background: rgba(255, 215, 0, 0.2);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    color: #B8860B;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Priority System */
+.priority-system {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.priority-item {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(255, 255, 255, 0.2));
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid #8e44ad;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+}
+
+.priority-item:hover {
+    transform: translateX(10px);
+    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.2);
+}
+
+.priority-number {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+}
+
+.priority-content {
+    color: #654321;
+    line-height: 1.4;
+}
+
+/* Bonus Chain Example */
+.bonus-chain-example {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 255, 255, 0.3));
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 2px solid rgba(255, 215, 0, 0.4);
+}
+
+.chain-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.chain-label {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
+.chain-arrow {
+    font-size: 1.2rem;
+    color: #f39c12;
+    font-weight: 700;
+}
+
+.chain-result {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #8B4513;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(139, 69, 19, 0.2);
+}
+
+/* Scoring Rules */
+.scoring-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.score-rule {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+.score-rule.positive {
+    background: rgba(39, 174, 96, 0.1);
+    border-color: rgba(39, 174, 96, 0.3);
+}
+
+.score-rule.negative {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+.score-rule:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.rule-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.rule-content {
+    color: #654321;
+    line-height: 1.4;
+}
+
+.scoring-example {
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 2px solid rgba(52, 152, 219, 0.3);
+}
+
+.example-scenario {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #2980b9;
+    font-weight: 600;
+}
+
+.example-calculation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.calculation-step {
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    color: #2980b9;
+    font-weight: 600;
+}
+
+.calculation-arrow {
+    font-size: 1.2rem;
+    color: #3498db;
+    font-weight: 700;
+}
+
+.calculation-result {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+/* Strategy Battle Tips */
+.strategy-battle-tips {
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 2px solid rgba(52, 152, 219, 0.3);
+}
+
+.strategy-battle-tips h4 {
+    color: #2980b9;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.battle-tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.battle-tips-list li {
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    border-left: 4px solid #3498db;
+    color: #654321;
+    transition: all 0.3s ease;
+}
+
+.battle-tips-list li:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Customization Options */
+.customization-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.custom-option {
+    display: flex;
+    align-items: flex-start;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(255, 255, 255, 0.2));
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.custom-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.option-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    margin-top: 0.2rem;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.option-content {
+    color: #654321;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .strategy-personalities {
+        gap: 1.5rem;
+    }
+    
+    .personality-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .personality-icon {
+        margin-bottom: 0.5rem;
+    }
+    
+    .vs-players {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .chain-step {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .chain-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .example-calculation {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .calculation-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .customization-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .custom-option {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .option-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .turn-step {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-number {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .priority-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .priority-number {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .score-rule {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .rule-icon {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 
