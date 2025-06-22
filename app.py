@@ -16,14 +16,21 @@ def game():
         num_rounds = data.get('numRounds')
         player1_strategy = data.get('player1Strategy', 'PREDICTABLE')
         player2_strategy = data.get('player2Strategy', 'PREDICTABLE')
+        game_seed = data.get('gameSeed')
         
         print(f"POST Received data: Players={num_players}, Tokens={num_tokens}, Size={board_size}, Rounds={num_rounds}")
         print(f"Strategies: Player1={player1_strategy}, Player2={player2_strategy}")
+        print(f"Game Seed: {game_seed}")
         
-        # Return JSON response for AJAX requests with player strategies and rounds
+        # Build redirect URL with seed parameter
+        redirect_url = f'/game?players={num_players}&tokens={num_tokens}&size={board_size}&rounds={num_rounds}&p1strategy={player1_strategy}&p2strategy={player2_strategy}'
+        
+        if game_seed:
+            redirect_url += f'&seed={game_seed}'
+        
         return jsonify({
             'status': 'success',
-            'redirect': f'/game?players={num_players}&tokens={num_tokens}&size={board_size}&rounds={num_rounds}&p1strategy={player1_strategy}&p2strategy={player2_strategy}'
+            'redirect': redirect_url
         })
     
     # Handle GET request (when redirected or direct access)
@@ -33,9 +40,11 @@ def game():
     num_rounds = request.args.get('rounds', 16, type=int)  # Add this line with default value
     player1_strategy = request.args.get('p1strategy', 'PREDICTABLE')
     player2_strategy = request.args.get('p2strategy', 'PREDICTABLE')
+    game_seed = request.args.get('seed', None)
     
     print(f"GET Game setup: Players={num_players}, Tokens={num_tokens}, Size={board_size}, Rounds={num_rounds}")
     print(f"GET Strategies: Player1={player1_strategy}, Player2={player2_strategy}")
+    print(f"GET Game Seed: {game_seed}")
     
     return render_template('game.html', 
                            num_players=num_players,
@@ -43,7 +52,8 @@ def game():
                            board_size=board_size,
                            num_rounds=num_rounds,  # Add this line
                            player1_strategy=player1_strategy,
-                           player2_strategy=player2_strategy)
+                           player2_strategy=player2_strategy,
+                           game_seed=game_seed)
 
 if __name__ == '__main__':
     app.run(debug=True)

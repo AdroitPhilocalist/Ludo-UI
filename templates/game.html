@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- AOS Animation Library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <!-- Add this before your other script tags -->
+    <script src="https://cdn.jsdelivr.net/npm/seedrandom@3.0.5/seedrandom.min.js"></script>
     <!-- Add Particles.js for enhanced effects -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
@@ -71,14 +72,46 @@
               >
             </div>
             <div class="config-item me-4">
-        <i class="fas fa-clock me-1"></i>
-        <span class="config-label">Rounds:</span>
-        <span class="config-value" id="display-rounds">{{ num_rounds }}</span>
-    </div>
+              <i class="fas fa-clock me-1"></i>
+              <span class="config-label">Rounds:</span>
+              <span class="config-value" id="display-rounds"
+                >{{ num_rounds }}</span
+              >
+              {% if game_seed %}
+              <div
+                class="config-item seed-info me-3"
+                title="Game Seed: {{ game_seed }}"
+              >
+                <i class="fas fa-seedling me-1"></i>
+                <span class="config-label">Seed:</span>
+                <span
+                  class="config-value seed-copy-btn"
+                  onclick="copySeedToClipboard('{{ game_seed }}')"
+                  >{{ game_seed }}</span
+                >
+              </div>
+              {% endif %}
+
+              <!-- Hidden element for JavaScript access -->
+              {% if game_seed %}
+              <div
+                class="config-item"
+                data-config="seed"
+                data-value="{{ game_seed }}"
+                style="display: none"
+              >
+                <span>{{ game_seed }}</span>
+              </div>
+              {% endif %}
+            </div>
           </div>
 
           <div class="game-controls">
-             <button class="btn btn-secondary me-2" id="autoplayBtn" onclick="toggleAutoplay()">
+            <button
+              class="btn btn-secondary me-2"
+              id="autoplayBtn"
+              onclick="toggleAutoplay()"
+            >
               <i class="fas fa-play me-1"></i> Autoplay
             </button>
             <button class="btn btn-outline-primary me-2" onclick="goHome()">
@@ -265,76 +298,72 @@
       </div>
     </div>
 
-
-
-
-
-
-
     <!-- Bonus Dice Roll Container - Bottom Right -->
     <div class="bonus-dice-container" id="bonusDiceContainer">
-        <div class="bonus-dice-card">
-            <div class="bonus-header">
-                <div class="bonus-icon">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="bonus-info">
-                    <div class="bonus-title">BONUS ROLL!</div>
-                    <div class="bonus-player" id="bonusPlayerName">Player 1</div>
-                </div>
-                <div class="bonus-streak" id="bonusStreak">×2</div>
-            </div>
-            
-            <div class="bonus-dice-area">
-                <div class="bonus-dice-wrapper">
-                    <div class="bonus-dice" id="bonusDice">
-                        <div class="bonus-dice-face bonus-dice-face-1" data-value="1">
-                            <span class="bonus-dot"></span>
-                        </div>
-                        <div class="bonus-dice-face bonus-dice-face-2" data-value="2">
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                        </div>
-                        <div class="bonus-dice-face bonus-dice-face-3" data-value="3">
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                        </div>
-                        <div class="bonus-dice-face bonus-dice-face-4" data-value="4">
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                        </div>
-                        <div class="bonus-dice-face bonus-dice-face-5" data-value="5">
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                        </div>
-                        <div class="bonus-dice-face bonus-dice-face-6" data-value="6">
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                            <span class="bonus-dot"></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bonus-dice-value" id="bonusDiceValue">6</div>
-                <div class="bonus-message" id="bonusMessage">Rolling for bonus move...</div>
-            </div>
-            
-            <div class="bonus-effects">
-                <div class="bonus-sparkle"></div>
-                <div class="bonus-sparkle"></div>
-                <div class="bonus-sparkle"></div>
-                <div class="bonus-glow"></div>
-            </div>
+      <div class="bonus-dice-card">
+        <div class="bonus-header">
+          <div class="bonus-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="bonus-info">
+            <div class="bonus-title">BONUS ROLL!</div>
+            <div class="bonus-player" id="bonusPlayerName">Player 1</div>
+          </div>
+          <div class="bonus-streak" id="bonusStreak">×2</div>
         </div>
+
+        <div class="bonus-dice-area">
+          <div class="bonus-dice-wrapper">
+            <div class="bonus-dice" id="bonusDice">
+              <div class="bonus-dice-face bonus-dice-face-1" data-value="1">
+                <span class="bonus-dot"></span>
+              </div>
+              <div class="bonus-dice-face bonus-dice-face-2" data-value="2">
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+              </div>
+              <div class="bonus-dice-face bonus-dice-face-3" data-value="3">
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+              </div>
+              <div class="bonus-dice-face bonus-dice-face-4" data-value="4">
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+              </div>
+              <div class="bonus-dice-face bonus-dice-face-5" data-value="5">
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+              </div>
+              <div class="bonus-dice-face bonus-dice-face-6" data-value="6">
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+                <span class="bonus-dot"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bonus-dice-value" id="bonusDiceValue">6</div>
+          <div class="bonus-message" id="bonusMessage">
+            Rolling for bonus move...
+          </div>
+        </div>
+
+        <div class="bonus-effects">
+          <div class="bonus-sparkle"></div>
+          <div class="bonus-sparkle"></div>
+          <div class="bonus-sparkle"></div>
+          <div class="bonus-glow"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Game Logs Modal -->
@@ -565,12 +594,16 @@
                   <p class="scroll-text">
                     Prepare yourself for an extraordinary twist on the classic
                     game of Ludo! Our innovative
-                    <strong>3-Dice Revolutionary System</strong> with <strong>Smart AI Strategies</strong> 
-                    transforms the traditional gameplay into an epic battle of intelligence, tactics, and destiny.
+                    <strong>3-Dice Revolutionary System</strong> with
+                    <strong>Smart AI Strategies</strong>
+                    transforms the traditional gameplay into an epic battle of
+                    intelligence, tactics, and destiny.
                   </p>
                   <p class="scroll-text">
-                    Choose your board size, select the number of rounds, and watch three different AI personalities 
-                    battle it out using completely different playing styles. Every game is a unique strategic experience!
+                    Choose your board size, select the number of rounds, and
+                    watch three different AI personalities battle it out using
+                    completely different playing styles. Every game is a unique
+                    strategic experience!
                   </p>
                 </div>
               </div>
@@ -586,7 +619,9 @@
                     <div class="magic-dice">
                       <div class="dice-icon">🎲</div>
                       <div class="dice-label">Dice Roll</div>
-                      <div class="dice-description">Three dice rolled together</div>
+                      <div class="dice-description">
+                        Three dice rolled together
+                      </div>
                     </div>
                     <div class="magic-dice">
                       <div class="dice-icon">🎯</div>
@@ -596,17 +631,24 @@
                     <div class="magic-dice">
                       <div class="dice-icon">⚡</div>
                       <div class="dice-label">Strategic Play</div>
-                      <div class="dice-description">Each AI thinks differently</div>
+                      <div class="dice-description">
+                        Each AI thinks differently
+                      </div>
                     </div>
                   </div>
                   <p class="scroll-text">
-                    Unlike traditional Ludo where you get one dice, our system rolls <strong>three dice at once</strong>! 
-                    But here's the twist: different AI strategies use these dice in completely different ways.
+                    Unlike traditional Ludo where you get one dice, our system
+                    rolls <strong>three dice at once</strong>! But here's the
+                    twist: different AI strategies use these dice in completely
+                    different ways.
                   </p>
                   <p class="scroll-text">
-                    The <strong>Predictable</strong> bot always uses the first dice. The <strong>Aggressive</strong> bot 
-                    chooses the best dice for attack or promotion. The <strong>Responsible Pair</strong> bot carefully 
-                    selects dice based on safety and strategic positioning. This creates dynamic, unpredictable gameplay!
+                    The <strong>Predictable</strong> bot always uses the first
+                    dice. The <strong>Aggressive</strong> bot chooses the best
+                    dice for attack or promotion. The
+                    <strong>Responsible Pair</strong> bot carefully selects dice
+                    based on safety and strategic positioning. This creates
+                    dynamic, unpredictable gameplay!
                   </p>
                 </div>
               </div>
@@ -626,22 +668,30 @@
                           <i class="fas fa-route"></i>
                         </div>
                         <div class="personality-info">
-                          <h4 class="personality-name">The Predictable Strategist</h4>
-                          <p class="personality-motto">"Steady wins the race"</p>
+                          <h4 class="personality-name">
+                            The Predictable Strategist
+                          </h4>
+                          <p class="personality-motto">
+                            "Steady wins the race"
+                          </p>
                         </div>
                       </div>
                       <div class="personality-traits">
                         <div class="trait-item">
-                          <strong>Dice Strategy:</strong> Always uses the first dice value from the roll
+                          <strong>Dice Strategy:</strong> Always uses the first
+                          dice value from the roll
                         </div>
                         <div class="trait-item">
-                          <strong>Token Movement:</strong> Focuses on moving one token at a time to completion
+                          <strong>Token Movement:</strong> Focuses on moving one
+                          token at a time to completion
                         </div>
                         <div class="trait-item">
-                          <strong>Playing Style:</strong> Safe, systematic, and methodical approach
+                          <strong>Playing Style:</strong> Safe, systematic, and
+                          methodical approach
                         </div>
                         <div class="trait-item">
-                          <strong>Best Against:</strong> Other predictable opponents in long games
+                          <strong>Best Against:</strong> Other predictable
+                          opponents in long games
                         </div>
                       </div>
                     </div>
@@ -653,22 +703,30 @@
                           <i class="fas fa-fire"></i>
                         </div>
                         <div class="personality-info">
-                          <h4 class="personality-name">The Aggressive Warrior</h4>
-                          <p class="personality-motto">"Attack is the best defense"</p>
+                          <h4 class="personality-name">
+                            The Aggressive Warrior
+                          </h4>
+                          <p class="personality-motto">
+                            "Attack is the best defense"
+                          </p>
                         </div>
                       </div>
                       <div class="personality-traits">
                         <div class="trait-item">
-                          <strong>Dice Strategy:</strong> Analyzes all three dice and picks the most advantageous one
+                          <strong>Dice Strategy:</strong> Analyzes all three
+                          dice and picks the most advantageous one
                         </div>
                         <div class="trait-item">
-                          <strong>Token Movement:</strong> Prioritizes captures, promotions, and risky advances
+                          <strong>Token Movement:</strong> Prioritizes captures,
+                          promotions, and risky advances
                         </div>
                         <div class="trait-item">
-                          <strong>Playing Style:</strong> Bold, opportunistic, and fast-paced
+                          <strong>Playing Style:</strong> Bold, opportunistic,
+                          and fast-paced
                         </div>
                         <div class="trait-item">
-                          <strong>Best Against:</strong> Passive opponents who leave openings for attack
+                          <strong>Best Against:</strong> Passive opponents who
+                          leave openings for attack
                         </div>
                       </div>
                     </div>
@@ -680,22 +738,30 @@
                           <i class="fas fa-shield-alt"></i>
                         </div>
                         <div class="personality-info">
-                          <h4 class="personality-name">The Responsible Pair Master</h4>
-                          <p class="personality-motto">"Wisdom guides every move"</p>
+                          <h4 class="personality-name">
+                            The Responsible Pair Master
+                          </h4>
+                          <p class="personality-motto">
+                            "Wisdom guides every move"
+                          </p>
                         </div>
                       </div>
                       <div class="personality-traits">
                         <div class="trait-item">
-                          <strong>Dice Strategy:</strong> Carefully selects dice based on 7 priority levels
+                          <strong>Dice Strategy:</strong> Carefully selects dice
+                          based on 7 priority levels
                         </div>
                         <div class="trait-item">
-                          <strong>Token Movement:</strong> Moves tokens in coordinated pairs with strategic positioning
+                          <strong>Token Movement:</strong> Moves tokens in
+                          coordinated pairs with strategic positioning
                         </div>
                         <div class="trait-item">
-                          <strong>Playing Style:</strong> Balanced mix of safety and calculated aggression
+                          <strong>Playing Style:</strong> Balanced mix of safety
+                          and calculated aggression
                         </div>
                         <div class="trait-item">
-                          <strong>Best Against:</strong> Balanced performance against all opponent types
+                          <strong>Best Against:</strong> Balanced performance
+                          against all opponent types
                         </div>
                       </div>
                     </div>
@@ -715,7 +781,10 @@
                       <div class="step-number">1</div>
                       <div class="step-content">
                         <strong>Dice Roll Phase</strong>
-                        <p>Current player rolls three dice simultaneously (e.g., 3, 5, 2)</p>
+                        <p>
+                          Current player rolls three dice simultaneously (e.g.,
+                          3, 5, 2)
+                        </p>
                       </div>
                     </div>
                     <div class="flow-arrow">⬇️</div>
@@ -723,11 +792,20 @@
                       <div class="step-number">2</div>
                       <div class="step-content">
                         <strong>First Move</strong>
-                        <p>Roller chooses from available dice based on their strategy</p>
+                        <p>
+                          Roller chooses from available dice based on their
+                          strategy
+                        </p>
                         <div class="strategy-examples">
-                          <span class="example predictable">Predictable: Takes 3 (first dice)</span>
-                          <span class="example aggressive">Aggressive: Takes 5 (best for attack)</span>
-                          <span class="example responsible">Responsible: Takes 2 (safest move)</span>
+                          <span class="example predictable"
+                            >Predictable: Takes 3 (first dice)</span
+                          >
+                          <span class="example aggressive"
+                            >Aggressive: Takes 5 (best for attack)</span
+                          >
+                          <span class="example responsible"
+                            >Responsible: Takes 2 (safest move)</span
+                          >
                         </div>
                       </div>
                     </div>
@@ -736,8 +814,13 @@
                       <div class="step-number">3</div>
                       <div class="step-content">
                         <strong>Opponent's Turn</strong>
-                        <p>Opponent chooses from remaining dice using their strategy</p>
-                        <div class="remaining-dice">Remaining dice: 5, 2 (if roller took 3)</div>
+                        <p>
+                          Opponent chooses from remaining dice using their
+                          strategy
+                        </p>
+                        <div class="remaining-dice">
+                          Remaining dice: 5, 2 (if roller took 3)
+                        </div>
                       </div>
                     </div>
                     <div class="flow-arrow">⬇️</div>
@@ -746,13 +829,16 @@
                       <div class="step-content">
                         <strong>Final Move</strong>
                         <p>Roller uses the last remaining dice</p>
-                        <div class="final-dice">Final dice: 2 (last remaining)</div>
+                        <div class="final-dice">
+                          Final dice: 2 (last remaining)
+                        </div>
                       </div>
                     </div>
                   </div>
                   <p class="scroll-text">
-                    This system creates <strong>strategic depth</strong> because aggressive players might "steal" 
-                    the best dice values, while responsible players might take safer options, forcing others 
+                    This system creates <strong>strategic depth</strong> because
+                    aggressive players might "steal" the best dice values, while
+                    responsible players might take safer options, forcing others
                     to adapt their moves!
                   </p>
                 </div>
@@ -780,11 +866,17 @@
                         <h4>Predictable vs Aggressive</h4>
                       </div>
                       <div class="showdown-description">
-                        <p><strong>The Classic Battle:</strong> Order vs Chaos</p>
-                        <p>Predictable plays safe and steady, while Aggressive steals the best dice and goes for risky captures. 
-                        Expect lots of token captures and dramatic comebacks!</p>
+                        <p>
+                          <strong>The Classic Battle:</strong> Order vs Chaos
+                        </p>
+                        <p>
+                          Predictable plays safe and steady, while Aggressive
+                          steals the best dice and goes for risky captures.
+                          Expect lots of token captures and dramatic comebacks!
+                        </p>
                         <div class="outcome-prediction">
-                          <strong>Likely Outcome:</strong> Aggressive wins in short games, Predictable in longer matches
+                          <strong>Likely Outcome:</strong> Aggressive wins in
+                          short games, Predictable in longer matches
                         </div>
                       </div>
                     </div>
@@ -803,11 +895,18 @@
                         <h4>Responsible vs Aggressive</h4>
                       </div>
                       <div class="showdown-description">
-                        <p><strong>The Strategic Duel:</strong> Wisdom vs Warfare</p>
-                        <p>Both players fight for the best dice! Responsible uses 7-priority system to counter 
-                        Aggressive's attacks while building safe token pairs. Intense tactical gameplay!</p>
+                        <p>
+                          <strong>The Strategic Duel:</strong> Wisdom vs Warfare
+                        </p>
+                        <p>
+                          Both players fight for the best dice! Responsible uses
+                          7-priority system to counter Aggressive's attacks
+                          while building safe token pairs. Intense tactical
+                          gameplay!
+                        </p>
                         <div class="outcome-prediction">
-                          <strong>Likely Outcome:</strong> Very close games with multiple lead changes
+                          <strong>Likely Outcome:</strong> Very close games with
+                          multiple lead changes
                         </div>
                       </div>
                     </div>
@@ -826,11 +925,18 @@
                         <h4>Predictable vs Responsible</h4>
                       </div>
                       <div class="showdown-description">
-                        <p><strong>The Thinking Match:</strong> Simple vs Complex</p>
-                        <p>Responsible gets advantage by choosing better dice while Predictable sticks to first dice. 
-                        Responsible's pair strategy often outmaneuvers simple single-token focus.</p>
+                        <p>
+                          <strong>The Thinking Match:</strong> Simple vs Complex
+                        </p>
+                        <p>
+                          Responsible gets advantage by choosing better dice
+                          while Predictable sticks to first dice. Responsible's
+                          pair strategy often outmaneuvers simple single-token
+                          focus.
+                        </p>
                         <div class="outcome-prediction">
-                          <strong>Likely Outcome:</strong> Responsible wins due to superior dice selection
+                          <strong>Likely Outcome:</strong> Responsible wins due
+                          to superior dice selection
                         </div>
                       </div>
                     </div>
@@ -846,56 +952,65 @@
                 </h3>
                 <div class="section-content">
                   <p class="scroll-text">
-                    The most sophisticated AI strategy uses a <strong>7-priority decision system</strong> 
+                    The most sophisticated AI strategy uses a
+                    <strong>7-priority decision system</strong>
                     to make every move count. Here's how it thinks:
                   </p>
                   <div class="priority-system">
                     <div class="priority-item priority-1">
                       <div class="priority-number">1</div>
                       <div class="priority-content">
-                        <strong>Promotion Priority:</strong> Always finish a token if possible
+                        <strong>Promotion Priority:</strong> Always finish a
+                        token if possible
                       </div>
                     </div>
                     <div class="priority-item priority-2">
                       <div class="priority-number">2</div>
                       <div class="priority-content">
-                        <strong>Capture Opportunity:</strong> Attack vulnerable enemy tokens
+                        <strong>Capture Opportunity:</strong> Attack vulnerable
+                        enemy tokens
                       </div>
                     </div>
                     <div class="priority-item priority-3">
                       <div class="priority-number">3</div>
                       <div class="priority-content">
-                        <strong>Situational Aggression:</strong> Attack when opponent is close to winning
+                        <strong>Situational Aggression:</strong> Attack when
+                        opponent is close to winning
                       </div>
                     </div>
                     <div class="priority-item priority-4">
                       <div class="priority-number">4</div>
                       <div class="priority-content">
-                        <strong>Safe Square Movement:</strong> Move to protected positions
+                        <strong>Safe Square Movement:</strong> Move to protected
+                        positions
                       </div>
                     </div>
                     <div class="priority-item priority-5">
                       <div class="priority-number">5</div>
                       <div class="priority-content">
-                        <strong>Chase Strategy:</strong> Position tokens to threaten enemies later
+                        <strong>Chase Strategy:</strong> Position tokens to
+                        threaten enemies later
                       </div>
                     </div>
                     <div class="priority-item priority-6">
                       <div class="priority-number">6</div>
                       <div class="priority-content">
-                        <strong>Pair Building:</strong> Move tokens together toward mid-game safe zone
+                        <strong>Pair Building:</strong> Move tokens together
+                        toward mid-game safe zone
                       </div>
                     </div>
                     <div class="priority-item priority-7">
                       <div class="priority-number">7</div>
                       <div class="priority-content">
-                        <strong>Pair Advancement:</strong> Coordinate tokens after reaching safe zone
+                        <strong>Pair Advancement:</strong> Coordinate tokens
+                        after reaching safe zone
                       </div>
                     </div>
                   </div>
                   <p class="scroll-text">
-                    This creates an AI that plays like a chess master - always thinking several moves ahead 
-                    and adapting its strategy based on the game situation!
+                    This creates an AI that plays like a chess master - always
+                    thinking several moves ahead and adapting its strategy based
+                    on the game situation!
                   </p>
                 </div>
               </div>
@@ -911,23 +1026,31 @@
                     <div class="bonus-trigger">
                       <div class="trigger-icon">⚅</div>
                       <div class="trigger-title">Rolling a Six</div>
-                      <div class="trigger-desc">Get another dice roll instantly!</div>
+                      <div class="trigger-desc">
+                        Get another dice roll instantly!
+                      </div>
                     </div>
                     <div class="bonus-trigger">
                       <div class="trigger-icon">🏠</div>
                       <div class="trigger-title">Reaching Home</div>
-                      <div class="trigger-desc">Token finishes, earn bonus move!</div>
+                      <div class="trigger-desc">
+                        Token finishes, earn bonus move!
+                      </div>
                     </div>
                     <div class="bonus-trigger">
                       <div class="trigger-icon">⚔️</div>
                       <div class="trigger-title">Capturing Enemy</div>
-                      <div class="trigger-desc">Send opponent back, get reward!</div>
+                      <div class="trigger-desc">
+                        Send opponent back, get reward!
+                      </div>
                     </div>
                   </div>
                   <p class="scroll-text">
-                    These magical events can create <strong>incredible chain reactions</strong>! An Aggressive 
-                    bot might roll a six, use it to capture an enemy (getting another bonus), then roll another 
-                    six - creating a devastating combo that changes the entire game!
+                    These magical events can create
+                    <strong>incredible chain reactions</strong>! An Aggressive
+                    bot might roll a six, use it to capture an enemy (getting
+                    another bonus), then roll another six - creating a
+                    devastating combo that changes the entire game!
                   </p>
                   <div class="bonus-chain-example">
                     <div class="chain-step">
@@ -940,7 +1063,8 @@
                       <span class="chain-label">Another 6!</span>
                     </div>
                     <div class="chain-result">
-                      <strong>Result:</strong> One turn becomes 4+ moves with massive point gain!
+                      <strong>Result:</strong> One turn becomes 4+ moves with
+                      massive point gain!
                     </div>
                   </div>
                 </div>
@@ -957,37 +1081,44 @@
                     <div class="score-rule positive">
                       <div class="rule-icon">✅</div>
                       <div class="rule-content">
-                        <strong>Earn Points:</strong> +1 point for every square you move forward
+                        <strong>Earn Points:</strong> +1 point for every square
+                        you move forward
                       </div>
                     </div>
                     <div class="score-rule positive">
                       <div class="rule-icon">🏆</div>
                       <div class="rule-content">
-                        <strong>Finish Bonus:</strong> Points equal to distance covered when token reaches home
+                        <strong>Finish Bonus:</strong> Points equal to distance
+                        covered when token reaches home
                       </div>
                     </div>
                     <div class="score-rule negative">
                       <div class="rule-icon">💔</div>
                       <div class="rule-content">
-                        <strong>Capture Penalty:</strong> Lose all points that token had earned when captured
+                        <strong>Capture Penalty:</strong> Lose all points that
+                        token had earned when captured
                       </div>
                     </div>
                   </div>
                   <p class="scroll-text">
-                    This creates <strong>real consequences</strong> for every move! Aggressive bots risk losing 
-                    points for captures, while Responsible bots build steady point totals. Watch the live 
+                    This creates <strong>real consequences</strong> for every
+                    move! Aggressive bots risk losing points for captures, while
+                    Responsible bots build steady point totals. Watch the live
                     scoreboard to see strategies paying off in real-time!
                   </p>
                   <div class="scoring-example">
                     <div class="example-scenario">
-                      <strong>Example:</strong> Your token travels 25 squares then gets captured
+                      <strong>Example:</strong> Your token travels 25 squares
+                      then gets captured
                     </div>
                     <div class="example-calculation">
                       <span class="calculation-step">Points earned: +25</span>
                       <span class="calculation-arrow">→</span>
                       <span class="calculation-step">Capture penalty: -25</span>
                       <span class="calculation-arrow">→</span>
-                      <span class="calculation-result">Net result: 0 points</span>
+                      <span class="calculation-result"
+                        >Net result: 0 points</span
+                      >
                     </div>
                   </div>
                 </div>
@@ -1005,25 +1136,38 @@
                       <div class="card-icon">🛡️</div>
                       <div class="card-title">Safe Zones</div>
                       <div class="card-desc">
-                        Special starred squares are <strong>sanctuaries</strong>! No token can be captured 
-                        here. Responsible bots love these spots, while Aggressive bots use them for strategic positioning.
+                        Special starred squares are
+                        <strong>sanctuaries</strong>! No token can be captured
+                        here. Responsible bots love these spots, while
+                        Aggressive bots use them for strategic positioning.
                       </div>
                     </div>
                     <div class="battle-card danger">
                       <div class="card-icon">⚔️</div>
                       <div class="card-title">Battle Zones</div>
                       <div class="card-desc">
-                        All other squares are <strong>danger zones</strong>! Land on an enemy token? 
-                        CAPTURED! They lose points and restart, while you get a bonus move and keep your momentum!
+                        All other squares are <strong>danger zones</strong>!
+                        Land on an enemy token? CAPTURED! They lose points and
+                        restart, while you get a bonus move and keep your
+                        momentum!
                       </div>
                     </div>
                   </div>
                   <div class="strategy-battle-tips">
                     <h4>Strategy Battle Tips:</h4>
                     <ul class="battle-tips-list">
-                      <li><strong>Against Aggressive:</strong> Use safe zones to avoid their attacks</li>
-                      <li><strong>Against Predictable:</strong> Predict their moves and set traps</li>
-                      <li><strong>Against Responsible:</strong> Disrupt their pair formations early</li>
+                      <li>
+                        <strong>Against Aggressive:</strong> Use safe zones to
+                        avoid their attacks
+                      </li>
+                      <li>
+                        <strong>Against Predictable:</strong> Predict their
+                        moves and set traps
+                      </li>
+                      <li>
+                        <strong>Against Responsible:</strong> Disrupt their pair
+                        formations early
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -1040,25 +1184,29 @@
                     <div class="victory-step">
                       <div class="victory-icon">🎯</div>
                       <div class="victory-text">
-                        <strong>Ultimate Goal:</strong> Get all your tokens to the center home area first
+                        <strong>Ultimate Goal:</strong> Get all your tokens to
+                        the center home area first
                       </div>
                     </div>
                     <div class="victory-step">
                       <div class="victory-icon">⏱️</div>
                       <div class="victory-text">
-                        <strong>Time Limit:</strong> Limited moves per player based on rounds selected (no endless games!)
+                        <strong>Time Limit:</strong> Limited moves per player
+                        based on rounds selected (no endless games!)
                       </div>
                     </div>
                     <div class="victory-step">
                       <div class="victory-icon">🏆</div>
                       <div class="victory-text">
-                        <strong>Instant Win:</strong> First player to get all tokens home wins immediately
+                        <strong>Instant Win:</strong> First player to get all
+                        tokens home wins immediately
                       </div>
                     </div>
                     <div class="victory-step">
                       <div class="victory-icon">📊</div>
                       <div class="victory-text">
-                        <strong>Score Victory:</strong> If time runs out, highest score wins the crown
+                        <strong>Score Victory:</strong> If time runs out,
+                        highest score wins the crown
                       </div>
                     </div>
                   </div>
@@ -1076,25 +1224,29 @@
                     <div class="custom-option">
                       <div class="option-icon">📏</div>
                       <div class="option-content">
-                        <strong>Board Size:</strong> Choose from 7x7 to 13x13 grids for different game lengths
+                        <strong>Board Size:</strong> Choose from 7x7 to 13x13
+                        grids for different game lengths
                       </div>
                     </div>
                     <div class="custom-option">
                       <div class="option-icon">🎮</div>
                       <div class="option-content">
-                        <strong>Token Count:</strong> Play with 2-4 tokens per player for varying complexity
+                        <strong>Token Count:</strong> Play with 2-4 tokens per
+                        player for varying complexity
                       </div>
                     </div>
                     <div class="custom-option">
                       <div class="option-icon">🕒</div>
                       <div class="option-content">
-                        <strong>Round Limit:</strong> Set 8-32 rounds to control game duration
+                        <strong>Round Limit:</strong> Set 8-32 rounds to control
+                        game duration
                       </div>
                     </div>
                     <div class="custom-option">
                       <div class="option-icon">🤖</div>
                       <div class="option-content">
-                        <strong>AI Strategies:</strong> Mix and match different bot personalities for unique matchups
+                        <strong>AI Strategies:</strong> Mix and match different
+                        bot personalities for unique matchups
                       </div>
                     </div>
                   </div>
@@ -1112,36 +1264,41 @@
                     <div class="revolution-point">
                       <div class="point-icon">🧠</div>
                       <div class="point-content">
-                        <strong>AI Intelligence:</strong> Three different AI personalities that actually think 
-                        differently, creating unique gameplay every time!
+                        <strong>AI Intelligence:</strong> Three different AI
+                        personalities that actually think differently, creating
+                        unique gameplay every time!
                       </div>
                     </div>
                     <div class="revolution-point">
                       <div class="point-icon">🎲</div>
                       <div class="point-content">
-                        <strong>Strategic Dice:</strong> Multiple dice with intelligent selection creates 
-                        deeper strategy than simple random rolls!
+                        <strong>Strategic Dice:</strong> Multiple dice with
+                        intelligent selection creates deeper strategy than
+                        simple random rolls!
                       </div>
                     </div>
                     <div class="revolution-point">
                       <div class="point-icon">⚡</div>
                       <div class="point-content">
-                        <strong>Dynamic Gameplay:</strong> Every game feels different based on AI matchups 
-                        and their strategic interactions!
+                        <strong>Dynamic Gameplay:</strong> Every game feels
+                        different based on AI matchups and their strategic
+                        interactions!
                       </div>
                     </div>
                     <div class="revolution-point">
                       <div class="point-icon">📈</div>
                       <div class="point-content">
-                        <strong>Live Analytics:</strong> Watch detailed game logs and see exactly how each 
-                        AI strategy performs in real-time!
+                        <strong>Live Analytics:</strong> Watch detailed game
+                        logs and see exactly how each AI strategy performs in
+                        real-time!
                       </div>
                     </div>
                     <div class="revolution-point">
                       <div class="point-icon">🎢</div>
                       <div class="point-content">
-                        <strong>Dramatic Moments:</strong> Bonus chains, strategic captures, and last-minute 
-                        comebacks create edge-of-your-seat excitement!
+                        <strong>Dramatic Moments:</strong> Bonus chains,
+                        strategic captures, and last-minute comebacks create
+                        edge-of-your-seat excitement!
                       </div>
                     </div>
                   </div>
@@ -1158,21 +1315,27 @@
                   <div class="wisdom-quote">
                     <div class="quote-mark">"</div>
                     <div class="quote-text">
-                      In this realm of intelligent dice and thinking machines, victory belongs not to luck alone, 
-                      but to understanding the <strong>mind of your artificial opponent</strong>.
+                      In this realm of intelligent dice and thinking machines,
+                      victory belongs not to luck alone, but to understanding
+                      the <strong>mind of your artificial opponent</strong>.
                       <br /><br />
-                      Watch how the <strong>Aggressive</strong> warrior charges forward, how the <strong>Predictable</strong> 
-                      sage follows ancient patterns, and how the <strong>Responsible Pair</strong> master weaves 
-                      complex strategies like silk.
+                      Watch how the <strong>Aggressive</strong> warrior charges
+                      forward, how the <strong>Predictable</strong> sage follows
+                      ancient patterns, and how the
+                      <strong>Responsible Pair</strong> master weaves complex
+                      strategies like silk. <br /><br />
+                      Each game tells a story of artificial intelligence,
+                      strategic thinking, and the eternal dance between order
+                      and chaos.
                       <br /><br />
-                      Each game tells a story of artificial intelligence, strategic thinking, and the 
-                      eternal dance between order and chaos.
-                      <br /><br />
-                      May your understanding be deep, your observations keen, and your strategic insights ever sharp!
+                      May your understanding be deep, your observations keen,
+                      and your strategic insights ever sharp!
                     </div>
                     <div class="quote-mark">"</div>
                   </div>
-                  <div class="wisdom-signature">~ The Masters of Digital Strategy</div>
+                  <div class="wisdom-signature">
+                    ~ The Masters of Digital Strategy
+                  </div>
                 </div>
               </div>
             </div>
@@ -1205,7 +1368,7 @@
         boardSize: "{{ board_size }}",
         numRounds: "{{ num_rounds }}",
         player1Strategy: "{{ player1_strategy }}",
-        player2Strategy: "{{ player2_strategy }}"
+        player2Strategy: "{{ player2_strategy }}",
       };
       console.log("Game config loaded:", window.gameConfig);
     </script>
@@ -1221,13 +1384,13 @@
     <script src="{{ url_for('static', filename='js/dice.js') }}"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Initialize AOS animations
-        AOS.init({
-            duration: 1000,
-            easing: 'ease-in-out',
-            once: false,
-            mirror: true
-        });
+      // Initialize AOS animations
+      AOS.init({
+        duration: 1000,
+        easing: "ease-in-out",
+        once: false,
+        mirror: true,
+      });
     </script>
   </body>
 </html>

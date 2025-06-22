@@ -6107,6 +6107,65 @@ body {
     }
 }
 
+/* Seed info styling */
+.config-item.seed-info {
+    background: rgba(142, 68, 173, 0.1);
+    border: 1px solid rgba(142, 68, 173, 0.3);
+    transition: all 0.3s ease;
+}
+
+.config-item.seed-info:hover {
+    background: rgba(142, 68, 173, 0.2);
+    transform: translateY(-2px);
+}
+
+.seed-copy-btn {
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    user-select: all;
+    position: relative;
+}
+
+.seed-copy-btn:hover {
+    text-decoration: underline;
+}
+
+/* Seed copy notification */
+.seed-copy-notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    border-left: 4px solid #8e44ad;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.seed-copy-notification.show {
+    transform: translateX(0);
+}
+
+.seed-copy-notification.success {
+    border-left-color: #27ae60;
+    color: #27ae60;
+}
+
+.seed-copy-notification.error {
+    border-left-color: #e74c3c;
+    color: #e74c3c;
+}
+
+.seed-copy-notification i {
+    font-size: 1.1rem;
+}
+
 
 
 

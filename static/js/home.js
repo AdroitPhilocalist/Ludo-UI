@@ -6,6 +6,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const strategyCards = document.querySelectorAll('.strategy-card');
     const startBtn = document.querySelector('.start-btn');
 
+
+    // Seed functionality
+    const seedInput = document.getElementById('game-seed');
+    const generateSeedBtn = document.getElementById('generate-seed');
+    const seedExampleBtns = document.querySelectorAll('.seed-example-btn');
+
+    // Generate random seed
+    generateSeedBtn.addEventListener('click', function() {
+        const randomSeed = Math.floor(Math.random() * 999999) + 100000;
+        seedInput.value = randomSeed;
+        
+        // Add animation
+        seedInput.style.animation = 'pulse 0.5s ease';
+        setTimeout(() => {
+            seedInput.style.animation = '';
+        }, 500);
+    });
+
+    // Handle seed example buttons
+    seedExampleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const seed = this.getAttribute('data-seed');
+            seedInput.value = seed;
+            
+            // Add animation
+            seedInput.style.animation = 'pulse 0.5s ease';
+            this.style.animation = 'pulse 0.3s ease';
+            
+            setTimeout(() => {
+                seedInput.style.animation = '';
+                this.style.animation = '';
+            }, 500);
+        });
+    });
+
+    // Validate seed input (allow numbers and text)
+    seedInput.addEventListener('input', function() {
+        // Remove any invalid characters (keep alphanumeric, spaces, hyphens, underscores)
+        this.value = this.value.replace(/[^a-zA-Z0-9\s\-_]/g, '');
+    });
+
     // Add click animations to selection cards
     selectionCards.forEach(card => {
         card.addEventListener('click', function() {
@@ -40,7 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
             boardSize: formData.get('board-size'),
             numRounds: formData.get('num-rounds'), 
             player1Strategy: formData.get('player1-strategy'),
-            player2Strategy: formData.get('player2-strategy')
+            player2Strategy: formData.get('player2-strategy'),
+            gameSeed: formData.get('game-seed') || null
         };
 
         console.log('Form data collected:', config); // Debug log

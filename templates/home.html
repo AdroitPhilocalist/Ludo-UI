@@ -53,7 +53,7 @@
       class="container-fluid min-vh-100 d-flex align-items-center justify-content-center"
     >
       <div class="row w-100 justify-content-center">
-       <div class="col-lg-8 col-xl-7 col-xxl-6">
+        <div class="col-lg-8 col-xl-7 col-xxl-6">
           <!-- Game Logo/Title -->
           <div
             class="text-center mb-5"
@@ -246,6 +246,94 @@
                       <div class="strategy-name">Responsible</div>
                       <div class="strategy-desc">Strategic Pairs</div>
                     </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add seed input section after Player Strategy Selection -->
+              <div
+                class="config-section seed-section"
+                data-aos="fade-left"
+                data-aos-duration="800"
+                data-aos-delay="700"
+              >
+                <label class="config-label">
+                  <i class="fas fa-seedling"></i>
+                  Game Seed (Optional)
+                </label>
+                <div class="seed-input-container">
+                  <div class="seed-input-wrapper">
+                    <input
+                      type="text"
+                      id="game-seed"
+                      name="game-seed"
+                      class="seed-input"
+                      placeholder="Enter seed value or leave empty for random"
+                      maxlength="20"
+                    />
+                    <button
+                      type="button"
+                      class="seed-generate-btn"
+                      id="generate-seed"
+                    >
+                      <i class="fas fa-dice"></i>
+                      Generate
+                    </button>
+                  </div>
+                  <div class="seed-description">
+                    <div class="seed-info-item">
+                      <i class="fas fa-info-circle"></i>
+                      <span
+                        >Same seed = Same dice sequence for reproducible
+                        games</span
+                      >
+                    </div>
+                    <div class="seed-info-item">
+                      <i class="fas fa-flask"></i>
+                      <span
+                        >Perfect for testing AI strategies under identical
+                        conditions</span
+                      >
+                    </div>
+                    <div class="seed-info-item">
+                      <i class="fas fa-bug"></i>
+                      <span
+                        >Share seeds to reproduce specific game scenarios</span
+                      >
+                    </div>
+                  </div>
+                  <div class="seed-examples">
+                    <span class="seed-example-label">Try these seeds:</span>
+                    <div class="seed-example-buttons">
+                      <button
+                        type="button"
+                        class="seed-example-btn"
+                        data-seed="12345"
+                      >
+                        Classic
+                      </button>
+                      <button
+                        type="button"
+                        class="seed-example-btn"
+                        data-seed="99999"
+                      >
+                        Lucky
+                      </button>
+                      <button
+                        type="button"
+                        class="seed-example-btn"
+                        data-seed="2024"
+                      >
+                        Year
+                      </button>
+                      <button
+                        type="button"
+                        class="seed-example-btn"
+                        data-seed="LUDO"
+                      >
+                        Text
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
