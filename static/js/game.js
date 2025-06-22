@@ -187,7 +187,9 @@ class LudoGame {
       return new Set(values).size !== values.length;
     };
 
-    const multipleTokens = hasDuplicateValues(this.playerPositions);
+    const multipleTokens = hasDuplicateValues(this.playerPositions[playerId]);
+    //console.log(this.playerPositions);
+    //console.log(multipleTokens);
     // console.log("check",multipleTokens);
     return isInSafeSquares || multipleTokens;
   }
@@ -1094,7 +1096,7 @@ class LudoGame {
 
     if (strategy === "AGGRESSIVE") {
       // Existing aggressive strategy logic
-      const availableDice = allDiceValues;
+      const availableDice = [...allDiceValues];
       const decision = this.selectTokenAggressive(
         playerId,
         diceValue,
@@ -1181,7 +1183,8 @@ class LudoGame {
       }
     } else if (strategy === "RESPONSIBLE") {
       // New responsible strategy logic
-      const availableDice = allDiceValues;
+      //console.log(allDiceValues);
+      const availableDice = [...allDiceValues];
       const decision = this.selectTokenResponsible(
         playerId,
         diceValue,
@@ -1203,7 +1206,9 @@ class LudoGame {
         if (index !== -1) arr.splice(index, 1);
         return arr;
       };
+      //console.log(allDiceValues);
       allDiceValues = removeFirstOccurrence(allDiceValues, chosenDice);
+      //console.log(allDiceValues);
 
       this.highlightMovingToken(playerId, tokenIndex);
 
