@@ -3271,6 +3271,11 @@ document.head.appendChild(style);
 function goHome() {
   window.location.href = "/";
 }
+function newGame() {
+  if (window.ludoGame) {
+    window.location.reload();
+  }
+}
 
 function regenerateBoard() {
   if (window.ludoGame) {
@@ -4080,5 +4085,7 @@ window.openGameLogs = openGameLogs;
 window.exportGameLogs = exportGameLogs;
 window.clearGameLogs = clearGameLogs;
 window.toggleAutoplay = toggleAutoplay;
-
+window.goHome = goHome;
+window.regenerateBoard = regenerateBoard;
+window.newGame = newGame;
 console.log("Enhanced Ludo Game loaded with full gameplay logic!");
