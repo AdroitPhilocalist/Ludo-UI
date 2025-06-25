@@ -920,7 +920,24 @@ class LudoGame {
 
   // Helper method to check if a position is safe
   isSafePosition(pathIndex, playerId) {
-    return this.isSafe(pathIndex, playerId);
+    // Check if position is safe: either predefined safe square or occupied by multiple own tokens
+    const position = this.getPositionFromPathIndex(pathIndex, playerId);
+    if (!position) return false;
+    const posKey = `${position.row},${position.col}`;
+    const isInSafeSquares = this.safeSquares.includes(posKey);
+    // const multipleTokens =
+    //   this.playerPositions[playerId].filter((pos) => pos === pathIndex).length >
+    //   1;
+    const hasDuplicateValues = (obj) => {
+      const values = Object.values(obj);
+      return new Set(values).size !== values.length;
+    };
+
+    const multipleTokens = hasDuplicateValues(this.playerPositions[playerId]);
+    //console.log(this.playerPositions);
+    //console.log(multipleTokens);
+    // console.log("check",multipleTokens);
+    return isInSafeSquares || multipleTokens;
   }
 
   async bonusMove(playerId, diceValue = null) {
