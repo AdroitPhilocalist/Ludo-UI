@@ -184,6 +184,13 @@ class LudoGame {
     //   1;
     const hasDuplicateValues = (obj) => {
       const values = Object.values(obj);
+      //console.log("values", values);
+      for(const value of values) {
+        if (value === 0) {
+          values.splice(values.indexOf(value), 1);
+      }
+    }
+      //console.log("values", values);
       return new Set(values).size !== values.length;
     };
 
@@ -460,11 +467,15 @@ class LudoGame {
       for (const tokenIndex of unfinishedTokens) {
         const currentPos = this.playerPositions[playerId][tokenIndex];
         const newPos = currentPos + dice;
+        const temporaryPosition = [...this.playerPositions[playerId]];
+        temporaryPosition[tokenIndex] = newPos; // Simulate move
+        //console.log(temporaryPosition);
 
         if (
           newPos < this.finalPosition &&
-          this.isSafePosition(newPos, playerId)
+          this.isSafePosition(newPos, playerId, temporaryPosition)
         ) {
+          //console.log(this.isSafePosition(newPos, playerId));
           console.log(
             `Priority 3b - Safe Square: Token ${
               tokenIndex + 1
@@ -842,10 +853,12 @@ class LudoGame {
       for (const tokenIndex of unfinishedTokens) {
         const currentPos = this.playerPositions[playerId][tokenIndex];
         const newPos = currentPos + dice;
+        const temporaryPosition = [...this.playerPositions[playerId]];
+        temporaryPosition[tokenIndex] = newPos; // Simulate move
 
         if (
           newPos < this.finalPosition &&
-          this.isSafePosition(newPos, playerId)
+          this.isSafePosition(newPos, playerId, temporaryPosition)
         ) {
           console.log(
             `Priority 3 - Safe Square: Token ${
@@ -919,7 +932,7 @@ class LudoGame {
   }
 
   // Helper method to check if a position is safe
-  isSafePosition(pathIndex, playerId) {
+  isSafePosition(pathIndex, playerId, temporaryPositions = null) {
     // Check if position is safe: either predefined safe square or occupied by multiple own tokens
     const position = this.getPositionFromPathIndex(pathIndex, playerId);
     if (!position) return false;
@@ -930,10 +943,19 @@ class LudoGame {
     //   1;
     const hasDuplicateValues = (obj) => {
       const values = Object.values(obj);
+      //console.log("values", values);
+      for(const value of values) {
+        if (value === 0) {
+          values.splice(values.indexOf(value), 1);
+      }
+    }
+      //console.log("values", values);
       return new Set(values).size !== values.length;
     };
 
-    const multipleTokens = hasDuplicateValues(this.playerPositions[playerId]);
+    const multipleTokens = hasDuplicateValues(temporaryPositions);
+    console.log(this.playerPositions[playerId]);
+    console.log("multipleTokens check:", multipleTokens);
     //console.log(this.playerPositions);
     //console.log(multipleTokens);
     // console.log("check",multipleTokens);
