@@ -2660,6 +2660,41 @@ class LudoGame {
 
     // Calculate center region of each home area
     const centerSquares = [];
+    // Special handling for board size 7
+  if (boardSize === 7) {
+    // Define explicit positions for each player's tokens in 7x7 board
+    const explicitPositions = {
+      RED: [
+        { row: 1, col: 0 }, // 1st token
+        { row: 1, col: 1 }, // 2nd token
+        { row: 2, col: 0 }, // 3rd token
+        { row: 2, col: 1 }  // 4th token
+      ],
+      BLUE: [
+        { row: 1, col: 6 }, // 1st token
+        { row: 1, col: 5 }, // 2nd token
+        { row: 2, col: 6 }, // 3rd token
+        { row: 2, col: 5 }  // 4th token
+      ],
+      GREEN: [
+        { row: 6, col: 0 }, // 1st token
+        { row: 6, col: 1 }, // 2nd token
+        { row: 5, col: 0 }, // 3rd token
+        { row: 5, col: 1 }  // 4th token
+      ],
+      YELLOW: [
+        { row: 7, col: 7 }, // 1st token
+        { row: 7, col: 8 }, // 2nd token
+        { row: 8, col: 7 }, // 3rd token
+        { row: 8, col: 8 }  // 4th token
+      ]
+    };
+
+    // Return the explicit positions for the specified player
+    if (explicitPositions[player]) {
+      return explicitPositions[player];
+    }
+  }
 
     // Define center regions for each player's home area
     const centerRegions = this.getHomeCenterRegions(homeSize, gridSize);

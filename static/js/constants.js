@@ -93,10 +93,12 @@ export const BOARD_7_CONFIG = {
     
     // Safe squares (star positions)
     SAFE_SQUARES: [
-        { row: 5, col: 2 },   // Red side
-        { row: 2, col: 3 },   // Blue side
-        { row: 3, col: 6 },   // Yellow side
-        { row: 6, col: 5 }    // Green side
+        // { row: 5, col: 2 },   // Red side
+        // { row: 2, col: 3 },   // Blue side
+        // { row: 3, col: 6 },   // Yellow side
+        // { row: 6, col: 5 }    // Green side
+        { row: 3, col: 1 },
+        { row: 5, col: 7 }
     ],
     
     // Home entrance paths (colored paths leading to center)
@@ -227,10 +229,12 @@ export const BOARD_9_CONFIG = {
     },
     
     SAFE_SQUARES: [
-        { row: 6, col: 2 },   // Red side
-        { row: 2, col: 4 },   // Blue side
-        { row: 4, col: 8 },   // Yellow side
-        { row: 8, col: 6 }    // Green side
+        // { row: 6, col: 2 },   // Red side
+        // { row: 2, col: 4 },   // Blue side
+        // { row: 4, col: 8 },   // Yellow side
+        // { row: 8, col: 6 }    // Green side
+        { row: 4, col: 1 },
+        { row: 6, col: 9 }
     ],
     
     HOME_ENTRANCE_PATHS: {
@@ -369,10 +373,12 @@ export const BOARD_11_CONFIG = {
     },
     
     SAFE_SQUARES: [
-        { row: 7, col: 2 },   // Red side
-        { row: 2, col: 5 },   // Blue side
-        { row: 5, col: 10 },  // Yellow side
-        { row: 10, col: 7 }   // Green side
+        // { row: 7, col: 2 },   // Red side
+        // { row: 2, col: 5 },   // Blue side
+        // { row: 5, col: 10 },  // Yellow side
+        // { row: 10, col: 7 }   // Green side
+        { row: 5, col: 1 },
+        { row: 7, col: 11 }
     ],
     
     HOME_ENTRANCE_PATHS: {
