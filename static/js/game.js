@@ -185,11 +185,11 @@ class LudoGame {
     const hasDuplicateValues = (obj) => {
       const values = Object.values(obj);
       //console.log("values", values);
-      for(const value of values) {
+      for (const value of values) {
         if (value === 0) {
           values.splice(values.indexOf(value), 1);
+        }
       }
-    }
       //console.log("values", values);
       return new Set(values).size !== values.length;
     };
@@ -363,6 +363,7 @@ class LudoGame {
   // Update the selectToken method to handle the new strategy
   selectToken(playerId, diceValue = null, availableDice = []) {
     const strategy = this.playerStrategies[playerId];
+    console.log("heufhuwh");
 
     if (strategy === "AGGRESSIVE") {
       const result = this.selectTokenAggressive(
@@ -377,6 +378,7 @@ class LudoGame {
         diceValue,
         availableDice
       );
+
       return result ? result.tokenIndex : null;
     } else {
       return this.selectTokenPredictable(playerId);
@@ -643,14 +645,13 @@ class LudoGame {
         oppTokenIndex++
       ) {
         const oppTokenPos = this.playerPositions[oppPlayerId][oppTokenIndex];
-
         if (oppTokenPos === 0 || oppTokenPos >= this.finalPosition) continue; // Skip home or finished tokens
-
         // Check if any of our tokens can chase this opponent
         for (const dice of diceOptions.sort((a, b) => b - a)) {
           for (const tokenIndex of unfinishedTokens) {
             const currentPos = this.playerPositions[playerId][tokenIndex];
             const newPos = currentPos + dice;
+            console.log(currentPos, newPos, oppTokenPos);
 
             // Check if this move gets us closer to the opponent token for future capture
             const currentDistance = this.getTokenDistance(
@@ -665,6 +666,7 @@ class LudoGame {
               playerId,
               oppPlayerId
             );
+            console.log(newDistance, currentDistance);
 
             if (
               newDistance < currentDistance &&
@@ -687,13 +689,41 @@ class LudoGame {
     // Simple distance calculation - can be enhanced with actual path distance
     const position1 = this.getPositionFromPathIndex(pos1, playerId1);
     const position2 = this.getPositionFromPathIndex(pos2, playerId2);
+    console.log(position1, position2);
+    if(playerId1 === 1){
+      var array1 = this.boardConfig.GAME_PATHS.RED;
+      var array2 = this.boardConfig.GAME_PATHS.YELLOW;
+    }
+    if(playerId1 === 2){
+      var array1 = this.boardConfig.GAME_PATHS.YELLOW;
+      var array2 = this.boardConfig.GAME_PATHS.RED;
+    }
+    
+    const intersection = (arr1, arr2) => {
+      return arr1.filter((obj1) =>
+        arr2.some((obj2) => obj1.row === obj2.row && obj1.col === obj2.col)
+      );
+    };
 
+    const full_game_path = intersection(array1, array2);
+    console.log("Full game path:", full_game_path);
+    const index1 = full_game_path.findIndex(
+      (pos) => pos.row === position1.row && pos.col === position1.col
+    );
+    const index2 = full_game_path.findIndex(
+      (pos) => pos.row === position2.row && pos.col === position2.col
+    );
+    console.log("Index1:", index1, "Index2:", index2);
+    console.log(
+      Math.abs(
+        index1 - index2 
+      )+ 1
+    );
     if (!position1 || !position2) return Infinity;
 
-    return (
-      Math.abs(position1.row - position2.row) +
-      Math.abs(position1.col - position2.col)
-    );
+    return Math.abs(
+      index1 - index2
+    ) + 1;
   }
 
   // Helper method for pair movement before reaching safe square
@@ -944,18 +974,18 @@ class LudoGame {
     const hasDuplicateValues = (obj) => {
       const values = Object.values(obj);
       //console.log("values", values);
-      for(const value of values) {
+      for (const value of values) {
         if (value === 0) {
           values.splice(values.indexOf(value), 1);
+        }
       }
-    }
       //console.log("values", values);
       return new Set(values).size !== values.length;
     };
 
     const multipleTokens = hasDuplicateValues(temporaryPositions);
-    console.log(this.playerPositions[playerId]);
-    console.log("multipleTokens check:", multipleTokens);
+    //console.log(this.playerPositions[playerId]);
+    //console.log("multipleTokens check:", multipleTokens);
     //console.log(this.playerPositions);
     //console.log(multipleTokens);
     // console.log("check",multipleTokens);
@@ -1224,6 +1254,7 @@ class LudoGame {
       // New responsible strategy logic
       //console.log(allDiceValues);
       const availableDice = [...allDiceValues];
+
       const decision = this.selectTokenResponsible(
         playerId,
         diceValue,
@@ -2661,40 +2692,77 @@ class LudoGame {
     // Calculate center region of each home area
     const centerSquares = [];
     // Special handling for board size 7
-  if (boardSize === 7) {
-    // Define explicit positions for each player's tokens in 7x7 board
-    const explicitPositions = {
-      RED: [
-        { row: 1, col: 0 }, // 1st token
-        { row: 1, col: 1 }, // 2nd token
-        { row: 2, col: 0 }, // 3rd token
-        { row: 2, col: 1 }  // 4th token
-      ],
-      BLUE: [
-        { row: 1, col: 6 }, // 1st token
-        { row: 1, col: 5 }, // 2nd token
-        { row: 2, col: 6 }, // 3rd token
-        { row: 2, col: 5 }  // 4th token
-      ],
-      GREEN: [
-        { row: 6, col: 0 }, // 1st token
-        { row: 6, col: 1 }, // 2nd token
-        { row: 5, col: 0 }, // 3rd token
-        { row: 5, col: 1 }  // 4th token
-      ],
-      YELLOW: [
-        { row: 7, col: 7 }, // 1st token
-        { row: 7, col: 8 }, // 2nd token
-        { row: 8, col: 7 }, // 3rd token
-        { row: 8, col: 8 }  // 4th token
-      ]
-    };
+    if (boardSize === 7) {
+      // Define explicit positions for each player's tokens in 7x7 board
+      const explicitPositions = {
+        RED: [
+          { row: 1, col: 0 }, // 1st token
+          { row: 1, col: 1 }, // 2nd token
+          { row: 2, col: 0 }, // 3rd token
+          { row: 2, col: 1 }, // 4th token
+        ],
+        BLUE: [
+          { row: 1, col: 6 }, // 1st token
+          { row: 1, col: 5 }, // 2nd token
+          { row: 2, col: 6 }, // 3rd token
+          { row: 2, col: 5 }, // 4th token
+        ],
+        GREEN: [
+          { row: 6, col: 0 }, // 1st token
+          { row: 6, col: 1 }, // 2nd token
+          { row: 5, col: 0 }, // 3rd token
+          { row: 5, col: 1 }, // 4th token
+        ],
+        YELLOW: [
+          { row: 7, col: 7 }, // 1st token
+          { row: 7, col: 8 }, // 2nd token
+          { row: 8, col: 7 }, // 3rd token
+          { row: 8, col: 8 }, // 4th token
+        ],
+      };
 
-    // Return the explicit positions for the specified player
-    if (explicitPositions[player]) {
-      return explicitPositions[player];
+      // Return the explicit positions for the specified player
+      if (explicitPositions[player]) {
+        return explicitPositions[player];
+      }
     }
-  }
+
+
+
+    if (boardSize === 11) {
+      // Define explicit positions for each player's tokens in 7x7 board
+      const explicitPositions = {
+        RED: [
+          { row: 1, col: 1 }, // 1st token
+          { row: 1, col: 2 }, // 2nd token
+          { row: 2, col: 1 }, // 3rd token
+          { row: 2, col: 2 }, // 4th token
+        ],
+        BLUE: [
+          { row: 1, col: 6 }, // 1st token
+          { row: 1, col: 5 }, // 2nd token
+          { row: 2, col: 6 }, // 3rd token
+          { row: 2, col: 5 }, // 4th token
+        ],
+        GREEN: [
+          { row: 6, col: 0 }, // 1st token
+          { row: 6, col: 1 }, // 2nd token
+          { row: 5, col: 0 }, // 3rd token
+          { row: 5, col: 1 }, // 4th token
+        ],
+        YELLOW: [
+          { row: 10, col: 10 }, // 1st token
+          { row: 10, col: 11 }, // 2nd token
+          { row: 11, col: 10 }, // 3rd token
+          { row: 11, col: 11 }, // 4th token
+        ],
+      };
+
+      // Return the explicit positions for the specified player
+      if (explicitPositions[player]) {
+        return explicitPositions[player];
+      }
+    }
 
     // Define center regions for each player's home area
     const centerRegions = this.getHomeCenterRegions(homeSize, gridSize);
@@ -4153,7 +4221,6 @@ function showSeedCopyNotification(message, type) {
     setTimeout(() => notification.remove(), 300);
   }, 3000);
 }
-
 
 // Make it globally available
 window.copySeedToClipboard = copySeedToClipboard;

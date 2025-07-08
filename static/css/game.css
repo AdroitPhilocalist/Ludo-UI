@@ -7466,10 +7466,10 @@ body {
 
 /* Temporarily hide coordinate text - Comment this section to show coordinates */
 
+ 
 .coord-text {
     display: none !important;
 }
-
 /* Original coordinate text styling (will be active when above section is commented) */
 .coord-text {
     position: absolute;
@@ -7487,7 +7487,7 @@ body {
 /* Hide coordinate text in production */
 .square.has-tokens .coord-text {
     display: none;
-}
+} */
 
 /* Responsive coordinate text sizes */
 @media (max-width: 480px) {
