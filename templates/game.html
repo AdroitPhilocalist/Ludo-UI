@@ -117,6 +117,7 @@
             <button class="btn btn-outline-primary me-2" onclick="goHome()">
               <i class="fas fa-home me-1"></i> Home
             </button>
+            
             <button class="btn btn-warning me-2" onclick="openGameInfo()">
               <i class="fas fa-scroll me-1"></i> Game Info
             </button>
@@ -1359,6 +1360,84 @@
         </div>
       </div>
     </div>
+
+<!-- Add this modal before the closing </body> tag -->
+
+<!-- MCTS Difficulty Selection Modal -->
+<div class="modal fade" id="mctsDifficultyModal" tabindex="-1" aria-labelledby="mctsDifficultyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content mcts-modal-content">
+      <div class="modal-header mcts-modal-header">
+        <h5 class="modal-title mcts-modal-title" id="mctsDifficultyModalLabel">
+          <i class="fas fa-brain me-2"></i>
+          Configure MCTS AI Difficulty
+        </h5>
+      </div>
+      <div class="modal-body mcts-modal-body">
+        <div class="mcts-detection-info">
+          <div class="detection-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="detection-text">
+            <p><strong>MCTS AI Strategy Detected!</strong></p>
+            <p>One or more players are using the advanced Monte Carlo Tree Search AI. Please select the difficulty level for optimal gameplay experience:</p>
+          </div>
+        </div>
+        
+        <div class="difficulty-options">
+          <div class="difficulty-option" data-difficulty="easy">
+            <div class="difficulty-icon">
+              <i class="fas fa-seedling"></i>
+            </div>
+            <div class="difficulty-content">
+              <h6 class="difficulty-name">Easy</h6>
+              <p class="difficulty-description">Quick decisions with basic strategy</p>
+              <div class="difficulty-specs">
+                <small>500 iterations • 1s thinking time • 20 moves deep</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="difficulty-option selected" data-difficulty="normal">
+            <div class="difficulty-icon">
+              <i class="fas fa-balance-scale"></i>
+            </div>
+            <div class="difficulty-content">
+              <h6 class="difficulty-name">Normal</h6>
+              <p class="difficulty-description">Balanced analysis and decision time</p>
+              <div class="difficulty-specs">
+                <small>1000 iterations • 2s thinking time • 30 moves deep</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="difficulty-option" data-difficulty="hard">
+            <div class="difficulty-icon">
+              <i class="fas fa-chess"></i>
+            </div>
+            <div class="difficulty-content">
+              <h6 class="difficulty-name">Hard</h6>
+              <p class="difficulty-description">Deep analysis with longer thinking time</p>
+              <div class="difficulty-specs">
+                <small>2000 iterations • 3s thinking time • 50 moves deep</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer mcts-modal-footer">
+        <button type="button" class="btn btn-primary" id="confirmMCTSDifficulty">
+          <i class="fas fa-check me-2"></i>
+          Start Game
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+    
 
     <!-- Pass Flask data to JavaScript -->
     <script>

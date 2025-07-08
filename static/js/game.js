@@ -1,6 +1,6 @@
 // Import constants if available
 import { getBoardConfig, PLAYERS, COLORS, UTILS } from "./constants.js";
-
+import { MCTSAlgorithm, MCTSConfig } from "./mcts.js";
 class LudoGame {
   constructor() {
     this.boardElement = document.getElementById("ludoBoard");
@@ -20,6 +20,7 @@ class LudoGame {
       1: this.config.player1Strategy || "PREDICTABLE",
       2: this.config.player2Strategy || "PREDICTABLE",
     };
+     this.mctsConfig = MCTSConfig.createNormalConfig();
     this.playerScores = {};
     this.scoreAnimationQueue = [];
     this.isScoreAnimating = false;
@@ -44,6 +45,13 @@ class LudoGame {
 
   async initializeGame() {
     console.log("Initializing Ludo Game with config:", this.config);
+    // Check if any player is using MCTS strategy
+    const hasMCTSPlayer = Object.values(this.playerStrategies).includes('MCTS');
+    
+    if (hasMCTSPlayer) {
+      // Show MCTS configuration modal and wait for user selection
+      await this.showMCTSDifficultyModal();
+    }
     this.setupGameConfiguration();
     this.initializeTokens();
     this.initializeGameLogs();
@@ -51,6 +59,88 @@ class LudoGame {
     this.updateStatusDisplay();
     // Wait for dice roller to be ready before connecting
     await this.waitForDiceRoller();
+  }
+
+  // New method to show MCTS difficulty selection modal
+  showMCTSDifficultyModal() {
+    return new Promise((resolve) => {
+      const modal = new bootstrap.Modal(document.getElementById('mctsDifficultyModal'));
+      
+      // Set up difficulty selection handlers
+      this.setupMCTSDifficultyHandlers(resolve);
+      
+      // Show the modal
+      modal.show();
+    });
+  }
+
+  // New method to set up MCTS difficulty selection handlers
+  setupMCTSDifficultyHandlers(resolvePromise) {
+    const difficultyOptions = document.querySelectorAll('.difficulty-option');
+    const confirmButton = document.getElementById('confirmMCTSDifficulty');
+    let selectedDifficulty = 'normal'; // Default selection
+
+    // Handle difficulty option selection
+    difficultyOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Remove selected class from all options
+        difficultyOptions.forEach(opt => opt.classList.remove('selected'));
+        
+        // Add selected class to clicked option
+        option.classList.add('selected');
+        
+        // Store selected difficulty
+        selectedDifficulty = option.dataset.difficulty;
+        
+        console.log(`MCTS difficulty selected: ${selectedDifficulty}`);
+      });
+    });
+
+    // Handle confirm button click
+    const handleConfirm = () => {
+      // Set the MCTS difficulty
+      this.setMCTSDifficulty(selectedDifficulty);
+      
+      // Hide the modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('mctsDifficultyModal'));
+      modal.hide();
+      
+      // Show success message
+      this.showMCTSConfigurationSuccess(selectedDifficulty);
+      
+      // Clean up event listeners
+      confirmButton.removeEventListener('click', handleConfirm);
+      
+      // Resolve the promise to continue game initialization
+      resolvePromise();
+    };
+
+    confirmButton.addEventListener('click', handleConfirm);
+  }
+
+  // New method to show MCTS configuration success
+  showMCTSConfigurationSuccess(difficulty) {
+    // Create a temporary success notification
+    const notification = document.createElement('div');
+    notification.className = 'mcts-success-notification';
+    notification.innerHTML = `
+      <div class="success-content">
+        <i class="fas fa-check-circle"></i>
+        <span>MCTS AI configured to <strong>${difficulty.toUpperCase()}</strong> difficulty</span>
+      </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Show notification
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
   }
 
   // New method to wait for dice roller initialization
@@ -380,7 +470,12 @@ class LudoGame {
       );
 
       return result ? result.tokenIndex : null;
-    } else {
+    } 
+    else if (strategy === "MCTS") {
+      const result = this.selectTokenMCTS(playerId, diceValue, availableDice);
+      return result ? result.tokenIndex : null;
+    }
+    else {
       return this.selectTokenPredictable(playerId);
     }
   }
@@ -651,7 +746,7 @@ class LudoGame {
           for (const tokenIndex of unfinishedTokens) {
             const currentPos = this.playerPositions[playerId][tokenIndex];
             const newPos = currentPos + dice;
-            console.log(currentPos, newPos, oppTokenPos);
+            //console.log(currentPos, newPos, oppTokenPos);
 
             // Check if this move gets us closer to the opponent token for future capture
             const currentDistance = this.getTokenDistance(
@@ -666,7 +761,7 @@ class LudoGame {
               playerId,
               oppPlayerId
             );
-            console.log(newDistance, currentDistance);
+            //console.log(newDistance, currentDistance);
 
             if (
               newDistance < currentDistance &&
@@ -689,7 +784,7 @@ class LudoGame {
     // Simple distance calculation - can be enhanced with actual path distance
     const position1 = this.getPositionFromPathIndex(pos1, playerId1);
     const position2 = this.getPositionFromPathIndex(pos2, playerId2);
-    console.log(position1, position2);
+    //console.log(position1, position2);
     if(playerId1 === 1){
       var array1 = this.boardConfig.GAME_PATHS.RED;
       var array2 = this.boardConfig.GAME_PATHS.YELLOW;
@@ -706,19 +801,15 @@ class LudoGame {
     };
 
     const full_game_path = intersection(array1, array2);
-    console.log("Full game path:", full_game_path);
+    //console.log("Full game path:", full_game_path);
     const index1 = full_game_path.findIndex(
       (pos) => pos.row === position1.row && pos.col === position1.col
     );
     const index2 = full_game_path.findIndex(
       (pos) => pos.row === position2.row && pos.col === position2.col
     );
-    console.log("Index1:", index1, "Index2:", index2);
-    console.log(
-      Math.abs(
-        index1 - index2 
-      )+ 1
-    );
+    //console.log("Index1:", index1, "Index2:", index2);
+    
     if (!position1 || !position2) return Infinity;
 
     return Math.abs(
@@ -811,6 +902,91 @@ class LudoGame {
     // Use greedy strategy: prefer token that's not finished, prioritize first token
     return unfinishedTokens[0];
   }
+  /**
+   * MCTS strategy implementation using the imported MCTS module
+   */
+  selectTokenMCTS(playerId, diceValue, availableDice = []) {
+    console.log(`MCTS strategy for Player ${playerId}, dice options:`, availableDice);
+    
+    const numTokens = parseInt(this.config.numTokens);
+    
+    // Find unfinished tokens
+    const unfinishedTokens = [];
+    for (let i = 0; i < numTokens; i++) {
+      if (this.playerPositions[playerId][i] < this.finalPosition) {
+        unfinishedTokens.push(i);
+      }
+    }
+
+    if (unfinishedTokens.length === 0) {
+      console.log(`Player ${playerId} has no more tokens to move - all finished!`);
+      return { tokenIndex: null, chosenDice: diceValue };
+    }
+
+    // Create current game state for MCTS
+    const gameState = {
+      playerPositions: JSON.parse(JSON.stringify(this.playerPositions)),
+      currentPlayer: playerId,
+      finalPosition: this.finalPosition,
+      config: this.config,
+      gameOver: false,
+      winner: null
+    };
+
+    // Create MCTS algorithm instance with current configuration
+    const mcts = new MCTSAlgorithm(this, this.mctsConfig);
+    
+    // Prepare dice options for MCTS
+    const diceOptions = availableDice.length > 0 ? availableDice : [diceValue];
+    
+    try {
+      const result = mcts.search(gameState, diceOptions);
+      
+      if (result && result.tokenIndex !== null) {
+        console.log(`MCTS result: Token ${result.tokenIndex + 1} with dice ${result.chosenDice}`);
+        return result;
+      }
+    } catch (error) {
+      console.error("MCTS failed:", error);
+    }
+
+    // Fallback to simple strategy if MCTS fails
+    console.log("MCTS failed, using fallback strategy");
+    const maxDice = Math.max(...diceOptions);
+    const firstToken = unfinishedTokens[0];
+    
+    return { tokenIndex: firstToken, chosenDice: maxDice };
+  }
+
+  /**
+   * Method to configure MCTS difficulty
+   */
+  setMCTSDifficulty(difficulty) {
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        this.mctsConfig = MCTSConfig.createEasyConfig();
+        break;
+      case 'normal':
+        this.mctsConfig = MCTSConfig.createNormalConfig();
+        break;
+      case 'hard':
+        this.mctsConfig = MCTSConfig.createHardConfig();
+        break;
+      default:
+        this.mctsConfig = MCTSConfig.createNormalConfig();
+    }
+    console.log(`MCTS difficulty set to ${difficulty}:`, this.mctsConfig);
+  }
+
+  /**
+   * Method to create custom MCTS configuration
+   */
+  setCustomMCTSConfig(iterations, timeMs, depth, exploration) {
+    this.mctsConfig = MCTSConfig.createCustomConfig(iterations, timeMs, depth, exploration);
+    console.log('Custom MCTS configuration set:', this.mctsConfig);
+  }
+
+  
 
   // Enhanced selectTokenAggressive to return null when no tokens available
   selectTokenAggressive(playerId, diceValue, availableDice = []) {
@@ -1341,7 +1517,84 @@ class LudoGame {
 
         await this.delay(500);
       }
-    } else {
+    }
+    else if (strategy === "MCTS") {
+      // MCTS strategy logic
+      const availableDice = [...allDiceValues];
+      const decision = this.selectTokenMCTS(playerId, diceValue, availableDice);
+
+      if (!decision || decision.tokenIndex === null) {
+        console.log(`No valid moves for MCTS player ${playerId}`);
+        return { gameWon: false };
+      }
+
+      const tokenIndex = decision.tokenIndex;
+      const chosenDice = decision.chosenDice;
+      usedValues.push(chosenDice);
+
+      // Remove the chosen dice from available dice
+      const removeFirstOccurrence = (arr, value) => {
+        const index = arr.indexOf(value);
+        if (index !== -1) arr.splice(index, 1);
+        return arr;
+      };
+      allDiceValues = removeFirstOccurrence(allDiceValues, chosenDice);
+
+      this.highlightMovingToken(playerId, tokenIndex);
+
+      let result = await this.moveToken(playerId, tokenIndex, chosenDice);
+      overallResult = { ...result };
+
+      if (result.gameWon) {
+        console.log(`Game won by player ${result.winnerId}! Ending immediately.`);
+        this.endGame(result.winnerId);
+        return { gameWon: true, winnerId: result.winnerId };
+      }
+
+      // Handle bonus moves for MCTS strategy
+      let currentValue = chosenDice;
+      let bonusCount = 0;
+
+      while (
+        (currentValue === 6 || result.finished || result.captured) &&
+        this.moveCount[playerId] < this.maxMoves &&
+        this.gameState !== "GAME_OVER"
+      ) {
+        bonusCount++;
+        await this.showBonusMoveIndicator(playerId, tokenIndex);
+
+        currentValue = Math.floor(Math.random() * 6) + 1;
+        usedValues.push(currentValue);
+
+        await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
+
+        const bonusDecision = this.selectTokenMCTS(playerId, currentValue, [currentValue]);
+        if (!bonusDecision || bonusDecision.tokenIndex === null) {
+          console.log(`No more tokens available for bonus move for player ${playerId}`);
+          break;
+        }
+
+        const bonusTokenIndex = bonusDecision.tokenIndex;
+        this.highlightMovingToken(playerId, bonusTokenIndex);
+
+        result = await this.moveToken(playerId, bonusTokenIndex, currentValue);
+
+        if (result.gameWon) {
+          console.log(`Game won by player ${result.winnerId} during bonus move! Ending immediately.`);
+          this.endGame(result.winnerId);
+          return { gameWon: true, winnerId: result.winnerId };
+        }
+
+        if (result.finished) overallResult.finished = true;
+        if (result.captured) overallResult.captured = true;
+        overallResult.finalPos = result.finalPos;
+
+        await this.delay(500);
+      }
+    }
+    
+    
+    else {
       // Existing predictable strategy logic
       let tokenIndex = this.selectTokenPredictable(playerId);
       usedValues.push(diceValue);
@@ -1429,7 +1682,12 @@ class LudoGame {
         diceValue,
       ]);
       selectedTokenIndex = decision ? decision.tokenIndex : 0;
-    } else {
+    }
+    else if (strategy === "MCTS") {
+      const decision = this.selectTokenMCTS(playerId, diceValue, [diceValue]);
+      selectedTokenIndex = decision ? decision.tokenIndex : 0;
+    }
+     else {
       selectedTokenIndex = this.selectTokenPredictable(playerId) || 0;
     }
 

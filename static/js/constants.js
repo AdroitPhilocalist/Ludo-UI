@@ -768,6 +768,24 @@ export const STRATEGY_DESCRIPTIONS = {
     MCTS: 'Advanced AI using Monte Carlo Tree Search for optimal decision making'
 };
 
+export const MCTS_DIFFICULTIES = {
+    EASY: {
+        name: 'Easy',
+        description: 'Quick decisions with basic strategy',
+        config: { maxIterations: 500, maxTime: 1000, simulationDepth: 20 }
+    },
+    NORMAL: {
+        name: 'Normal',
+        description: 'Balanced analysis and decision time',
+        config: { maxIterations: 1000, maxTime: 2000, simulationDepth: 30 }
+    },
+    HARD: {
+        name: 'Hard',
+        description: 'Deep analysis with longer thinking time',
+        config: { maxIterations: 2000, maxTime: 3000, simulationDepth: 50 }
+    }
+};
+
 // Default export
 export default {
     BOARD_DIMENSIONS,
@@ -783,5 +801,6 @@ export default {
     COLORS,
     ALL_CONFIGS,
     PLAYER_STRATEGIES,
-    STRATEGY_DESCRIPTIONS
+    STRATEGY_DESCRIPTIONS,
+    MCTS_DIFFICULTIES
 };
