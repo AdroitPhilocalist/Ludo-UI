@@ -471,7 +471,7 @@ h1, h2, h3 {
 
 .strategy-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Changed from 2 to 3 columns for better use of space */
+    grid-template-columns: repeat(4, 1fr); /* Changed from 2 to 3 columns for better use of space */
     gap: 1.5rem; /* Increased gap */
 }
 
@@ -520,6 +520,10 @@ h1, h2, h3 {
     border-color: #e74c3c;
 }
 
+.strategy-card.mcts:hover {
+    border-color: #429bf5;
+}
+
 .strategy-grid input[type="radio"]:checked + .strategy-card {
     transform: scale(1.03);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -534,6 +538,12 @@ h1, h2, h3 {
 .strategy-grid input[type="radio"]:checked + .strategy-card.aggressive {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     border-color: #e74c3c;
+    color: white;
+}
+
+.strategy-grid input[type="radio"]:checked + .strategy-card.mcts {
+    background: linear-gradient(135deg, #429bf5, #42e9f5);
+    border-color: #429bf5;
     color: white;
 }
 

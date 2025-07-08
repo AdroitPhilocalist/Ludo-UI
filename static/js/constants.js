@@ -756,16 +756,17 @@ export const ALL_CONFIGS = {
 export const PLAYER_STRATEGIES = {
     PREDICTABLE: 'PREDICTABLE',
     AGGRESSIVE: 'AGGRESSIVE',
-    RESPONSIBLE: 'RESPONSIBLE'
+    RESPONSIBLE: 'RESPONSIBLE',
+    MCTS: 'MCTS'
 };
 
 // Update Strategy descriptions
 export const STRATEGY_DESCRIPTIONS = {
     PREDICTABLE: 'Focuses on completing one token at a time systematically',
     AGGRESSIVE: 'Prioritizes captures and risky moves for quick victories',
-    RESPONSIBLE: 'Strategic pair movement with safety prioritization and situational aggression'
+    RESPONSIBLE: 'Strategic pair movement with safety prioritization and situational aggression',
+    MCTS: 'Advanced AI using Monte Carlo Tree Search for optimal decision making'
 };
-
 
 // Default export
 export default {

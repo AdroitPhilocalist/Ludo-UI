@@ -6302,6 +6302,34 @@ body {
     border-color: #8e44ad;
     color: white;
 }
+.filter-btn.mcts {
+    background: linear-gradient(135deg, #429bf5, #42e9f5);
+    border-color: #429bf5;
+}
+
+.filter-btn.mcts.active {
+    background: linear-gradient(135deg, #4251f5, #429bf5);
+    color: white;
+}
+.move-step.mcts {
+    background: linear-gradient(135deg, #429bf5, #42e9f5);
+    color: white;
+    border-color: #429bf5;
+}
+
+.strategy-indicator.mcts {
+    background: linear-gradient(135deg, #429bf5, #42e9f5);
+    color: white;
+}
+
+.winner-player-strategy.mcts {
+    background: linear-gradient(135deg, #429bf5, #42e9f5);
+    color: white;
+}
+
+.winner-player-strategy.mcts i {
+    color: white;
+}
 
 /* Move step colors for responsible strategy indicator */
 .move-step.responsible {
