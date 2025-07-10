@@ -263,7 +263,7 @@ class LudoGame {
     ];
   }
 
-  isSafe(pathIndex, playerId) {
+  isSafe(pathIndex, playerId,tempIndex) {
     // Check if position is safe: either predefined safe square or occupied by multiple own tokens
     const position = this.getPositionFromPathIndex(pathIndex, playerId);
     if (!position) return false;
@@ -272,19 +272,26 @@ class LudoGame {
     // const multipleTokens =
     //   this.playerPositions[playerId].filter((pos) => pos === pathIndex).length >
     //   1;
-    const hasDuplicateValues = (obj) => {
-      const values = Object.values(obj);
-      //console.log("values", values);
-      for (const value of values) {
-        if (value === 0) {
-          values.splice(values.indexOf(value), 1);
-        }
-      }
-      //console.log("values", values);
-      return new Set(values).size !== values.length;
-    };
+    const hasDuplicateValues = (obj, indexToCheck) => {
+  const values = Object.values(obj);
+  const valueAtIndex = obj[indexToCheck];
 
-    const multipleTokens = hasDuplicateValues(this.playerPositions[playerId]);
+  if (valueAtIndex === 0) return false;
+
+  // Count frequency of each non-zero value
+  const freq = {};
+  for (const val of values) {
+    if (val !== 0) {
+      freq[val] = (freq[val] || 0) + 1;
+    }
+  }
+
+  // Return true if value at given index is a duplicate
+  return freq[valueAtIndex] > 1;
+};
+
+
+    const multipleTokens = hasDuplicateValues(this.playerPositions[playerId],tempIndex);
     //console.log(this.playerPositions);
     //console.log(multipleTokens);
     // console.log("check",multipleTokens);
@@ -391,7 +398,7 @@ class LudoGame {
           newPosition &&
           oppPosition.row === newPosition.row &&
           oppPosition.col === newPosition.col &&
-          !this.isSafe(oppPathIndex, oppPlayerId)
+          !this.isSafe(oppPathIndex, oppPlayerId, oppTokenIndex)
         ) {
           // IMPORTANT: Deduct points for captured token before resetting position
           const pointsToDeduct = oppPathIndex; // Points to lose = distance covered
@@ -761,11 +768,11 @@ class LudoGame {
               playerId,
               oppPlayerId
             );
-            //console.log(newDistance, currentDistance);
+            console.log(newDistance, currentDistance);
 
             if (
               newDistance < currentDistance &&
-              newDistance <= 6 &&
+              newDistance <= 6 && newDistance > 0 && // Ensure we're not overshooting
               newPos < this.finalPosition
             ) {
               // Only chase if we're getting significantly closer
@@ -788,17 +795,19 @@ class LudoGame {
     if(playerId1 === 1){
       var array1 = this.boardConfig.GAME_PATHS.RED;
       var array2 = this.boardConfig.GAME_PATHS.YELLOW;
+      
     }
     if(playerId1 === 2){
       var array1 = this.boardConfig.GAME_PATHS.YELLOW;
       var array2 = this.boardConfig.GAME_PATHS.RED;
     }
-    
     const intersection = (arr1, arr2) => {
       return arr1.filter((obj1) =>
         arr2.some((obj2) => obj1.row === obj2.row && obj1.col === obj2.col)
       );
     };
+    
+    
 
     const full_game_path = intersection(array1, array2);
     //console.log("Full game path:", full_game_path);
@@ -812,9 +821,9 @@ class LudoGame {
     
     if (!position1 || !position2) return Infinity;
 
-    return Math.abs(
-      index1 - index2
-    ) + 1;
+    return (
+      index2 - index1 + 1
+    ) ;
   }
 
   // Helper method for pair movement before reaching safe square
@@ -1122,12 +1131,13 @@ class LudoGame {
           oppPosition,
           oppPlayerId
         );
+        console.log(oppBoardPosition, newPosition);
 
         if (
           oppBoardPosition &&
           oppBoardPosition.row === newPosition.row &&
           oppBoardPosition.col === newPosition.col &&
-          !this.isSafe(oppPosition, oppPlayerId)
+          !this.isSafe(oppPosition, oppPlayerId, tokenIndex)
         ) {
           return true;
         }
@@ -1138,7 +1148,7 @@ class LudoGame {
   }
 
   // Helper method to check if a position is safe
-  isSafePosition(pathIndex, playerId, temporaryPositions = null) {
+  isSafePosition(pathIndex, playerId, temporaryPositions = null,tempIndex) {
     // Check if position is safe: either predefined safe square or occupied by multiple own tokens
     const position = this.getPositionFromPathIndex(pathIndex, playerId);
     if (!position) return false;
@@ -1158,6 +1168,7 @@ class LudoGame {
       //console.log("values", values);
       return new Set(values).size !== values.length;
     };
+
 
     const multipleTokens = hasDuplicateValues(temporaryPositions);
     //console.log(this.playerPositions[playerId]);
