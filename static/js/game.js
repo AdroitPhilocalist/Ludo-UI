@@ -20,7 +20,7 @@ class LudoGame {
       1: this.config.player1Strategy || "PREDICTABLE",
       2: this.config.player2Strategy || "PREDICTABLE",
     };
-     this.mctsConfig = MCTSConfig.createNormalConfig();
+    this.mctsConfig = MCTSConfig.createNormalConfig();
     this.playerScores = {};
     this.scoreAnimationQueue = [];
     this.isScoreAnimating = false;
@@ -46,8 +46,8 @@ class LudoGame {
   async initializeGame() {
     console.log("Initializing Ludo Game with config:", this.config);
     // Check if any player is using MCTS strategy
-    const hasMCTSPlayer = Object.values(this.playerStrategies).includes('MCTS');
-    
+    const hasMCTSPlayer = Object.values(this.playerStrategies).includes("MCTS");
+
     if (hasMCTSPlayer) {
       // Show MCTS configuration modal and wait for user selection
       await this.showMCTSDifficultyModal();
@@ -64,11 +64,13 @@ class LudoGame {
   // New method to show MCTS difficulty selection modal
   showMCTSDifficultyModal() {
     return new Promise((resolve) => {
-      const modal = new bootstrap.Modal(document.getElementById('mctsDifficultyModal'));
-      
+      const modal = new bootstrap.Modal(
+        document.getElementById("mctsDifficultyModal")
+      );
+
       // Set up difficulty selection handlers
       this.setupMCTSDifficultyHandlers(resolve);
-      
+
       // Show the modal
       modal.show();
     });
@@ -76,22 +78,22 @@ class LudoGame {
 
   // New method to set up MCTS difficulty selection handlers
   setupMCTSDifficultyHandlers(resolvePromise) {
-    const difficultyOptions = document.querySelectorAll('.difficulty-option');
-    const confirmButton = document.getElementById('confirmMCTSDifficulty');
-    let selectedDifficulty = 'normal'; // Default selection
+    const difficultyOptions = document.querySelectorAll(".difficulty-option");
+    const confirmButton = document.getElementById("confirmMCTSDifficulty");
+    let selectedDifficulty = "normal"; // Default selection
 
     // Handle difficulty option selection
-    difficultyOptions.forEach(option => {
-      option.addEventListener('click', () => {
+    difficultyOptions.forEach((option) => {
+      option.addEventListener("click", () => {
         // Remove selected class from all options
-        difficultyOptions.forEach(opt => opt.classList.remove('selected'));
-        
+        difficultyOptions.forEach((opt) => opt.classList.remove("selected"));
+
         // Add selected class to clicked option
-        option.classList.add('selected');
-        
+        option.classList.add("selected");
+
         // Store selected difficulty
         selectedDifficulty = option.dataset.difficulty;
-        
+
         console.log(`MCTS difficulty selected: ${selectedDifficulty}`);
       });
     });
@@ -100,45 +102,47 @@ class LudoGame {
     const handleConfirm = () => {
       // Set the MCTS difficulty
       this.setMCTSDifficulty(selectedDifficulty);
-      
+
       // Hide the modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('mctsDifficultyModal'));
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("mctsDifficultyModal")
+      );
       modal.hide();
-      
+
       // Show success message
       this.showMCTSConfigurationSuccess(selectedDifficulty);
-      
+
       // Clean up event listeners
-      confirmButton.removeEventListener('click', handleConfirm);
-      
+      confirmButton.removeEventListener("click", handleConfirm);
+
       // Resolve the promise to continue game initialization
       resolvePromise();
     };
 
-    confirmButton.addEventListener('click', handleConfirm);
+    confirmButton.addEventListener("click", handleConfirm);
   }
 
   // New method to show MCTS configuration success
   showMCTSConfigurationSuccess(difficulty) {
     // Create a temporary success notification
-    const notification = document.createElement('div');
-    notification.className = 'mcts-success-notification';
+    const notification = document.createElement("div");
+    notification.className = "mcts-success-notification";
     notification.innerHTML = `
       <div class="success-content">
         <i class="fas fa-check-circle"></i>
         <span>MCTS AI configured to <strong>${difficulty.toUpperCase()}</strong> difficulty</span>
       </div>
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Show notification
-    setTimeout(() => notification.classList.add('show'), 100);
-    
+    setTimeout(() => notification.classList.add("show"), 100);
+
     // Remove after 3 seconds
     setTimeout(() => {
-      notification.classList.remove('show');
+      notification.classList.remove("show");
       setTimeout(() => notification.remove(), 300);
     }, 3000);
   }
@@ -263,7 +267,7 @@ class LudoGame {
     ];
   }
 
-  isSafe(pathIndex, playerId,tempIndex) {
+  isSafe(pathIndex, playerId, tempIndex) {
     // Check if position is safe: either predefined safe square or occupied by multiple own tokens
     const position = this.getPositionFromPathIndex(pathIndex, playerId);
     if (!position) return false;
@@ -273,25 +277,27 @@ class LudoGame {
     //   this.playerPositions[playerId].filter((pos) => pos === pathIndex).length >
     //   1;
     const hasDuplicateValues = (obj, indexToCheck) => {
-  const values = Object.values(obj);
-  const valueAtIndex = obj[indexToCheck];
+      const values = Object.values(obj);
+      const valueAtIndex = obj[indexToCheck];
 
-  if (valueAtIndex === 0) return false;
+      if (valueAtIndex === 0) return false;
 
-  // Count frequency of each non-zero value
-  const freq = {};
-  for (const val of values) {
-    if (val !== 0) {
-      freq[val] = (freq[val] || 0) + 1;
-    }
-  }
+      // Count frequency of each non-zero value
+      const freq = {};
+      for (const val of values) {
+        if (val !== 0) {
+          freq[val] = (freq[val] || 0) + 1;
+        }
+      }
 
-  // Return true if value at given index is a duplicate
-  return freq[valueAtIndex] > 1;
-};
+      // Return true if value at given index is a duplicate
+      return freq[valueAtIndex] > 1;
+    };
 
-
-    const multipleTokens = hasDuplicateValues(this.playerPositions[playerId],tempIndex);
+    const multipleTokens = hasDuplicateValues(
+      this.playerPositions[playerId],
+      tempIndex
+    );
     //console.log(this.playerPositions);
     //console.log(multipleTokens);
     // console.log("check",multipleTokens);
@@ -328,15 +334,19 @@ class LudoGame {
     }
 
     if (currentPathIndex + diceValue > this.finalPosition) {
-    console.log(`Player ${playerId} token ${tokenIndex + 1} can't move with dice value ${diceValue} - would exceed final position`);
-    return {
-      finalPos: currentPathIndex,
-      finished: false,
-      captured: false,
-      pointsEarned: 0,
-      invalidMove: true,  // Add a flag to indicate this was an invalid move
-    };
-  }
+      console.log(
+        `Player ${playerId} token ${
+          tokenIndex + 1
+        } can't move with dice value ${diceValue} - would exceed final position`
+      );
+      return {
+        finalPos: currentPathIndex,
+        finished: false,
+        captured: false,
+        pointsEarned: 0,
+        invalidMove: true, // Add a flag to indicate this was an invalid move
+      };
+    }
 
     const newPathIndex = currentPathIndex + diceValue;
     let pointsEarned = 0;
@@ -488,13 +498,11 @@ class LudoGame {
       );
 
       return result ? result.tokenIndex : null;
-    } 
-    else if (strategy === "MCTS") {
+    } else if (strategy === "MCTS") {
       const result = this.selectTokenMCTS(playerId, diceValue, availableDice);
       return result ? result.tokenIndex : null;
-    }
-    else {
-      return this.selectTokenPredictable(playerId);
+    } else {
+      return this.selectTokenPredictable(playerId, diceValue, availableDice);
     }
   }
 
@@ -513,8 +521,12 @@ class LudoGame {
     // Find unfinished tokens
     const unfinishedTokens = [];
     for (let i = 0; i < numTokens; i++) {
-      if (this.playerPositions[playerId][i] < this.finalPosition) {
-        unfinishedTokens.push(i);
+      for (const dice of diceOptions) {
+        if (this.playerPositions[playerId][i] + dice <= this.finalPosition) {
+          if (!unfinishedTokens.includes(i)) {
+            unfinishedTokens.push(i);
+          }
+        }
       }
     }
 
@@ -651,32 +663,34 @@ class LudoGame {
 
     // Fallback: Move first available token with highest dice
     const maxDice = Math.max(...diceOptions);
-let validToken = null;
-let validDice = null;
+    let validToken = null;
+    let validDice = null;
 
-// Find a valid token and dice combination that doesn't exceed final position
-for (const tokenIndex of unfinishedTokens) {
-  const currentPos = this.playerPositions[playerId][tokenIndex];
-  
-  for (const dice of diceOptions.sort((a, b) => b - a)) {
-    if (currentPos + dice <= this.finalPosition) {
-      validToken = tokenIndex;
-      validDice = dice;
-      break;
+    // Find a valid token and dice combination that doesn't exceed final position
+    for (const tokenIndex of unfinishedTokens) {
+      const currentPos = this.playerPositions[playerId][tokenIndex];
+
+      for (const dice of diceOptions.sort((a, b) => b - a)) {
+        if (currentPos + dice <= this.finalPosition) {
+          validToken = tokenIndex;
+          validDice = dice;
+          break;
+        }
+      }
+
+      if (validToken !== null) break;
     }
-  }
-  
-  if (validToken !== null) break;
-}
 
-// If no valid move found, just return the first token (move will be rejected later)
-if (validToken === null) {
-  validToken = unfinishedTokens[0];
-  validDice = diceOptions[0];
-}
+    // If no valid move found, just return the first token (move will be rejected later)
+    if (validToken === null) {
+      validToken = unfinishedTokens[0];
+      validDice = diceOptions[0];
+    }
 
-console.log(`Fallback - Default: Token ${validToken + 1} with dice ${validDice}`);
-return { tokenIndex: validToken, chosenDice: validDice };
+    console.log(
+      `Fallback - Default: Token ${validToken + 1} with dice ${validDice}`
+    );
+    return { tokenIndex: validToken, chosenDice: validDice };
   }
 
   // Helper method to check if any opponent is near promotion
@@ -799,11 +813,12 @@ return { tokenIndex: validToken, chosenDice: validDice };
               playerId,
               oppPlayerId
             );
-            console.log(newDistance, currentDistance);
+            //console.log(newDistance, currentDistance);
 
             if (
               newDistance < currentDistance &&
-              newDistance <= 6 && newDistance > 0 && // Ensure we're not overshooting
+              newDistance <= 6 &&
+              newDistance > 0 && // Ensure we're not overshooting
               newPos < this.finalPosition
             ) {
               // Only chase if we're getting significantly closer
@@ -823,12 +838,11 @@ return { tokenIndex: validToken, chosenDice: validDice };
     const position1 = this.getPositionFromPathIndex(pos1, playerId1);
     const position2 = this.getPositionFromPathIndex(pos2, playerId2);
     //console.log(position1, position2);
-    if(playerId1 === 1){
+    if (playerId1 === 1) {
       var array1 = this.boardConfig.GAME_PATHS.RED;
       var array2 = this.boardConfig.GAME_PATHS.YELLOW;
-      
     }
-    if(playerId1 === 2){
+    if (playerId1 === 2) {
       var array1 = this.boardConfig.GAME_PATHS.YELLOW;
       var array2 = this.boardConfig.GAME_PATHS.RED;
     }
@@ -837,8 +851,6 @@ return { tokenIndex: validToken, chosenDice: validDice };
         arr2.some((obj2) => obj1.row === obj2.row && obj1.col === obj2.col)
       );
     };
-    
-    
 
     const full_game_path = intersection(array1, array2);
     //console.log("Full game path:", full_game_path);
@@ -849,12 +861,10 @@ return { tokenIndex: validToken, chosenDice: validDice };
       (pos) => pos.row === position2.row && pos.col === position2.col
     );
     //console.log("Index1:", index1, "Index2:", index2);
-    
+
     if (!position1 || !position2) return Infinity;
 
-    return (
-      index2 - index1 + 1
-    ) ;
+    return index2 - index1 + 1;
   }
 
   // Helper method for pair movement before reaching safe square
@@ -918,17 +928,19 @@ return { tokenIndex: validToken, chosenDice: validDice };
 
     return { tokenIndex: selectedToken, chosenDice: maxDice };
   }
-
-  // Original predictable strategy (keep existing logic)
-  // Enhanced selectTokenPredictable to return null when no tokens available
-  selectTokenPredictable(playerId) {
+  selectTokenPredictable(playerId, diceValue, availableDice = []) {
     const numTokens = parseInt(this.config.numTokens);
-
+    const diceOptions =
+      availableDice.length > 0 ? availableDice : [diceValue];
     // Find unfinished tokens
-    const unfinishedTokens = [];
+     const unfinishedTokens = [];
     for (let i = 0; i < numTokens; i++) {
-      if (this.playerPositions[playerId][i] < this.finalPosition) {
-        unfinishedTokens.push(i);
+      for (const dice of diceOptions) {
+        if (this.playerPositions[playerId][i] + dice <= this.finalPosition) {
+          if (!unfinishedTokens.includes(i)) {
+            unfinishedTokens.push(i);
+          }
+        }
       }
     }
 
@@ -946,10 +958,13 @@ return { tokenIndex: validToken, chosenDice: validDice };
    * MCTS strategy implementation using the imported MCTS module
    */
   selectTokenMCTS(playerId, diceValue, availableDice = []) {
-    console.log(`MCTS strategy for Player ${playerId}, dice options:`, availableDice);
-    
+    console.log(
+      `MCTS strategy for Player ${playerId}, dice options:`,
+      availableDice
+    );
+
     const numTokens = parseInt(this.config.numTokens);
-    
+
     // Find unfinished tokens
     const unfinishedTokens = [];
     for (let i = 0; i < numTokens; i++) {
@@ -959,7 +974,9 @@ return { tokenIndex: validToken, chosenDice: validDice };
     }
 
     if (unfinishedTokens.length === 0) {
-      console.log(`Player ${playerId} has no more tokens to move - all finished!`);
+      console.log(
+        `Player ${playerId} has no more tokens to move - all finished!`
+      );
       return { tokenIndex: null, chosenDice: diceValue };
     }
 
@@ -971,20 +988,24 @@ return { tokenIndex: validToken, chosenDice: validDice };
       config: this.config,
       gameOver: false,
       winner: null,
-      requireExactFinish: true
+      requireExactFinish: true,
     };
 
     // Create MCTS algorithm instance with current configuration
     const mcts = new MCTSAlgorithm(this, this.mctsConfig);
-    
+
     // Prepare dice options for MCTS
     const diceOptions = availableDice.length > 0 ? availableDice : [diceValue];
-    
+
     try {
       const result = mcts.search(gameState, diceOptions);
-      
+
       if (result && result.tokenIndex !== null) {
-        console.log(`MCTS result: Token ${result.tokenIndex + 1} with dice ${result.chosenDice}`);
+        console.log(
+          `MCTS result: Token ${result.tokenIndex + 1} with dice ${
+            result.chosenDice
+          }`
+        );
         return result;
       }
     } catch (error) {
@@ -994,32 +1015,34 @@ return { tokenIndex: validToken, chosenDice: validDice };
     // Fallback to simple strategy if MCTS fails
     console.log("MCTS failed, using fallback strategy");
     const maxDice = Math.max(...diceOptions);
-let validToken = null;
-let validDice = null;
+    let validToken = null;
+    let validDice = null;
 
-// Find a valid token and dice combination that doesn't exceed final position
-for (const tokenIndex of unfinishedTokens) {
-  const currentPos = this.playerPositions[playerId][tokenIndex];
-  
-  for (const dice of diceOptions.sort((a, b) => b - a)) {
-    if (currentPos + dice <= this.finalPosition) {
-      validToken = tokenIndex;
-      validDice = dice;
-      break;
+    // Find a valid token and dice combination that doesn't exceed final position
+    for (const tokenIndex of unfinishedTokens) {
+      const currentPos = this.playerPositions[playerId][tokenIndex];
+
+      for (const dice of diceOptions.sort((a, b) => b - a)) {
+        if (currentPos + dice <= this.finalPosition) {
+          validToken = tokenIndex;
+          validDice = dice;
+          break;
+        }
+      }
+
+      if (validToken !== null) break;
     }
-  }
-  
-  if (validToken !== null) break;
-}
 
-// If no valid move found, just return the first token (move will be rejected later)
-if (validToken === null) {
-  validToken = unfinishedTokens[0];
-  validDice = diceOptions[0];
-}
+    // If no valid move found, just return the first token (move will be rejected later)
+    if (validToken === null) {
+      validToken = unfinishedTokens[0];
+      validDice = diceOptions[0];
+    }
 
-console.log(`Fallback - Default: Token ${validToken + 1} with dice ${validDice}`);
-return { tokenIndex: validToken, chosenDice: validDice };
+    console.log(
+      `Fallback - Default: Token ${validToken + 1} with dice ${validDice}`
+    );
+    return { tokenIndex: validToken, chosenDice: validDice };
   }
 
   /**
@@ -1027,13 +1050,13 @@ return { tokenIndex: validToken, chosenDice: validDice };
    */
   setMCTSDifficulty(difficulty) {
     switch (difficulty.toLowerCase()) {
-      case 'easy':
+      case "easy":
         this.mctsConfig = MCTSConfig.createEasyConfig();
         break;
-      case 'normal':
+      case "normal":
         this.mctsConfig = MCTSConfig.createNormalConfig();
         break;
-      case 'hard':
+      case "hard":
         this.mctsConfig = MCTSConfig.createHardConfig();
         break;
       default:
@@ -1046,11 +1069,14 @@ return { tokenIndex: validToken, chosenDice: validDice };
    * Method to create custom MCTS configuration
    */
   setCustomMCTSConfig(iterations, timeMs, depth, exploration) {
-    this.mctsConfig = MCTSConfig.createCustomConfig(iterations, timeMs, depth, exploration);
-    console.log('Custom MCTS configuration set:', this.mctsConfig);
+    this.mctsConfig = MCTSConfig.createCustomConfig(
+      iterations,
+      timeMs,
+      depth,
+      exploration
+    );
+    console.log("Custom MCTS configuration set:", this.mctsConfig);
   }
-
-  
 
   // Enhanced selectTokenAggressive to return null when no tokens available
   selectTokenAggressive(playerId, diceValue, availableDice = []) {
@@ -1070,10 +1096,15 @@ return { tokenIndex: validToken, chosenDice: validDice };
     // Find unfinished tokens
     const unfinishedTokens = [];
     for (let i = 0; i < numTokens; i++) {
-      if (this.playerPositions[playerId][i] < this.finalPosition) {
-        unfinishedTokens.push(i);
+      for (const dice of diceOptions) {
+        if (this.playerPositions[playerId][i] + dice <= this.finalPosition) {
+          if (!unfinishedTokens.includes(i)) {
+            unfinishedTokens.push(i);
+          }
+        }
       }
     }
+    //console.log(unfinishedTokens);
 
     if (unfinishedTokens.length === 0) {
       console.log(
@@ -1144,7 +1175,7 @@ return { tokenIndex: validToken, chosenDice: validDice };
     const maxDice = Math.max(...diceOptions);
     let farthestToken = 0;
     let dist = 100;
-    for (let i = 0; i < numTokens; i++) {
+    for (const i of unfinishedTokens) {
       if (this.playerPositions[playerId][i] < this.finalPosition) {
         let distance = this.finalPosition - this.playerPositions[playerId][i];
         if (distance < dist) {
@@ -1186,7 +1217,7 @@ return { tokenIndex: validToken, chosenDice: validDice };
           oppPosition,
           oppPlayerId
         );
-        console.log(oppBoardPosition, newPosition);
+        //console.log(oppBoardPosition, newPosition);
 
         if (
           oppBoardPosition &&
@@ -1203,7 +1234,7 @@ return { tokenIndex: validToken, chosenDice: validDice };
   }
 
   // Helper method to check if a position is safe
-  isSafePosition(pathIndex, playerId, temporaryPositions = null,tempIndex) {
+  isSafePosition(pathIndex, playerId, temporaryPositions = null, tempIndex) {
     // Check if position is safe: either predefined safe square or occupied by multiple own tokens
     const position = this.getPositionFromPathIndex(pathIndex, playerId);
     if (!position) return false;
@@ -1223,7 +1254,6 @@ return { tokenIndex: validToken, chosenDice: validDice };
       //console.log("values", values);
       return new Set(values).size !== values.length;
     };
-
 
     const multipleTokens = hasDuplicateValues(temporaryPositions);
     //console.log(this.playerPositions[playerId]);
@@ -1583,8 +1613,7 @@ return { tokenIndex: validToken, chosenDice: validDice };
 
         await this.delay(500);
       }
-    }
-    else if (strategy === "MCTS") {
+    } else if (strategy === "MCTS") {
       // MCTS strategy logic
       const availableDice = [...allDiceValues];
       const decision = this.selectTokenMCTS(playerId, diceValue, availableDice);
@@ -1612,7 +1641,9 @@ return { tokenIndex: validToken, chosenDice: validDice };
       overallResult = { ...result };
 
       if (result.gameWon) {
-        console.log(`Game won by player ${result.winnerId}! Ending immediately.`);
+        console.log(
+          `Game won by player ${result.winnerId}! Ending immediately.`
+        );
         this.endGame(result.winnerId);
         return { gameWon: true, winnerId: result.winnerId };
       }
@@ -1634,9 +1665,13 @@ return { tokenIndex: validToken, chosenDice: validDice };
 
         await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
 
-        const bonusDecision = this.selectTokenMCTS(playerId, currentValue, [currentValue]);
+        const bonusDecision = this.selectTokenMCTS(playerId, currentValue, [
+          currentValue,
+        ]);
         if (!bonusDecision || bonusDecision.tokenIndex === null) {
-          console.log(`No more tokens available for bonus move for player ${playerId}`);
+          console.log(
+            `No more tokens available for bonus move for player ${playerId}`
+          );
           break;
         }
 
@@ -1646,7 +1681,9 @@ return { tokenIndex: validToken, chosenDice: validDice };
         result = await this.moveToken(playerId, bonusTokenIndex, currentValue);
 
         if (result.gameWon) {
-          console.log(`Game won by player ${result.winnerId} during bonus move! Ending immediately.`);
+          console.log(
+            `Game won by player ${result.winnerId} during bonus move! Ending immediately.`
+          );
           this.endGame(result.winnerId);
           return { gameWon: true, winnerId: result.winnerId };
         }
@@ -1657,12 +1694,10 @@ return { tokenIndex: validToken, chosenDice: validDice };
 
         await this.delay(500);
       }
-    }
-    
-    
-    else {
+    } else {
       // Existing predictable strategy logic
-      let tokenIndex = this.selectTokenPredictable(playerId);
+      const availableDice = [...allDiceValues];
+      let tokenIndex = this.selectTokenPredictable(playerId, diceValue, availableDice);
       usedValues.push(diceValue);
 
       if (tokenIndex === null) {
@@ -1707,7 +1742,9 @@ return { tokenIndex: validToken, chosenDice: validDice };
 
         await this.showBonusDiceRoll(playerId, currentValue, bonusCount);
 
-        tokenIndex = this.selectTokenPredictable(playerId);
+        tokenIndex = this.selectTokenPredictable(playerId, currentValue, [
+          currentValue,
+        ]);
         if (tokenIndex === null) {
           console.log(
             `No more tokens available for bonus move for player ${playerId}`
@@ -1748,13 +1785,11 @@ return { tokenIndex: validToken, chosenDice: validDice };
         diceValue,
       ]);
       selectedTokenIndex = decision ? decision.tokenIndex : 0;
-    }
-    else if (strategy === "MCTS") {
+    } else if (strategy === "MCTS") {
       const decision = this.selectTokenMCTS(playerId, diceValue, [diceValue]);
       selectedTokenIndex = decision ? decision.tokenIndex : 0;
-    }
-     else {
-      selectedTokenIndex = this.selectTokenPredictable(playerId) || 0;
+    } else {
+      selectedTokenIndex = this.selectTokenPredictable(playerId, diceValue, [diceValue]) || 0;
     }
 
     // Record the complete move ONLY if game hasn't ended
@@ -3050,8 +3085,6 @@ return { tokenIndex: validToken, chosenDice: validDice };
         return explicitPositions[player];
       }
     }
-
-
 
     if (boardSize === 11) {
       // Define explicit positions for each player's tokens in 7x7 board

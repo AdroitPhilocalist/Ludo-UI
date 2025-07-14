@@ -156,7 +156,7 @@ class DiceRoller {
       // Generate deterministic dice sets based on seed
       USE_STATIC_DICE = true;
       STATIC_DICE_SETS = this.generateSeededDiceSets(gameSeed, numRounds);
-      //STATIC_DICE_SETS = [[3,3,3],[1,41,22],[1,1,1]]
+      STATIC_DICE_SETS = [[55,55,3],[3,3,3],[1,1,1]]
       console.log(
         `Generated ${STATIC_DICE_SETS.length} dice sets for seed "${gameSeed}"`
       );
