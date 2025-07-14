@@ -355,7 +355,9 @@ class LudoGame {
     if (newPathIndex >= this.finalPosition) {
       // If move leads to or beyond final position
       const actualMovement = this.finalPosition - currentPathIndex;
-      pointsEarned = actualMovement;
+      const movementPoints = actualMovement;
+      const finishBonus = this.finalPosition;
+      pointsEarned = movementPoints + finishBonus;
       this.playerPositions[playerId][tokenIndex] = this.finalPosition;
       await this.updateTokenVisualPosition(
         playerId,
@@ -363,6 +365,9 @@ class LudoGame {
         this.finalPosition,
         true
       );
+
+      // Show bonus notification
+      this.showFinishBonusNotification(playerId, finishBonus);
 
       // Update score
       await this.updatePlayerScore(playerId, pointsEarned);
@@ -375,6 +380,7 @@ class LudoGame {
           finished: true,
           captured: false,
           pointsEarned,
+          finishBonus,
           gameWon: true,
           winnerId: gameEndResult.winnerId,
         };
@@ -385,6 +391,7 @@ class LudoGame {
         finished: true,
         captured: false,
         pointsEarned,
+        finishBonus,
       };
     } else {
       // Normal movement
@@ -463,6 +470,39 @@ class LudoGame {
 
     return { finalPos: newPathIndex, finished: false, captured, pointsEarned };
   }
+
+  // New method to show finish bonus notification
+showFinishBonusNotification(playerId, bonusPoints) {
+  // Get player color
+  const playerColor = this.getPlayerColor(playerId);
+  
+  // Create bonus notification element
+  const notification = document.createElement("div");
+  notification.className = "finish-bonus-notification";
+  notification.innerHTML = `
+    <div class="bonus-content" style="background: linear-gradient(135deg, ${playerColor}, ${playerColor}dd);">
+      <div class="bonus-icon">
+        <i class="fas fa-trophy"></i>
+      </div>
+      <div class="bonus-text">
+        <div class="bonus-title">FINISH BONUS!</div>
+        <div class="bonus-value">+${bonusPoints} points</div>
+      </div>
+    </div>
+  `;
+  
+  // Add to body
+  document.body.appendChild(notification);
+  
+  // Animate in
+  setTimeout(() => notification.classList.add('show'), 100);
+  
+  // Remove after animation
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 500);
+  }, 3000);
+}
 
   // New method to check for immediate game end
   checkImmediateGameEnd(playerId) {
@@ -1696,7 +1736,7 @@ class LudoGame {
       }
     } else {
       // Existing predictable strategy logic
-      const availableDice = [...allDiceValues];
+      
       let tokenIndex = this.selectTokenPredictable(playerId, diceValue, availableDice);
       usedValues.push(diceValue);
 
@@ -2153,14 +2193,67 @@ class LudoGame {
   }
 
   async applyMoveEffects(tokenElement, pathIndex) {
-    // Apply special effects based on the move result
-    if (pathIndex >= this.finalPosition) {
-      // Token finished - celebration effect
-      tokenElement.classList.add("finishing");
-      await this.delay(1800);
-      tokenElement.classList.remove("finishing");
-    }
+  // Apply special effects based on the move result
+  if (pathIndex >= this.finalPosition) {
+    // Token finished - enhanced celebration effect
+    tokenElement.classList.add("finishing");
+    
+    // Add sparkle effect around token
+    this.addFinishingSparkles(tokenElement);
+    
+    await this.delay(1800);
+    tokenElement.classList.remove("finishing");
   }
+}
+
+// New method to add sparkle effects for finishing tokens
+addFinishingSparkles(tokenElement) {
+  // Create multiple sparkle elements
+  for (let i = 0; i < 10; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'token-sparkle';
+    
+    // Random position around token
+    const angle = Math.random() * 360;
+    const distance = 20 + Math.random() * 30;
+    const x = Math.cos(angle * Math.PI / 180) * distance;
+    const y = Math.sin(angle * Math.PI / 180) * distance;
+    
+    // Random delay and duration
+    const delay = Math.random() * 0.5;
+    const duration = 0.5 + Math.random() * 1;
+    
+    sparkle.style.cssText = `
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, #fff 10%, rgba(255,215,0,0.8) 100%);
+      border-radius: 50%;
+      transform: translate(${x}px, ${y}px) scale(0);
+      animation: sparkle ${duration}s ease-out ${delay}s forwards;
+      z-index: 1;
+    `;
+    
+    tokenElement.appendChild(sparkle);
+    
+    // Remove after animation
+    setTimeout(() => sparkle.remove(), (delay + duration) * 1000);
+  }
+  
+  // Add animation if not already defined
+  if (!document.querySelector('#sparkleAnimation')) {
+    const style = document.createElement('style');
+    style.id = 'sparkleAnimation';
+    style.textContent = `
+      @keyframes sparkle {
+        0% { transform: translate(${Math.random() * 10}px, ${Math.random() * 10}px) scale(0); opacity: 0; }
+        50% { transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px) scale(1); opacity: 1; }
+        100% { transform: translate(${Math.random() * 80 - 40}px, ${Math.random() * 80 - 40}px) scale(0); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
 
   placeTokenDirectly(targetSquare, token, currentTokenElement) {
     // Remove token from current position
@@ -2788,6 +2881,7 @@ class LudoGame {
     </div>
     <div class="score-players-grid">
   `;
+  
 
     activePlayers.forEach((playerName, playerIndex) => {
       const playerId = playerIndex + 1;
@@ -2809,14 +2903,14 @@ class LudoGame {
     `;
     });
 
-    scoreHTML += `
-    </div>
-    <div class="score-display-footer">
-      <div class="max-possible-score">Max: ${
-        this.finalPosition * parseInt(this.config.numTokens)
-      } pts</div>
-    </div>
-  `;
+  //   scoreHTML += `
+  //   </div>
+  //   <div class="score-display-footer">
+  //     <div class="max-possible-score">Max: ${
+  //       this.finalPosition * parseInt(this.config.numTokens)
+  //     } pts</div>
+  //   </div>
+  // `;
 
     scoreContainer.innerHTML = scoreHTML;
     document.body.appendChild(scoreContainer);
