@@ -1,7 +1,3 @@
-/**
- * Monte Carlo Tree Search Implementation for Ludo Game
- * This module provides MCTS algorithm for intelligent game AI
- */
 
 export class MCTSNode {
     constructor(gameState, parent = null, move = null) {
@@ -105,7 +101,7 @@ export class MCTSNode {
         
         // Can't move if already finished
         if (currentPos >= this.gameState.finalPosition) return false;
-        
+        if (currentPos + diceValue > this.gameState.finalPosition) return false;
         // Move is valid (overshoot is handled in game logic)
         return true;
     }
@@ -167,7 +163,7 @@ export class MCTSNode {
     backpropagate(result) {
         this.visits += 1;
         
-        // Result is from perspective of the player who made the original move
+        // Result is from perspective of player who made the original move
         if (result === this.playerId) {
             this.wins += 1;
         } else if (result === 0) {
@@ -404,6 +400,26 @@ export class MCTSAlgorithm {
             return this.getRandomMove(root.gameState);
         }
 
+       // Log all available move options with their statistics
+        console.log("===== MCTS Move Options =====");
+        console.log(`Total options evaluated: ${root.children.length}`);
+        
+        // Create a table for better visualization in console
+        const moveStats = root.children.map(child => ({
+            "Token": child.move.tokenIndex + 1,
+            "Dice": child.move.diceValue,
+            "Visits": child.visits,
+            "Wins": child.wins.toFixed(1),
+            "Win Rate": (child.wins/child.visits).toFixed(3),
+            "UCB1": child.getUCB1Value().toFixed(3),
+        }));
+        
+        // Sort by visits (descending) for more readable output
+        moveStats.sort((a, b) => b.Visits - a.Visits);
+        
+        // Log the table
+        console.table(moveStats);
+        
         // Select child with highest visit count (most robust)
         const bestChild = root.children.reduce((best, child) => {
             return child.visits > best.visits ? child : best;
@@ -411,6 +427,7 @@ export class MCTSAlgorithm {
 
         console.log(`MCTS selected move: token ${bestChild.move.tokenIndex + 1} with dice ${bestChild.move.diceValue}`);
         console.log(`Best child stats: visits=${bestChild.visits}, wins=${bestChild.wins}, win_rate=${(bestChild.wins/bestChild.visits).toFixed(3)}`);
+        console.log("==============================");
 
         return {
             tokenIndex: bestChild.move.tokenIndex,

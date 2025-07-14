@@ -327,6 +327,17 @@ class LudoGame {
       };
     }
 
+    if (currentPathIndex + diceValue > this.finalPosition) {
+    console.log(`Player ${playerId} token ${tokenIndex + 1} can't move with dice value ${diceValue} - would exceed final position`);
+    return {
+      finalPos: currentPathIndex,
+      finished: false,
+      captured: false,
+      pointsEarned: 0,
+      invalidMove: true,  // Add a flag to indicate this was an invalid move
+    };
+  }
+
     const newPathIndex = currentPathIndex + diceValue;
     let pointsEarned = 0;
 
@@ -520,7 +531,7 @@ class LudoGame {
         const currentPos = this.playerPositions[playerId][tokenIndex];
         const newPos = currentPos + dice;
 
-        if (newPos >= this.finalPosition) {
+        if (newPos === this.finalPosition) {
           console.log(
             `Priority 1 - Promotion: Token ${tokenIndex + 1} with dice ${dice}`
           );
@@ -640,12 +651,32 @@ class LudoGame {
 
     // Fallback: Move first available token with highest dice
     const maxDice = Math.max(...diceOptions);
-    const firstToken = unfinishedTokens[0];
+let validToken = null;
+let validDice = null;
 
-    console.log(
-      `Fallback - Default: Token ${firstToken + 1} with highest dice ${maxDice}`
-    );
-    return { tokenIndex: firstToken, chosenDice: maxDice };
+// Find a valid token and dice combination that doesn't exceed final position
+for (const tokenIndex of unfinishedTokens) {
+  const currentPos = this.playerPositions[playerId][tokenIndex];
+  
+  for (const dice of diceOptions.sort((a, b) => b - a)) {
+    if (currentPos + dice <= this.finalPosition) {
+      validToken = tokenIndex;
+      validDice = dice;
+      break;
+    }
+  }
+  
+  if (validToken !== null) break;
+}
+
+// If no valid move found, just return the first token (move will be rejected later)
+if (validToken === null) {
+  validToken = unfinishedTokens[0];
+  validDice = diceOptions[0];
+}
+
+console.log(`Fallback - Default: Token ${validToken + 1} with dice ${validDice}`);
+return { tokenIndex: validToken, chosenDice: validDice };
   }
 
   // Helper method to check if any opponent is near promotion
@@ -939,7 +970,8 @@ class LudoGame {
       finalPosition: this.finalPosition,
       config: this.config,
       gameOver: false,
-      winner: null
+      winner: null,
+      requireExactFinish: true
     };
 
     // Create MCTS algorithm instance with current configuration
@@ -962,9 +994,32 @@ class LudoGame {
     // Fallback to simple strategy if MCTS fails
     console.log("MCTS failed, using fallback strategy");
     const maxDice = Math.max(...diceOptions);
-    const firstToken = unfinishedTokens[0];
-    
-    return { tokenIndex: firstToken, chosenDice: maxDice };
+let validToken = null;
+let validDice = null;
+
+// Find a valid token and dice combination that doesn't exceed final position
+for (const tokenIndex of unfinishedTokens) {
+  const currentPos = this.playerPositions[playerId][tokenIndex];
+  
+  for (const dice of diceOptions.sort((a, b) => b - a)) {
+    if (currentPos + dice <= this.finalPosition) {
+      validToken = tokenIndex;
+      validDice = dice;
+      break;
+    }
+  }
+  
+  if (validToken !== null) break;
+}
+
+// If no valid move found, just return the first token (move will be rejected later)
+if (validToken === null) {
+  validToken = unfinishedTokens[0];
+  validDice = diceOptions[0];
+}
+
+console.log(`Fallback - Default: Token ${validToken + 1} with dice ${validDice}`);
+return { tokenIndex: validToken, chosenDice: validDice };
   }
 
   /**
@@ -1034,7 +1089,7 @@ class LudoGame {
         const currentPos = this.playerPositions[playerId][tokenIndex];
         const newPos = currentPos + dice;
 
-        if (newPos >= this.finalPosition) {
+        if (newPos === this.finalPosition) {
           console.log(
             `Priority 1 - Promotion: Token ${tokenIndex + 1} with dice ${dice}`
           );
