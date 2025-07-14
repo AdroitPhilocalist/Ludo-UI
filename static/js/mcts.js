@@ -436,10 +436,6 @@ export class MCTSAlgorithm {
     }
 }
 
-/**
- * MCTS Configuration Factory
- * Creates different MCTS configurations for various difficulty levels
- */
 export class MCTSConfig {
     static createEasyConfig() {
         return {
@@ -477,8 +473,6 @@ export class MCTSConfig {
         };
     }
 }
-
-// Export default for easy importing
 export default {
     MCTSNode,
     MCTSAlgorithm,
