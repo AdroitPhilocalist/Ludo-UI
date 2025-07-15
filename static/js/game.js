@@ -1736,7 +1736,7 @@ showFinishBonusNotification(playerId, bonusPoints) {
       }
     } else {
       // Existing predictable strategy logic
-      
+      const availableDice = [...allDiceValues];
       let tokenIndex = this.selectTokenPredictable(playerId, diceValue, availableDice);
       usedValues.push(diceValue);
 
